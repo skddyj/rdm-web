@@ -23,10 +23,6 @@ $ cd rdm-web/
 $ mvn clean install -U
 $ cd rdm-web/target 
 $ java -jar rdm-web-0.0.1-SNAPSHOT.jar
-
-$ git init
-$ npm install
-$ npm start         # visit http://localhost:8000
 ```
 
 ### FRONT-End
