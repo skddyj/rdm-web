@@ -1,0 +1,104 @@
+server:
+  port: 8090
+mybatis:
+  configLocation: classpath:/mybatis/mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml,classpath:mssqlmapper/*.xml
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*' # http://localhost:8670/actuator/beans
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+    shutdown:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:sqlite:database/sqlite.db
+    username: root
+    password: 123456
+    driverClassName: org.sqlite.JDBC
+    druid:
+      initialSize: 5 # 连接池初始大小
+      minIdle: 5 # 最小
+      maxActive: 20 # 最大
+      maxWait: 10000 # 等待超时
+      minEvictableIdleTimeMillis: 300000 # 连接在池中最小生存时间 ms
+      timeBetweenEvictionRunsMillis: 60000 # 间隔多久才进行一次检测需要关闭的空闲连接 ms
+      validationQuery: SELECT 'X' # 连接池验证连接sql
+  h2:
+    console:
+      path: /h2
+      enabled: true
+  props:
+    sql:
+      show: true
+
+  aop: # 默认不需要配置 只要引入了aop相关的包 spring会自动开启aop
+    auto: true
+    proxy-target-class: true # false：java实现 true：cglib实现
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    consumer:
+      enable-auto-commit: true
+      group-id: kafka
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      concurrency: 3
+  redis: # docker run -p 6379:6379 -v /redis-data:/data --name redis -d redis redis-server --appendonly yes --requirepass Alex@1016
+    database: 0
+    host: 47.103.220.20
+    password: Alex@1016
+    port: 6379
+    timeout: 500
+    lettuce:
+      pool:
+        # 连接池中的最大空闲连接 默认8
+        max-idle: 1
+        # 连接池中的最小空闲连接 默认0
+        min-idle: 0
+        # 连接池最大连接数 默认8 ，负数表示没有限制
+        max-active: 2
+        # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认-1
+        max-wait: 5000
+  rabbitmq:
+    # host: 127.0.0.1
+    host: 47.103.220.20
+    port: 5672
+    username: testuser
+    password: testuser
+    virtualHost: test
+    publisher-returns: true
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual
+    publisher-confirm-type: simple
+idworker:
+  workerId: 0
+user:
+  name: alex
+  age: 25
+  birthday: 2020-04-27 02:04:27
+  ids: 1,2,3,4

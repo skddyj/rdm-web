@@ -1,0 +1,79 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+.mvn/
+mvnw
+mvnw.cmd
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+
+
+### web ###
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+**/node_modules
+# roadhog-api-doc ignore
+web/src/utils/request-temp.js
+web/_roadhog-api-doc
+
+# production
+web/dist
+web/.vscode
+
+# misc
+web/.DS_Store
+web/npm-debug.log*
+web/yarn-error.log
+
+web/coverage
+web/.idea
+web/yarn.lock
+web/package-lock.json
+web/*bak
+web/.vscode
+
+# visual studio code
+web/.history
+web/*.log
+web/functions/*
+web/.temp/**
+
+# umi
+web/.umi
+web/.umi-production
+
+# screenshot
+web/screenshot
+web/.firebase
+web/.eslintcache
+
+web/build

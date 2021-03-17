@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codeoffice.mapper.RedisConnectionMapper">
+    <resultMap id="BaseResultMap" type="com.codeoffice.entity.RedisConnection">
+        <id column="ID" jdbcType="BIGINT" property="id"/>
+        <result column="NAME" jdbcType="VARCHAR" property="name"/>
+        <result column="HOST" jdbcType="VARCHAR" property="host"/>
+        <result column="PORT" jdbcType="INTEGER" property="port"/>
+        <result column="PASSWORD" jdbcType="VARCHAR" property="password"/>
+        <result column="USERNAME" jdbcType="VARCHAR" property="username"/>
+        <result column="CREATE_TIME" jdbcType="VARCHAR" property="createTime"/>
+        <result column="UPDATE_TIME" jdbcType="VARCHAR" property="updateTime"/>
+        <result column="DESC" jdbcType="VARCHAR" property="desc"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        ID, NAME, HOST, PORT, PASSWORD, USERNAME, CREATE_TIME, UPDATE_TIME,
+        DESC
+    </sql>
+    <select id="queryAllList"
+            resultType="com.codeoffice.entity.RedisConnection">
+        select
+        <include refid="Base_Column_List"/>
+        from t_redis_connection
+    </select>
+    <select id="queryList" parameterType="com.codeoffice.request.RedisConnectionQueryRequest"
+            resultType="com.codeoffice.entity.RedisConnection">
+        select
+        <include refid="Base_Column_List"/>
+        from t_redis_connection
+        <if test="name != null and name != ''">
+            <bind name="name" value=" '%' + _parameter.getName() + '%' "></bind>
+            name LIKE #{name}
+        </if>
+        <if test="host != null and host != ''">
+            <bind name="host" value=" '%' + _parameter.getHost() + '%' "></bind>
+            AND host LIKE #{host}
+        </if>
+        <if test="port != null">
+            <bind name="port" value=" '%' + _parameter.getPort() + '%' "></bind>
+            AND port = #{port}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_redis_connection
+        where ID = #{id}
+    </select>
+    <delete id="batchDeleteByPrimaryKey" parameterType="com.codeoffice.request.RedisConnectionDeleteRequest">
+        delete
+        from t_redis_connection
+        where ID in
+        <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_redis_connection
+        where ID = #{id}
+    </delete>
+    <insert id="insert" parameterType="com.codeoffice.entity.RedisConnection">
+        insert into t_redis_connection (ID, NAME, HOST,
+                                        PORT, PASSWORD, USERNAME,
+                                        CREATE_TIME, UPDATE_TIME, DESC)
+        values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{host,jdbcType=VARCHAR},
+                #{port,jdbcType=INTEGER}, #{password,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
+                #{createTime,jdbcType=VARCHAR}, #{updateTime,jdbcType=VARCHAR}, #{desc,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.codeoffice.entity.RedisConnection">
+        insert into t_redis_connection
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                ID,
+            </if>
+            <if test="name != null">
+                NAME,
+            </if>
+            <if test="host != null">
+                HOST,
+            </if>
+            <if test="port != null">
+                PORT,
+            </if>
+            <if test="password != null">
+                PASSWORD,
+            </if>
+            <if test="username != null">
+                USERNAME,
+            </if>
+            <if test="createTime != null">
+                CREATE_TIME,
+            </if>
+            <if test="updateTime != null">
+                UPDATE_TIME,
+            </if>
+            <if test="desc != null">
+                DESC,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="host != null">
+                #{host,jdbcType=VARCHAR},
+            </if>
+            <if test="port != null">
+                #{port,jdbcType=INTEGER},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=VARCHAR},
+            </if>
+            <if test="desc != null">
+                #{desc,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.codeoffice.entity.RedisConnection">
+        update t_redis_connection
+        <set>
+            <if test="name != null">
+                NAME = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="host != null">
+                HOST = #{host,jdbcType=VARCHAR},
+            </if>
+            <if test="port != null">
+                PORT = #{port,jdbcType=INTEGER},
+            </if>
+            <if test="password != null">
+                PASSWORD = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                USERNAME = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                CREATE_TIME = #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                UPDATE_TIME = #{updateTime,jdbcType=VARCHAR},
+            </if>
+            <if test="desc != null">
+                DESC = #{desc,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where ID = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.codeoffice.entity.RedisConnection">
+        update t_redis_connection
+        set NAME        = #{name,jdbcType=VARCHAR},
+            HOST        = #{host,jdbcType=VARCHAR},
+            PORT        = #{port,jdbcType=INTEGER},
+            PASSWORD    = #{password,jdbcType=VARCHAR},
+            USERNAME    = #{username,jdbcType=VARCHAR},
+            CREATE_TIME = #{createTime,jdbcType=VARCHAR},
+            UPDATE_TIME = #{updateTime,jdbcType=VARCHAR},
+            DESC        = #{desc,jdbcType=VARCHAR}
+        where ID = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>
