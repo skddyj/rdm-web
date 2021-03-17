@@ -1,4 +1,4 @@
-English | [简体中文](./README.zh-CN.md) | [Русский](./README.ru-RU.md) | [Türkçe](./README.tr-TR.md) | [日本語](./README.ja-JP.md) | [Français](./README.fr-FR.md) | [Português](./README.pt-BR.md) | [العربية](./README.ar-DZ.md)
+English | [简体中文](./README.zh-CN.md)
 
 <h1 align="center">RDM-Web</h1>
 
@@ -14,78 +14,17 @@ English | [简体中文](./README.zh-CN.md) | [Русский](./README.ru-RU.md
 
 </div>
 
-- Preview: http://preview.pro.ant.design
-- Home Page: http://pro.ant.design
-- Documentation: http://pro.ant.design/docs/getting-started
-- ChangeLog: http://pro.ant.design/docs/changelog
-- FAQ: http://pro.ant.design/docs/faq
-- Mirror Site in China: http://ant-design-pro.gitee.io
-
-## 5.0 is ready for trial! 🎉🎉🎉
-
-[Try Ant Design Pro 5.0.0](https://beta-pro.ant.design/docs/upgrade-v5-cn)
-
-## Translation Recruitment :loudspeaker:
-
-We need your help: https://github.com/ant-design/ant-design-pro/issues/120
-
-## Features
-
-- :bulb: **TypeScript**: A language for application-scale JavaScript
-- :scroll: **Blocks**: Build page with block template
-- :gem: **Neat Design**: Follow [Ant Design specification](http://ant.design/)
-- :triangular_ruler: **Common Templates**: Typical templates for enterprise applications
-- :rocket: **State of The Art Development**: Newest development stack of React/umi/dva/antd
-- :iphone: **Responsive**: Designed for variable screen sizes
-- :art: **Theming**: Customizable theme with simple config
-- :globe_with_meridians: **International**: Built-in i18n solution
-- :gear: **Best Practices**: Solid workflow to make your code healthy
-- :1234: **Mock development**: Easy to use mock development solution
-- :white_check_mark: **UI Test**: Fly safely with unit and e2e tests
-
-## Templates
-
-```
-- Dashboard
-  - Analytic
-  - Monitor
-  - Workspace
-- Form
-  - Basic Form
-  - Step Form
-  - Advanced From
-- List
-  - Standard Table
-  - Standard List
-  - Card List
-  - Search List (Project/Applications/Article)
-- Profile
-  - Simple Profile
-  - Advanced Profile
-- Account
-  - Account Center
-  - Account Settings
-- Result
-  - Success
-  - Failed
-- Exception
-  - 403
-  - 404
-  - 500
-- User
-  - Login
-  - Register
-  - Register Result
-```
+- Preview: http://codeoffice.tech
 
 ## Usage
 
-### Use bash
+### Back-End
 
 ```bash
-$ mkdir <your-project-name>
-$ cd <your-project-name>
-$ yarn create umi  # or npm create umi
+$ cd rdm-web/
+$ mvn clean install -U
+$ cd rdm-web/target 
+$ java -jar rdm-web-0.0.1-SNAPSHOT.jar
 
 # Choose ant-design-pro:
  Select the boilerplate type (Use arrow keys)
@@ -96,6 +35,14 @@ $ yarn create umi  # or npm create umi
   plugin          - Create a umi plugin.
 
 $ git init
+$ npm install
+$ npm start         # visit http://localhost:8000
+```
+
+### FRONT-End
+
+```bash
+$ cd rdm-web/web
 $ npm install
 $ npm start         # visit http://localhost:8000
 ```

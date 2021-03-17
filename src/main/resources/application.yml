@@ -12,7 +12,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*' # http://localhost:8670/actuator/beans
+        include: '*'
   endpoint:
     health:
       show-details: always
@@ -52,24 +52,11 @@ spring:
   aop: # 默认不需要配置 只要引入了aop相关的包 spring会自动开启aop
     auto: true
     proxy-target-class: true # false：java实现 true：cglib实现
-  kafka:
-    bootstrap-servers: 127.0.0.1:9092
-    consumer:
-      enable-auto-commit: true
-      group-id: kafka
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    listener:
-      concurrency: 3
-  redis: # docker run -p 6379:6379 -v /redis-data:/data --name redis -d redis redis-server --appendonly yes --requirepass Alex@1016
+  redis:
     database: 0
-    host: 47.103.220.20
+    host: 127.0.0.1
     password: Alex@1016
-    port: 6379
+    port: 6380
     timeout: 500
     lettuce:
       pool:
@@ -81,20 +68,6 @@ spring:
         max-active: 2
         # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认-1
         max-wait: 5000
-  rabbitmq:
-    # host: 127.0.0.1
-    host: 47.103.220.20
-    port: 5672
-    username: testuser
-    password: testuser
-    virtualHost: test
-    publisher-returns: true
-    listener:
-      direct:
-        acknowledge-mode: manual
-      simple:
-        acknowledge-mode: manual
-    publisher-confirm-type: simple
 idworker:
   workerId: 0
 user:
