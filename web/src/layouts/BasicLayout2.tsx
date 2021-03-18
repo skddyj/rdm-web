@@ -7,9 +7,9 @@ import ProLayout, { DefaultFooter } from '@ant-design/pro-layout';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Dispatch } from 'umi';
-import { Link, useIntl, connect, history } from 'umi';
+import { Link, useIntl, connect, history, FormattedMessage } from 'umi';
 import { GithubOutlined, SoundTwoTone } from '@ant-design/icons';
-import { Result, Button, Divider, Layout, Menu, Tree, message, Select, Card, Input } from 'antd';
+import { Result, Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form } from 'antd';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import type { ConnectState } from '@/models/connect';
@@ -30,6 +30,7 @@ import {
 import { queryAllRedisConnection, queryDatabaseCount, queryDatabaseKeys, updateRedisConnection, addRedisConnection, removeRedisConnection, testRedisConnection } from './service';
 
 const { TextArea } = Input;
+const { DirectoryTree } = Tree;
 
 const noMatch = (
   <Result
@@ -95,7 +96,7 @@ const getAllRedisConnection = async () => {
   try {
     return await queryAllRedisConnection().then((response) => {
       if (response && response.success) {
-        return response.result.map((e) => { return { title: e.name, key: `${e.id}`, level: 1, connectionId: e.id } })
+        return response.result.map((e) => { return { title: e.name, key: `${e.id}`, level: 1, connectionId: e.id, isLeaf: false, icon: < DatabaseOutlined /> } })
       }
     });
   } catch (error) {
@@ -142,11 +143,13 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
     },
   } = props;
 
+  const [form] = Form.useForm();
+
   /** 所有redis连接数据*/
   const [redisConnectionData, setRedisConnectionData] = useState<[]>([]);
 
   /** 所有redis连接数据*/
-  const [databaseCount, setDatabaseCount] = useState<[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<[]>([]);
 
   const onSelect = (selectedKeys: React.Key[], info: any) => {
     console.log('selected', selectedKeys, info);
@@ -182,14 +185,17 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
   };
 
   const updateRedisConnectionData = (list, key, children: []) => {
+    console.log("key", key)
     return list.map(node => {
       if (node.key === key) {
+        console.log("111")
         return {
           ...node,
           children,
         };
       }
       if (node.children) {
+        console.log("222")
         return {
           ...node,
           children: updateRedisConnectionData(node.children, key, children),
@@ -203,14 +209,14 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
     const treeNodeKey = key;
     console.log(treeNodeKey + ':' + level + ':' + connectionId + ':' + databaseId)
     return new Promise<void>(resolve => {
-      if (children) {
+      if (children && children.length > 0) {
         resolve();
         return;
       }
       if (level === 1) {
         console.log("连接展开")
         getDatabaseCount(connectionId).then((databaseCount) => {
-          const databaseData = Array.from({ length: databaseCount }, (k, v) => { return { title: `database ${v}`, key: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v } })
+          const databaseData = Array.from({ length: databaseCount }, (k, v) => { return { title: `database ${v}`, key: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined /> } })
           setRedisConnectionData(origin =>
             updateRedisConnectionData(origin, treeNodeKey, databaseData),
           );
@@ -222,11 +228,11 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
         const a = getDatabaseKeys(connectionId, databaseId);
 
         getDatabaseKeys(connectionId, databaseId).then((redisKeys) => {
-
           console.log("redisKeys", redisKeys)
           const redisKeyData = redisKeys.map((redisKey) => {
-            return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, level: 3, connectionId, databaseId, redisKey, isLeaf: true }
+            return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
           });
+          console.log("redisKeyData", redisKeyData.length)
           setRedisConnectionData(origin =>
             updateRedisConnectionData(origin, treeNodeKey, redisKeyData),
           );
@@ -247,11 +253,45 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
 
   const { formatMessage } = useIntl();
 
-  const onExpand = (expandedKeysValue: React.Key[]) => {
-    console.log('onExpand', expandedKeysValue);
+  const onExpand = (expandedKeys, { expanded: bool, node }) => {
+    //this.onLoadData()
+    const { key, titlle, children, level, connectionId, databaseId } = node;
+    const treeNodeKey = key;
+    if (bool) {
+      if (children && children.length > 0) {
+        setExpandedKeys(expandedKeys);
+        return;
+      }
+      if (level === 1) {
+        console.log("连接展开")
+        getDatabaseCount(connectionId).then((databaseCount) => {
+          const databaseData = Array.from({ length: databaseCount }, (k, v) => { return { title: `database ${v}`, key: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined /> } })
+          setRedisConnectionData(origin =>
+            updateRedisConnectionData(origin, treeNodeKey, databaseData),
+          );
+          setExpandedKeys(expandedKeys);
+        })
+      }
+      else if (level === 2) {
+        console.log("数据库展开")
+        getDatabaseKeys(connectionId, databaseId).then((redisKeys) => {
+          console.log("redisKeys", redisKeys)
+          const redisKeyData = redisKeys.map((redisKey) => {
+            return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
+          });
+          console.log("redisKeyData", redisKeyData.length)
+          setRedisConnectionData(origin =>
+            updateRedisConnectionData(origin, treeNodeKey, redisKeyData),
+          );
+          setExpandedKeys(expandedKeys);
+        })
+      }
+    } else {
+      setExpandedKeys(expandedKeys);
+    }
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
-    // setExpandedKeys(expandedKeysValue);
+
     //setAutoExpandParent(false);
   };
 
@@ -284,21 +324,13 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
           <div style={{ marginTop: '30px' }}>
             <Tree
               showLine
-              loadData={onLoadData}
+              showIcon
+              //loadData={onLoadData}
               switcherIcon={<CaretDownOutlined />}
               onExpand={onExpand}
               onSelect={onSelect}
+              expandedKeys={expandedKeys}
               treeData={redisConnectionData}
-              titleRender={(titleNode) => {
-                console.log("titleNode", titleNode)
-                if (titleNode.isLeaf) {
-                  return (<span style={{ marginLeft: -5 }}>{titleNode.title}</span>)
-                }
-                return (<span style={{ marginLeft: -5 }}>
-                  <DatabaseOutlined />
-                  <span style={{ marginLeft: 3 }}>{titleNode.title}</span>
-                </span>)
-              }}
             />
           </div>
         </Card>
@@ -309,10 +341,11 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
           Header
           </Card>
         <Content style={{ height: '80%' }}>
-          <Card style={{ height: '100%' }}>
-            <TextArea style={{ height: '100%' }}>
-
-            </TextArea>
+          <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }}>
+            <div style={{ height: '10%' }}>
+              <Button type="primary">保存</Button>
+            </div>
+            <TextArea value={'1111'} style={{ height: '90%' }} />
           </Card>
         </Content>
         {/* <Footer style={{ textAlign: 'center' }}> */}
