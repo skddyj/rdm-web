@@ -39,6 +39,20 @@ public class RedisDataServiceImpl implements RedisDataService {
     @Override
     public RestResponse keys(RedisDataQueryRequest request) {
         if (request.getRedisConnectionId() == null || request.getDatabaseId() == null) {
+            return RestResponse.error(RestCode.ILLEGAL_PARAMS);
+        }
+        List<String> keys = redisOperationUtil.keys(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
+        if (CollectionUtils.isEmpty(keys)) {
+            return RestResponse.success(Lists.newArrayList());
+        }
+        System.out.println(keys);
+        return RestResponse.success(keys);
+    }
+
+
+    @Override
+    public RestResponse keysPages(RedisDataQueryRequest request) {
+        if (request.getRedisConnectionId() == null || request.getDatabaseId() == null) {
             return RestResponse.success(new PageResponse());
         }
         List allKeys = redisOperationUtil.keys(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());

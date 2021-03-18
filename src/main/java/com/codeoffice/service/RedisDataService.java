@@ -13,5 +13,7 @@ public interface RedisDataService {
 
     RestResponse keys(RedisDataQueryRequest request);
 
+    RestResponse keysPages(RedisDataQueryRequest request);
+
     RestResponse mget(RedisDataQueryRequest request);
 }

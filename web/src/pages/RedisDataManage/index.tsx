@@ -214,6 +214,17 @@ const TableList: React.FC = (props) => {
       dataIndex: 'option',
       valueType: 'option',
       render: (dom, record) => [
+        // <a
+        //   key="show"
+        //   onClick={() => {
+        //     setCurrentRow(record);
+        //     form.setFieldsValue(record);
+        //     setModalType(ModalType.Update)
+        //     setShowDetail(false)
+        //     handleModalVisible(true);
+        //   }}>
+        //   <FormattedMessage id="pages.searchTable.subscribeAlert" defaultMessage="查看" />
+        // </a>,
         <a
           key="config"
           onClick={() => {
@@ -281,15 +292,6 @@ const TableList: React.FC = (props) => {
               <FormattedMessage id="pages.searchTable.chosen" defaultMessage="已选择" />{' '}
               <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
               <FormattedMessage id="pages.searchTable.item" defaultMessage="项" />
-              &nbsp;&nbsp;
-              <span>
-                <FormattedMessage
-                  id="pages.searchTable.totalServiceCalls"
-                  defaultMessage="服务调用次数总计"
-                />{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo, 0)}{' '}
-                <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万" />
-              </span>
             </div>
           }
         >
@@ -310,7 +312,7 @@ const TableList: React.FC = (props) => {
       <Modal
         title={intl.formatMessage({
           id: 'pages.redisConnectionManage.createForm.newRedisConnection',
-          defaultMessage: '新建Redis连接',
+          defaultMessage: '查看',
         })}
         width="600px"
         destroyOnClose
@@ -393,21 +395,21 @@ const TableList: React.FC = (props) => {
           name="form_in_modal"
         >
           <Form.Item
-            name="name"
-            label="连接名称"
+            name="key"
+            label="Key"
             rules={[
               {
                 required: true,
                 message: (
                   <FormattedMessage
-                    id="pages.redisConnectionManage.name"
+                    id="pages.redisDataManage.key"
                     defaultMessage="连接名称为必填项"
                   />
                 ),
               },
             ]}
           >
-            <Input />
+            <Input disabled />
           </Form.Item >
           <Form.Item
             name="host"
