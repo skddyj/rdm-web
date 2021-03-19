@@ -1,5 +1,6 @@
 package com.codeoffice.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.codeoffice.common.PageResponse;
 import com.codeoffice.common.RestCode;
 import com.codeoffice.common.RestResponse;
@@ -20,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -72,6 +74,7 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public RestResponse add(RedisConnectionAddRequest request) {
         RedisConnection redisConnection = BeanGenerator.generate(request, RedisConnection.class);
         redisConnection.setId(IdWorkerUtils.nextId());
@@ -89,6 +92,7 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public RestResponse update(RedisConnectionUpdateRequest request) {
         RedisConnection redisConnection = BeanGenerator.generate(request, RedisConnection.class);
         redisConnection.setUpdateTime(dateTimeFormatter.format(LocalDateTime.now()));
@@ -104,6 +108,7 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public RestResponse delete(Long id) {
         redisConnectionMapper.deleteByPrimaryKey(id);
         redisClientUtil.removeRedisClientMap(id);
@@ -112,10 +117,12 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public RestResponse batchDelete(RedisConnectionDeleteRequest request) {
         if (CollectionUtils.isEmpty(request.getIds())) {
             return RestResponse.error(RestCode.DELETE_IDS_IS_NULL);
         }
+        System.out.println(JSON.toJSONString(request.getIds()));
         redisConnectionMapper.batchDeleteByPrimaryKey(request);
         request.getIds().forEach(id -> redisClientUtil.removeRedisClientMap(id));
         redisClientUtil.printRedisClientMap();

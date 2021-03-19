@@ -16,6 +16,23 @@ export async function queryDatabaseKeys(params) {
   })
 }
 
+export async function queryKeyValue(params) {
+  return request('/api/redisData/get', {
+    params,
+  })
+}
+
+export async function setKeyValue(params) {
+  console.log('params', params)
+  return request('/api/redisData/set', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+
 export async function addRedisConnection(params: RedisConnectionParams) {
   return request('/api/redisConnection', {
     method: 'POST',

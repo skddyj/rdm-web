@@ -7,6 +7,7 @@ import com.codeoffice.common.RestCode;
 import com.codeoffice.common.RestResponse;
 import com.codeoffice.mapper.RedisConnectionMapper;
 import com.codeoffice.request.RedisDataQueryRequest;
+import com.codeoffice.request.RedisDataUpdateRequest;
 import com.codeoffice.service.RedisDataService;
 import com.codeoffice.utils.RedisOperationUtil;
 import com.google.common.collect.Lists;
@@ -47,6 +48,24 @@ public class RedisDataServiceImpl implements RedisDataService {
         }
         System.out.println(keys);
         return RestResponse.success(keys);
+    }
+
+    @Override
+    public RestResponse get(RedisDataQueryRequest request) {
+        if (request.getRedisConnectionId() == null || request.getDatabaseId() == null) {
+            return RestResponse.error(RestCode.ILLEGAL_PARAMS);
+        }
+        String value = redisOperationUtil.get(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
+        return RestResponse.success(value);
+    }
+
+    @Override
+    public RestResponse set(RedisDataUpdateRequest request) {
+        if (request.getRedisConnectionId() == null || request.getDatabaseId() == null || request.getKey() == null) {
+            return RestResponse.error(RestCode.ILLEGAL_PARAMS);
+        }
+        String value = redisOperationUtil.set(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), request.getValue());
+        return RestResponse.success(value);
     }
 
 

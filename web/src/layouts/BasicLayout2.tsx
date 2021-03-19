@@ -9,7 +9,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch } from 'umi';
 import { Link, useIntl, connect, history, FormattedMessage } from 'umi';
 import { GithubOutlined, SoundTwoTone } from '@ant-design/icons';
-import { Result, Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form } from 'antd';
+import { Result, Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb } from 'antd';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import type { ConnectState } from '@/models/connect';
@@ -19,31 +19,33 @@ import logo from '../assets/logo.svg';
 import DraggleLayout from './DraggleLayout'
 const { Header, Content, Footer, Sider } = Layout;
 import {
+  EditOutlined,
   CaretDownOutlined,
   DatabaseOutlined,
-  DownOutlined,
-  FrownOutlined,
-  SmileOutlined,
-  MehOutlined,
-  KeyOutlined,
+  FileAddOutlined,
+  RedoOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { queryAllRedisConnection, queryDatabaseCount, queryDatabaseKeys, updateRedisConnection, addRedisConnection, removeRedisConnection, testRedisConnection } from './service';
+import {
+  queryAllRedisConnection, queryDatabaseCount, queryDatabaseKeys,
+  queryKeyValue, updateRedisConnection, addRedisConnection,
+  removeRedisConnection, testRedisConnection,
+  setKeyValue
+} from './service';
 
-const { TextArea } = Input;
+const { TextArea, Search } = Input;
 const { DirectoryTree } = Tree;
+const { confirm } = Modal;
 
-const noMatch = (
-  <Result
-    status={403}
-    title="403"
-    subTitle="Sorry, you are not authorized to access this page."
-    extra={
-      <Button type="primary">
-        <Link to="/user/login">Go Login</Link>
-      </Button>
-    }
-  />
-);
+
+enum ModalType { Create, Update };
+
+const layout = {
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
+};
+
 export type BasicLayoutProps = {
   breadcrumbNameMap: Record<string, MenuDataItem>;
   route: ProLayoutProps['route'] & {
@@ -66,37 +68,15 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
 
-const defaultFooterDom = (
-  <DefaultFooter
-    copyright={`${new Date().getFullYear()} Developed By Dongyanjun`}
-    links={[
-      {
-        key: 'Ant Design Pro',
-        title: 'Ant Design Pro',
-        href: 'https://pro.ant.design',
-        blankTarget: true,
-      },
-      {
-        key: 'github',
-        title: <GithubOutlined />,
-        href: 'https://github.com/ant-design/ant-design-pro',
-        blankTarget: true,
-      },
-      {
-        key: 'Ant Design',
-        title: 'Ant Design',
-        href: 'https://ant.design',
-        blankTarget: true,
-      },
-    ]}
-  />
-);
-
 const getAllRedisConnection = async () => {
   try {
     return await queryAllRedisConnection().then((response) => {
       if (response && response.success) {
-        return response.result.map((e) => { return { title: e.name, key: `${e.id}`, level: 1, connectionId: e.id, isLeaf: false, icon: < DatabaseOutlined /> } })
+        return response.result.map((e) => {
+          return {
+            title: e.name, key: `${e.id}`, level: 1, connectionId: e.id, isLeaf: false, redisConnectionVo: e, icon: < DatabaseOutlined />
+          }
+        })
       }
     });
   } catch (error) {
@@ -128,8 +108,136 @@ const getDatabaseKeys = async (redisConnectionId, databaseId) => {
       message.error(response.message)
     });
   } catch (error) {
+    message.error('查询Keys失败');
+    return 0;
+  }
+};
+
+const getKeyValue = async (redisConnectionId, databaseId, key) => {
+  try {
+    return await queryKeyValue({ redisConnectionId, databaseId, key }).then((response) => {
+      if (response && response.success) {
+        console.log(response);
+        return response.result;
+      }
+      message.error(response.message)
+    });
+  } catch (error) {
     message.error('查询Key失败');
     return 0;
+  }
+};
+
+/**
+ * 添加连接
+ */
+const handleAdd = async (fields) => {
+  const hide = message.loading('正在添加');
+  try {
+    return await addRedisConnection({ ...fields }).then((response) => {
+      console.log("response", response)
+      if (response && response.success) {
+        hide();
+        message.success('添加成功');
+        return true;
+      }
+      throw new Error(response.message);
+    });
+  } catch (error) {
+    hide();
+    message.error(`添加失败，请重试，失败原因：${error}`);
+    return false;
+  }
+};
+
+
+/**
+ * 修改连接
+ */
+const handleUpdate = async (fields) => {
+  const hide = message.loading('正在修改');
+  try {
+    return await updateRedisConnection({
+      ...fields
+    }).then((response) => {
+      if (response && response.success) {
+        hide();
+        message.success('修改成功');
+        return true;
+      }
+      throw new Error(response.message);
+    });
+  } catch (error) {
+    hide();
+    message.error(`修改失败，请重试，失败原因：${error}`);
+    return false;
+  }
+};
+
+/**
+ * 删除连接
+ */
+const handleRemove = async (selectedRows) => {
+  const hide = message.loading('正在删除');
+  if (!selectedRows) return true;
+  try {
+    const keys = selectedRows.map((row) => row.connectionId)
+    console.log("keys", keys)
+    return await removeRedisConnection(keys).then((response) => {
+      console.log("删除response", response)
+      if (response && response.success) {
+        hide();
+        message.success('删除成功');
+        return true;
+      }
+      throw new Error(response.message);
+    });
+  } catch (error) {
+    hide();
+    message.error(`删除失败，请重试，失败原因：${error}`);
+    return false;
+  }
+};
+
+/**
+ * 测试连接
+ */
+const handleTestConnection = async (fields) => {
+  const hide = message.loading('正在测试连接');
+  try {
+    await testRedisConnection(fields).then((response) => {
+      if (response && response.success) {
+        hide();
+        message.success('连接成功');
+        return true;
+      }
+      throw new Error(response.message);
+    });
+  } catch (error) {
+    hide();
+    message.error('连接失败，请检查配置');
+    return false;
+  }
+};
+
+/**
+ * 测试连接
+ */
+const handleSetRedisValue = async (fields) => {
+  const hide = message.loading('正在更新');
+  try {
+    return await setKeyValue(fields).then((response) => {
+      if (response && response.success) {
+        hide();
+        message.success('更新成功');
+        return true;
+      }
+      throw new Error(response.message);
+    });
+  } catch (error) {
+    hide();
+    message.error(`删除失败，请重试，失败原因：${error}`);
+    return false;
   }
 };
 
@@ -143,17 +251,32 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
     },
   } = props;
 
-  const [form] = Form.useForm();
+  const form = Form.useForm()[0];
+
+  const textAreaForm = Form.useForm()[0];
 
   /** 所有redis连接数据*/
   const [redisConnectionData, setRedisConnectionData] = useState<[]>([]);
 
-  /** 所有redis连接数据*/
+  /** 展开折叠key*/
   const [expandedKeys, setExpandedKeys] = useState<[]>([]);
 
-  const onSelect = (selectedKeys: React.Key[], info: any) => {
-    console.log('selected', selectedKeys, info);
-  };
+  /** 所有redis连接数据*/
+  const [textareaValue, setTextareaValue] = useState<string>();
+
+  /** 新建Redis连接窗口的弹窗 */
+  const [connectionModalVisible, handleConnectionModalVisible] = useState<boolean>(false);
+  /** 新建窗口的弹窗 */
+  const [connectionModalType, setConnectionModalType] = useState<ModalType>(ModalType.Create);
+
+  /** 当前redisKey*/
+  const [currentRedisKey, setCurrentRedisKey] = useState();
+
+  /** 新建Redis连接窗口的弹窗 */
+  const [operationBar, setOperationBar] = useState();
+
+  const [currentRow, setCurrentRow] = useState();
+
 
   const menuDataRef = useRef<MenuDataItem[]>([]);
 
@@ -205,51 +328,71 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
     });
   }
 
-  const onLoadData = ({ key, titlle, children, level, connectionId, databaseId }) => {
-    const treeNodeKey = key;
-    console.log(treeNodeKey + ':' + level + ':' + connectionId + ':' + databaseId)
-    return new Promise<void>(resolve => {
-      if (children && children.length > 0) {
-        resolve();
-        return;
-      }
-      if (level === 1) {
-        console.log("连接展开")
-        getDatabaseCount(connectionId).then((databaseCount) => {
-          const databaseData = Array.from({ length: databaseCount }, (k, v) => { return { title: `database ${v}`, key: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined /> } })
-          setRedisConnectionData(origin =>
-            updateRedisConnectionData(origin, treeNodeKey, databaseData),
-          );
-          resolve();
-        })
-      }
-      else if (level === 2) {
-        console.log("数据库展开")
-        const a = getDatabaseKeys(connectionId, databaseId);
+  /**
+ * 测试连接
+ */
+  const onSaveClick = () => {
+    console.log('currentRow', currentRow);
+    const { connectionId, databaseId, redisKey } = currentRow;
+    const { textareaValue } = textAreaForm.getFieldsValue();
+    handleSetRedisValue({ redisConnectionId: connectionId, databaseId, key: redisKey, value: textareaValue })
 
-        getDatabaseKeys(connectionId, databaseId).then((redisKeys) => {
-          console.log("redisKeys", redisKeys)
-          const redisKeyData = redisKeys.map((redisKey) => {
-            return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
-          });
-          console.log("redisKeyData", redisKeyData.length)
-          setRedisConnectionData(origin =>
-            updateRedisConnectionData(origin, treeNodeKey, redisKeyData),
-          );
-          resolve();
-        })
+  };
+
+  // const onLoadData = ({ key, titlle, children, level, connectionId, databaseId }) => {
+  //   const treeNodeKey = key;
+  //   console.log(treeNodeKey + ':' + level + ':' + connectionId + ':' + databaseId)
+  //   return new Promise<void>(resolve => {
+  //     if (children && children.length > 0) {
+  //       resolve();
+  //       return;
+  //     }
+  //     if (level === 1) {
+  //       console.log("连接展开")
+  //       getDatabaseCount(connectionId).then((databaseCount) => {
+  //         const databaseData = Array.from({ length: databaseCount }, (k, v) => { return { title: `database ${v}`, key: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined /> } })
+  //         setRedisConnectionData(origin =>
+  //           updateRedisConnectionData(origin, treeNodeKey, databaseData),
+  //         );
+  //         resolve();
+  //       })
+  //     }
+  //     else if (level === 2) {
+  //       console.log("数据库展开")
+  //       getDatabaseKeys(connectionId, databaseId).then((redisKeys) => {
+  //         console.log("redisKeys", redisKeys)
+  //         const redisKeyData = redisKeys.map((redisKey) => {
+  //           return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
+  //         });
+  //         console.log("redisKeyData", redisKeyData.length)
+  //         setRedisConnectionData(origin =>
+  //           updateRedisConnectionData(origin, treeNodeKey, redisKeyData),
+  //         );
+  //         resolve();
+  //       })
+  //     }
+  //   });
+  // }
+
+  const onSelect = (selectedKeys, { selected, selectedNodes, node, event }) => {
+    if (selected) {
+      setCurrentRow(node);
+      if (node.level === 3) {
+        console.log("get", node)
+        setCurrentRedisKey(node.redisKey)
+        keyValueGet(node.connectionId, node.databaseId, node.redisKey)
       }
-    });
+    } else {
+      setCurrentRow(undefined)
+    }
   }
 
-  // get children authority
-  const authorized = useMemo(
-    () =>
-      getMatchMenu(location.pathname || '/', menuDataRef.current).pop() || {
-        authority: undefined,
-      },
-    [location.pathname],
-  );
+  const keyValueGet = (connectionId, databaseId, redisKey,) => {
+    getKeyValue(connectionId, databaseId, redisKey,).then((value) => {
+      console.log(textAreaForm.getFieldsValue())
+      textAreaForm.setFieldsValue({ textareaValue: value });
+    })
+  };
 
   const { formatMessage } = useIntl();
 
@@ -258,10 +401,6 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
     const { key, titlle, children, level, connectionId, databaseId } = node;
     const treeNodeKey = key;
     if (bool) {
-      if (children && children.length > 0) {
-        setExpandedKeys(expandedKeys);
-        return;
-      }
       if (level === 1) {
         console.log("连接展开")
         getDatabaseCount(connectionId).then((databaseCount) => {
@@ -289,10 +428,26 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
     } else {
       setExpandedKeys(expandedKeys);
     }
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
+  };
 
-    //setAutoExpandParent(false);
+  const handleFold = (key) => {
+    const newExpandedKeys = [...expandedKeys].filter(e => !e.startsWith(key));
+    setExpandedKeys(newExpandedKeys)
+  }
+
+  const handleRefreshConnection = () => {
+    getAllRedisConnection().then((data) => {
+      console.log('handleRefreshConnection', data)
+      setRedisConnectionData(data)
+    })
+  }
+
+  /**
+  * 删除连接
+  */
+  const handleTextAreaValueChange = (e) => {
+    console.log(e)
+    // setTextareaValue(e.target.value);
   };
 
   return (
@@ -318,10 +473,58 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
         }}
       >
         <Card style={{ height: '100%' }}>
-          <Button type="primary" block>
+          <Button
+            type="primary"
+            block
+            onClick={() => {
+              setConnectionModalType(ModalType.Create)
+              handleConnectionModalVisible(true);
+            }}>
             添加Redis连接
           </Button>
-          <div style={{ marginTop: '30px' }}>
+          {currentRow && currentRow.level === 1 ? (
+            <Space size='small' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
+              <Search placeholder="请输入" enterButton />
+              <Button title='编辑'
+                onClick={() => {
+                  handleFold(currentRow.key)
+                  form.setFieldsValue(currentRow.redisConnectionVo);
+                  setConnectionModalType(ModalType.Update)
+                  handleConnectionModalVisible(true);
+                }}
+                type="primary" icon={<EditOutlined />}></Button>
+              <Button title='删除'
+                onClick={() => {
+                  confirm({
+                    title: '删除确认',
+                    icon: <ExclamationCircleOutlined />,
+                    content: '此操作不可恢复，确认删除吗 ？',
+                    onOk() {
+                      handleFold(currentRow.key)
+                      handleRemove([currentRow]).then((success) => {
+                        if (success) {
+                          handleRefreshConnection();
+                        }
+                      });
+                    },
+                    onCancel() {
+                    },
+                  });
+                }} type="primary" icon={<DeleteOutlined />}></Button>
+              <Button title='刷新' type="primary" icon={<RedoOutlined />}></Button>
+            </Space>) : (currentRow && currentRow.level === 2 ?
+              <Space size='small' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
+                <Search placeholder="请输入" enterButton />
+                <Button title='新增' type="primary" icon={<FileAddOutlined />} style={{ marginLeft: 10 }} ></Button>
+                <Button title='编辑' type="primary" icon={<EditOutlined />} style={{ marginLeft: 10 }} ></Button>
+                <Button title='删除' type="primary" icon={<DeleteOutlined />} style={{ marginLeft: 10 }}></Button>
+                <Button title='刷新' type="primary" icon={<RedoOutlined />} style={{ marginLeft: 10 }}></Button>
+              </Space> :
+              <Space size='small' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
+                <Search placeholder="请输入" enterButton />
+              </Space>
+          )}
+          <div style={{ marginTop: 10 }}>
             <Tree
               showLine
               showIcon
@@ -335,17 +538,52 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
           </div>
         </Card>
         {/* <Divider type='vertical' style={{ height: '100%' }} /> */}
-      </Sider>
+      </Sider >
       <Layout>
-        <Card style={{ height: '20%' }}>
-          Header
-          </Card>
-        <Content style={{ height: '80%' }}>
-          <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }}>
-            <div style={{ height: '10%' }}>
-              <Button type="primary">保存</Button>
+        <Card style={{ height: '15%' }} bordered={false}>
+          <Breadcrumb style={{ marginTop: 10 }}>
+            <Breadcrumb.Item>本地连接</Breadcrumb.Item>
+            <Breadcrumb.Item>
+              database 0
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>
+                key1
+            </Breadcrumb.Item>
+          </Breadcrumb>
+        </Card>
+        <Content style={{ height: '85%' }}>
+          <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }} bordered={false}>
+            <div style={{ height: '20%', float: 'left', width: '50%' }}>
+
+              <Form.Item
+                name="Key"
+                label='Key'
+              >
+                <Input value={currentRedisKey} style={{ width: '100%' }} />
+              </Form.Item>
             </div>
-            <TextArea value={'1111'} style={{ height: '90%' }} />
+            <div style={{ height: '20%', textAlign: 'right' }}>
+              <Space size='large'>
+                <Button type="primary" onClick={onSaveClick}>保存</Button>
+                <Button type="primary" >重命名</Button>
+                <Button type="primary" >删除</Button>
+                <Button type="primary" >刷新</Button>
+                <Button type="primary" >设置TTL</Button>
+              </Space>
+            </div>
+            <Form
+              form={textAreaForm}
+              style={{ height: '80%' }}
+              name="valueForm"
+            >
+              <Form.Item
+                name="textareaValue"
+                noStyle
+                rules={[{ required: true, message: 'Please input your username!' }]}
+              >
+                <TextArea style={{ height: '100%' }} onChange={handleTextAreaValueChange} />
+              </Form.Item>
+            </Form>
           </Card>
         </Content>
         {/* <Footer style={{ textAlign: 'center' }}> */}
@@ -354,6 +592,154 @@ const BasicLayout2: React.FC<BasicLayoutProps> = (props) => {
           </Card>
         {/* </Footer> */}
       </Layout>
+      <Modal
+        title={formatMessage({
+          id: connectionModalType === ModalType.Create ? 'pages.redisConnectionManage.createForm.newRedisConnection' : 'pages.redisConnectionManage.createForm.updateRedisConnection',
+          defaultMessage: connectionModalType === ModalType.Create ? '添加Redis连接' : '修改Redis连接',
+        })}
+        width="600px"
+        destroyOnClose
+        visible={connectionModalVisible}
+        footer={[
+          <Button key="testConnection" onClick={() => {
+            form
+              .validateFields()
+              .then(values => {
+                handleTestConnection(values);
+              })
+              .catch(info => {
+                console.log('Validate Failed:', info);
+              });
+          }}>
+            测试连接
+          </Button>,
+          <Button key="back" onClick={() => {
+            form.resetFields();
+            handleConnectionModalVisible(false);
+          }}>
+            取消
+          </Button>,
+          <Button key="submit" type="primary" onClick={() => {
+            form
+              .validateFields()
+              .then(values => {
+                console.log("values222", values)
+                form.resetFields();
+                if (connectionModalType === ModalType.Create) {
+                  handleAdd(values).then((success) => {
+                    console.log("success", success);
+                    if (success) {
+                      handleRefreshConnection();
+                      handleConnectionModalVisible(false);
+                    }
+                  });
+                } else if (connectionModalType === ModalType.Update) {
+                  handleUpdate({ id: currentRow?.id, ...values }).then((success) => {
+                    console.log("success", success);
+                    if (success) {
+                      handleRefreshConnection();
+                      handleConnectionModalVisible(false);
+                    }
+                  });
+                }
+              })
+              .catch(info => {
+                console.log('Validate Failed:', info);
+              });
+          }}>
+            确定
+          </Button>,
+        ]}
+        onCancel={() => {
+          form.resetFields();
+          handleConnectionModalVisible(false);
+        }}
+      >
+        <Form
+          {...layout}
+          layout="horizontal"
+          form={form}
+          name="form_in_modal"
+        >
+          <Form.Item
+            name="name"
+            label="连接名称"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.redisConnectionManage.name"
+                    defaultMessage="连接名称为必填项"
+                  />
+                ),
+              },
+            ]}
+          >
+            <Input placeholder='请输入连接名称'
+            // disabled={connectionModalType === ModalType.Update}
+            />
+          </Form.Item >
+          <Form.Item
+            name="host"
+            label="连接地址"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.redisConnectionManage.host"
+                    defaultMessage="连接地址为必填项"
+                  />
+                ),
+              },
+            ]}
+          >
+            <Input placeholder='请输入连接地址' />
+          </Form.Item>
+          <Form.Item
+            name="port"
+            label="连接端口"
+            initialValue={6379}
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.redisConnectionManage.port"
+                    defaultMessage="连接端口为必填项"
+                  />
+                ),
+              },
+            ]}
+          >
+            <InputNumber placeholder='请输入连接端口' style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="连接密码"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.redisConnectionManage.password"
+                    defaultMessage="连接密码为必填项"
+                  />
+                ),
+              },
+            ]}
+          >
+            <Input placeholder='请输入连接密码' />
+          </Form.Item>
+          <Form.Item
+            name="username"
+            label="连接用户名"
+          >
+            <Input placeholder='请输入连接用户名（选填）' />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Layout >
   );
 };

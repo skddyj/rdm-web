@@ -3,6 +3,7 @@ package com.codeoffice.controller;
 import com.codeoffice.common.RestResponse;
 import com.codeoffice.request.RedisConnectionQueryRequest;
 import com.codeoffice.request.RedisDataQueryRequest;
+import com.codeoffice.request.RedisDataUpdateRequest;
 import com.codeoffice.service.RedisDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,6 +42,18 @@ public class RedisDataController {
     @GetMapping(value = "/keys")
     public RestResponse keys(@ModelAttribute RedisDataQueryRequest request) {
         return redisDataService.keys(request);
+    }
+
+    @ApiOperation("获取key对应value")
+    @GetMapping(value = "/get")
+    public RestResponse get(@ModelAttribute RedisDataQueryRequest request) {
+        return redisDataService.get(request);
+    }
+
+    @ApiOperation("set key")
+    @PostMapping(value = "/set")
+    public RestResponse set(@RequestBody RedisDataUpdateRequest request) {
+        return redisDataService.set(request);
     }
 
     @ApiOperation("获取database下所有key")

@@ -91,6 +91,8 @@ public class RedisConnectionController {
         } catch (Exception e) {
             log.error("编辑Redis连接失败：{}", e);
             return RestResponse.error(RestCode.SERVICE_EXCEPTION);
+        }finally {
+            rLock.unlock();
         }
     }
 
@@ -108,6 +110,8 @@ public class RedisConnectionController {
         } catch (Exception e) {
             log.error("删除Redis连接失败：{}", e);
             return RestResponse.error(RestCode.SERVICE_EXCEPTION);
+        }finally {
+            rLock.unlock();
         }
     }
 
@@ -125,6 +129,8 @@ public class RedisConnectionController {
         } catch (Exception e) {
             log.error("删除Redis连接失败：{}", e);
             return RestResponse.error(RestCode.SERVICE_EXCEPTION);
+        }finally {
+            rLock.unlock();
         }
     }
 

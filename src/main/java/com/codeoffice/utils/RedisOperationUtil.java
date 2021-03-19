@@ -73,6 +73,52 @@ public class RedisOperationUtil {
     }
 
     /**
+     * @description: get
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public String get(Long id, Integer databaseId, String key) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.get(key);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: set
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public String set(Long id, Integer databaseId, String key,String value) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.set(key,value);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
      * @description: 根据批量key查找value
      * @date: 2021/3/17
      * @param: id
