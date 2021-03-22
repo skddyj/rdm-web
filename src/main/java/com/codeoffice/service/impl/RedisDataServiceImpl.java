@@ -8,6 +8,7 @@ import com.codeoffice.common.RestResponse;
 import com.codeoffice.mapper.RedisConnectionMapper;
 import com.codeoffice.request.RedisDataQueryRequest;
 import com.codeoffice.request.RedisDataUpdateRequest;
+import com.codeoffice.response.RedisDataResponse;
 import com.codeoffice.service.RedisDataService;
 import com.codeoffice.utils.RedisOperationUtil;
 import com.google.common.collect.Lists;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RedisDataServiceImpl implements RedisDataService {
@@ -55,8 +57,16 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (request.getRedisConnectionId() == null || request.getDatabaseId() == null) {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
-        String value = redisOperationUtil.get(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
-        return RestResponse.success(value);
+        String type = redisOperationUtil.type(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
+        System.out.println("type: "+type);
+        if(type.equals("string")){
+            String value = redisOperationUtil.get(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
+            RedisDataResponse<String> redisDataResponse=new RedisDataResponse();
+            redisDataResponse.setType(type);
+            redisDataResponse.setValue(value);
+            return RestResponse.success(redisDataResponse);
+        }
+        return RestResponse.success();
     }
 
     @Override
@@ -64,8 +74,16 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (request.getRedisConnectionId() == null || request.getDatabaseId() == null || request.getKey() == null) {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
-        String value = redisOperationUtil.set(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), request.getValue());
-        return RestResponse.success(value);
+        //String value = redisOperationUtil.set(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), request.getValue());
+        return RestResponse.success();
+    }
+
+    @Override
+    public RestResponse addKey(RedisDataUpdateRequest request) {
+        if (request.getRedisConnectionId() == null || request.getDatabaseId() == null || request.getKey() == null) {
+            return RestResponse.error(RestCode.ILLEGAL_PARAMS);
+        }
+        return this.addByType(request);
     }
 
 
@@ -100,5 +118,26 @@ public class RedisDataServiceImpl implements RedisDataService {
         System.out.println(JSON.toJSONString(pagedListKeys));
         List resultKeys = request.getCurrent() > pagedListKeys.size() ? pagedListKeys.get(pagedListKeys.size() - 1) : pagedListKeys.get(request.getCurrent() - 1);
         return RestResponse.success(new PageResponse(request.getCurrent(), request.getPageSize(), allKeys.size(), pagedListKeys.size(), resultKeys));
+    }
+
+    private RestResponse addByType(RedisDataUpdateRequest request){
+        if(request.getType().equals("string")){
+            String value=(String)request.getValue();
+            String result = redisOperationUtil.set(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
+            return RestResponse.success(result);
+        }else if(request.getType().equals("list")){
+            List<String> value=(List)request.getValue();
+            Long result = redisOperationUtil.rpush(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
+            return RestResponse.success(result);
+        }else if(request.getType().equals("set")){
+            Set<String> value=(Set) request.getValue();
+            Long result = redisOperationUtil.sadd(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
+            return RestResponse.success(result);
+        }else if(request.getType().equals("zset")){
+            List<String> value=(List)request.getValue();
+            Long result = redisOperationUtil.rpush(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
+            return RestResponse.success(result);
+        }
+        return null;
     }
 }

@@ -16,4 +16,6 @@ public class RedisDataQueryRequest extends BaseRequest {
     private Integer databaseId;
 
     private String key;
+
+    private String type;
 }

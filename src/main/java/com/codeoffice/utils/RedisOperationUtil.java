@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -108,6 +109,98 @@ public class RedisOperationUtil {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
             return commands.set(key,value);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: rpush
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long rpush(Long id, Integer databaseId, String key,List<String> list) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.rpush(key,list.stream().toArray(String[]::new));
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: sadd
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long sadd(Long id, Integer databaseId, String key, Set<String> list) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.sadd(key,list.stream().toArray(String[]::new));
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: sadd
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long zadd(Long id, Integer databaseId, String key, Set<String> list) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.zadd(key,list.stream().toArray(String[]::new));
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: set
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public String type(Long id, Integer databaseId, String key) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.type(key);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {

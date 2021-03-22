@@ -14,7 +14,9 @@ public class RedisDataUpdateRequest {
 
     private Integer databaseId;
 
+    private String type;
+
     private String key;
 
-    private String value;
+    private Object value;
 }
