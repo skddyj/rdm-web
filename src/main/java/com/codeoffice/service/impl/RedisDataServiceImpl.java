@@ -54,19 +54,10 @@ public class RedisDataServiceImpl implements RedisDataService {
 
     @Override
     public RestResponse get(RedisDataQueryRequest request) {
-        if (request.getRedisConnectionId() == null || request.getDatabaseId() == null) {
+        if (request.getRedisConnectionId() == null || request.getDatabaseId() == null || request.getKey() == null) {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
-        String type = redisOperationUtil.type(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
-        System.out.println("type: "+type);
-        if(type.equals("string")){
-            String value = redisOperationUtil.get(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
-            RedisDataResponse<String> redisDataResponse=new RedisDataResponse();
-            redisDataResponse.setType(type);
-            redisDataResponse.setValue(value);
-            return RestResponse.success(redisDataResponse);
-        }
-        return RestResponse.success();
+        return this.getByType(request);
     }
 
     @Override
@@ -120,23 +111,37 @@ public class RedisDataServiceImpl implements RedisDataService {
         return RestResponse.success(new PageResponse(request.getCurrent(), request.getPageSize(), allKeys.size(), pagedListKeys.size(), resultKeys));
     }
 
-    private RestResponse addByType(RedisDataUpdateRequest request){
-        if(request.getType().equals("string")){
-            String value=(String)request.getValue();
+    private RestResponse addByType(RedisDataUpdateRequest request) {
+        if (request.getType().equals("string")) {
+            String value = (String) request.getValue();
             String result = redisOperationUtil.set(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
             return RestResponse.success(result);
-        }else if(request.getType().equals("list")){
-            List<String> value=(List)request.getValue();
+        } else if (request.getType().equals("list")) {
+            List<String> value = (List) request.getValue();
             Long result = redisOperationUtil.rpush(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
             return RestResponse.success(result);
-        }else if(request.getType().equals("set")){
-            Set<String> value=(Set) request.getValue();
+        } else if (request.getType().equals("set")) {
+            Set<String> value = (Set) request.getValue();
             Long result = redisOperationUtil.sadd(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
             return RestResponse.success(result);
-        }else if(request.getType().equals("zset")){
-            List<String> value=(List)request.getValue();
+        } else if (request.getType().equals("zset")) {
+            List<String> value = (List) request.getValue();
             Long result = redisOperationUtil.rpush(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey(), value);
             return RestResponse.success(result);
+        }
+        return null;
+    }
+
+    private RestResponse getByType(RedisDataQueryRequest request) {
+        String type = redisOperationUtil.type(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
+        if (type.equals("string")) {
+            String result = redisOperationUtil.get(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
+            RedisDataResponse redisDataResponse = new RedisDataResponse(result,type);
+            return RestResponse.success(redisDataResponse);
+        } else if (type.equals("list")) {
+            List result = redisOperationUtil.lrange(request.getRedisConnectionId(), request.getDatabaseId(), request.getKey());
+            RedisDataResponse redisDataResponse = new RedisDataResponse(result,type);
+            return RestResponse.success(redisDataResponse);
         }
         return null;
     }

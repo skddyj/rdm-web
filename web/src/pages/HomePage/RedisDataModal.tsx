@@ -18,15 +18,20 @@ const layout = {
 
 export enum ModalType { Create, Update };
 
+const typeOptions = [
+  { label: 'String', value: 'string' },
+  { label: 'List', value: 'list' },
+  { label: 'Set', value: 'set' },
+  { label: 'ZSet', value: 'zset' },
+  { label: 'Hash', value: 'hash' }
+]
+
 export type RedisDataModalProps = {
   form;
-  handleAddRedisConnection;
-  handleUpdateRedisConnection;
-  handleTestRedisConnection;
-  handleConnectionModalVisible;
-  refreshConnection;
-  connectionModalType;
-  connectionModalVisible;
+  handleAddRedisData;
+  handleDataModalVisible;
+  refreshCurrentDatabaseKeys;
+  dataModalVisible;
 };
 
 const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
@@ -35,53 +40,40 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
 
   const {
     form,
-    handleAddRedisConnection,
-    handleUpdateRedisConnection,
-    handleTestRedisConnection,
-    handleConnectionModalVisible,
-    refreshConnection,
-    connectionModalType,
-    connectionModalVisible
+    handleAddRedisData,
+    handleDataModalVisible,
+    refreshCurrentDatabaseKeys,
+    dataModalVisible
   } = props;
 
   return (
     <Modal
       title={formatMessage({
-        id: connectionModalType === ModalType.Create ? 'pages.redisConnectionManage.newRedisKey' : 'pages.redisConnectionManage.updateRedisKey',
-        defaultMessage: connectionModalType === ModalType.Create ? '添加Redis Key' : '修改Redis Key',
+        id: 'pages.redisDataManage.createForm.newRedisData',
+        defaultMessage: '新建Key'
       })}
       width="600px"
       destroyOnClose
-      visible={connectionModalVisible}
+      visible={dataModalVisible}
       footer={[
         <Button key="back" onClick={() => {
           form.resetFields();
-          handleConnectionModalVisible(false);
+          handleAddRedisData(false);
         }}>
           取消
           </Button>,
         <Button key="submit" type="primary" onClick={() => {
           form
             .validateFields()
-            .then(values => {
+            .then((values) => {
               form.resetFields();
-              if (connectionModalType === ModalType.Create) {
-                handleAdd(values).then((success) => {
-                  console.log("success", success);
-                  if (success) {
-                    refreshConnection();
-                    handleConnectionModalVisible(false);
-                  }
-                });
-              } else if (connectionModalType === ModalType.Update) {
-                handleUpdate({ id: currentRow?.id, ...values }).then((success) => {
-                  console.log("success", success);
-                  if (success) {
-                    refreshConnection();
-                    handleConnectionModalVisible(false);
-                  }
-                });
-              }
+              handleAddRedisData(values).then((success) => {
+                console.log("success", success);
+                if (success) {
+                  refreshCurrentDatabaseKeys();
+                  handleDataModalVisible(false);
+                }
+              });
             })
             .catch(info => {
               console.log('Validate Failed:', info);
@@ -92,7 +84,7 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
       ]}
       onCancel={() => {
         form.resetFields();
-        handleConnectionModalVisible(false);
+        handleDataModalVisible(false);
       }}
     >
       <Form
@@ -138,12 +130,8 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
           <Select
             placeholder="请选择类型"
             allowClear
+            options={typeOptions}
           >
-            <Option value="string">String</Option>
-            <Option value="list">List</Option>
-            <Option value="set">Set</Option>
-            <Option value="zset">ZSet</Option>
-            <Option value="hash">Hash</Option>
           </Select>
         </Form.Item>
         <Form.Item

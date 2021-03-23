@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb } from 'antd';
+import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Empty, Tooltip, Space, Breadcrumb } from 'antd';
 import {
   ProFormSelect,
   ProFormText,
@@ -18,6 +18,8 @@ import {
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
+import StringValueDisplayArea from './StringValueDisplayArea';
+import ListValueDisplayArea from './ListValueDisplayArea';
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
@@ -25,9 +27,10 @@ const { confirm } = Modal;
 export enum ModalType { Create, Update };
 
 export type ValueDisplayCardProps = {
-  textAreaForm;
+  form;
   currentRedisKey;
   currentTreeNode;
+  currentRedisResult;
   onRedisValueUpdate;
 };
 
@@ -36,18 +39,52 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
   const { formatMessage } = useIntl();
 
   const {
-    textAreaForm,
+    form,
     currentRedisKey,
     currentTreeNode,
+    currentRedisResult,
     onRedisValueUpdate
   } = props;
+
+  const stringValueDisplayArea = (
+    <StringValueDisplayArea
+      form={form}
+      currentRedisKey={currentRedisKey}
+      currentTreeNode={currentTreeNode}
+      currentRedisResult={currentRedisResult}
+    />
+  );
+
+  const listValueDisplayArea = (
+    <ListValueDisplayArea
+      form={form}
+      currentRedisKey={currentRedisKey}
+      currentTreeNode={currentTreeNode}
+      currentRedisResult={currentRedisResult}
+    />
+  );
+
+  const getValueDisplayArea = (currentRedisResult) => {
+    if (currentRedisResult) {
+      if (currentRedisResult.type === 'string') {
+        return stringValueDisplayArea;
+      } else if (currentRedisResult.type === 'list') {
+        return listValueDisplayArea;
+      } else {
+        return <Empty style={{ verticalAlign: 'center' }} />;
+      }
+    } else {
+      return <Empty />;
+    }
+  }
+
 
   return (
     <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }} bordered={false}>
       <div style={{ height: '20%' }}>
         <div style={{ float: 'left', width: '50%' }}>
           <Form
-            form={textAreaForm}
+            form={form}
             style={{ height: '80%' }}
             name="redisKeyForm"
           >
@@ -69,23 +106,10 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
           </Space>
         </div>
       </div>
-      <div style={{ height: '80%', textAlign: 'right' }}>
-        <Form
-          form={textAreaForm}
-          style={{ height: '80%' }}
-          name="redisValueForm"
-        >
-          <Form.Item
-            label='Value'
-            name="redisValue"
-            noStyle
-            rules={[{ required: true, message: '请输入键值！' }]}
-          >
-            <TextArea style={{ height: '100%', fontSize: '16px' }} />
-          </Form.Item>
-        </Form>
+      <div style={{ height: '80%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {getValueDisplayArea(currentRedisResult)}
       </div>
-    </Card>
+    </Card >
   );
 };
 

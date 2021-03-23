@@ -23,7 +23,7 @@ export type RedisConnectionModalProps = {
   handleUpdateRedisConnection;
   handleTestRedisConnection;
   handleConnectionModalVisible;
-  refreshConnection;
+  refreshCurrentConnectionDatabase;
   connectionModalType;
   connectionModalVisible;
 };
@@ -38,7 +38,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
     handleUpdateRedisConnection,
     handleTestRedisConnection,
     handleConnectionModalVisible,
-    refreshConnection,
+    refreshCurrentConnectionDatabase,
     connectionModalType,
     connectionModalVisible
   } = props;
@@ -57,7 +57,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
           form
             .validateFields()
             .then(values => {
-              handleTestConnection(values);
+              handleTestRedisConnection(values);
             })
             .catch(err => {
               console.log('Validate Failed:', err);
@@ -78,18 +78,17 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
               console.log("values222", values)
               form.resetFields();
               if (connectionModalType === ModalType.Create) {
-                handleAdd(values).then((success) => {
+                handleAddRedisConnection(values).then((success) => {
                   console.log("success", success);
                   if (success) {
-                    refreshConnection();
                     handleConnectionModalVisible(false);
                   }
                 });
               } else if (connectionModalType === ModalType.Update) {
-                handleUpdate({ id: currentRow?.id, ...values }).then((success) => {
+                handleUpdateRedisConnection({ id: currentRow?.id, ...values }).then((success) => {
                   console.log("success", success);
                   if (success) {
-                    refreshConnection();
+                    refreshCurrentConnectionDatabase();
                     handleConnectionModalVisible(false);
                   }
                 });

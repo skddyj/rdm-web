@@ -30,11 +30,13 @@ export type OperationToolBarProps = {
   onTreeNodeFold;
   setConnectionModalType;
   handleConnectionModalVisible;
-  refreshConnection;
+  handleDataModalVisible;
   handleRemoveRedisConnection;
+  refreshRedisConnection;
+  refreshCurrentConnectionDatabase;
 };
 
-const RedisConnectionModal: React.FC<OperationToolBarProps> = (props) => {
+const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
   /** 国际化 */
   const { formatMessage } = useIntl();
 
@@ -44,21 +46,33 @@ const RedisConnectionModal: React.FC<OperationToolBarProps> = (props) => {
     onTreeNodeFold,
     setConnectionModalType,
     handleConnectionModalVisible,
-    refreshConnection,
-    handleRemoveRedisConnection
+    handleDataModalVisible,
+    handleRemoveRedisConnection,
+    refreshRedisConnection,
+    refreshCurrentConnectionDatabase
   } = props;
 
   const getOperationToolBar = () => {
     if (currentTreeNode && currentTreeNode.level === 1) {
       return (
-        <Space size='small' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
+        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
           <Search placeholder="请输入" enterButton />
           <Button title='编辑'
             onClick={() => {
-              onTreeNodeFold(currentTreeNode.key)
-              form.setFieldsValue(currentTreeNode.redisConnectionVo);
-              setConnectionModalType(ModalType.Update)
-              handleConnectionModalVisible(true);
+              confirm({
+                title: '关闭确认',
+                icon: <ExclamationCircleOutlined />,
+                content: '编辑连接信息需要关闭当前连接，确认继续吗 ？',
+                onOk() {
+                  onTreeNodeFold(currentTreeNode.key, true)
+                  form.setFieldsValue(currentTreeNode.redisConnectionVo);
+                  setConnectionModalType(ModalType.Update)
+                  handleConnectionModalVisible(true);
+                },
+                onCancel() {
+                },
+              });
+
             }}
             type="primary" icon={<EditOutlined />} />
           <Button title='删除'
@@ -69,33 +83,41 @@ const RedisConnectionModal: React.FC<OperationToolBarProps> = (props) => {
                 content: '此操作不可恢复，确认删除吗 ？',
                 onOk() {
                   onTreeNodeFold(currentTreeNode.key)
-                  handleRemoveRedisConnection([currentTreeNode]).then((success) => {
-                    if (success) {
-                      refreshConnection();
-                    }
-                  });
+                  handleRemoveRedisConnection(currentTreeNode);
                 },
                 onCancel() {
                 },
               });
             }} type="primary" icon={<DeleteOutlined />} />
-          <Button title='刷新' type="primary" icon={<RedoOutlined />} />
+          <Button title='刷新'
+            onClick={() => {
+              refreshCurrentConnectionDatabase()
+            }} type="primary" icon={<RedoOutlined />} />
         </Space>
       )
     } else if (currentTreeNode && currentTreeNode.level === 2) {
       return (
-        <Space size='small' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
+        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
           <Search placeholder="请输入" enterButton />
-          <Button title='新增' type="primary" icon={<FileAddOutlined />} style={{ marginLeft: 10 }} />
-          <Button title='编辑' type="primary" icon={<EditOutlined />} style={{ marginLeft: 10 }} />
-          <Button title='删除' type="primary" icon={<DeleteOutlined />} style={{ marginLeft: 10 }} />
-          <Button title='刷新' type="primary" icon={<RedoOutlined />} style={{ marginLeft: 10 }} />
+          <Button title='新增'
+            onClick={() => {
+              form.setFieldsValue(currentTreeNode.redisConnectionVo);
+              setConnectionModalType(ModalType.Update)
+              handleDataModalVisible(true);
+            }}
+            type="primary"
+            icon={<FileAddOutlined />} />
+          <Button title='刷新' type="primary" icon={<RedoOutlined />} />
         </Space>
       )
     } else {
       return (
-        <Space size='small' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
+        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
           <Search placeholder="请输入" enterButton />
+          <Button title='刷新'
+            onClick={() => {
+              refreshRedisConnection()
+            }} type="primary" icon={<RedoOutlined />} />
         </Space>
       )
     }
@@ -106,4 +128,4 @@ const RedisConnectionModal: React.FC<OperationToolBarProps> = (props) => {
   );
 };
 
-export default RedisConnectionModal;
+export default OperationToolBar;

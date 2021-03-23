@@ -38,7 +38,16 @@ export async function updateRedisConnection(params: RedisConnectionParams) {
 /**
  * 删除Redis连接
  */
-export async function removeRedisConnection(params: { key: number[] }) {
+export async function removeRedisConnection(id) {
+  return request(`/api/redisConnection/${id}`, {
+    method: 'DELETE'
+  });
+}
+
+/**
+ * 批量删除Redis连接
+ */
+export async function batchRemoveRedisConnection(params: { key: number[] }) {
   return request('/api/redisConnection', {
     method: 'DELETE',
     data: {

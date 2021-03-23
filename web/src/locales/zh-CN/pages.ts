@@ -82,4 +82,7 @@ export default {
   'pages.redisDataManage.key': 'Key',
   'pages.redisDataManage.value': 'Value',
   'pages.redisDataManage.type': '类型',
+  'pages.redisDataManage.list.row': 'Row',
+
+  'pages.redisDataManage.createForm.newRedisData' :"新建Key",
 };

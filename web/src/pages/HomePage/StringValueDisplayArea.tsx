@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb } from 'antd';
 import {
   ProFormSelect,
@@ -24,34 +24,39 @@ const { confirm } = Modal;
 
 export enum ModalType { Create, Update };
 
-export type ValueDisplayAreaProps = {
-  textAreaForm;
+export type StringValueDisplayAreaProps = {
+  form;
   currentRedisKey;
   currentTreeNode;
-  onRedisValueUpdate;
+  currentRedisResult;
 };
 
-const ValueDisplayArea: React.FC<ValueDisplayAreaProps> = (props) => {
+const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) => {
   /** 国际化 */
   const { formatMessage } = useIntl();
 
   const {
-    textAreaForm,
+    form,
     currentRedisKey,
     currentTreeNode,
-    onRedisValueUpdate
+    currentRedisResult
   } = props;
+
+  /** 初始化树数据 */
+  useEffect(() => {
+    form.setFieldsValue({ stringRedisValue: currentRedisResult.value })
+  }, [currentRedisResult]);
 
   return (
     <div style={{ height: '80%', textAlign: 'right' }}>
       <Form
-        form={textAreaForm}
+        form={form}
         style={{ height: '80%' }}
-        name="redisValueForm"
+        name="stringRedisValueForm"
       >
         <Form.Item
           label='Value'
-          name="redisValue"
+          name="stringRedisValue"
           noStyle
           rules={[{ required: true, message: '请输入键值！' }]}
         >
@@ -62,4 +67,4 @@ const ValueDisplayArea: React.FC<ValueDisplayAreaProps> = (props) => {
   );
 };
 
-export default ValueDisplayArea;
+export default StringValueDisplayArea;
