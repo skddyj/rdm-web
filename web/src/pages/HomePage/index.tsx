@@ -4,6 +4,8 @@ import type {
   Settings,
 } from '@ant-design/pro-layout';
 import ProLayout, { DefaultFooter } from '@ant-design/pro-layout';
+import { Scrollbars } from 'react-custom-scrollbars';
+import ScrollView from 'react-custom-scrollbars';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Dispatch } from 'umi';
@@ -540,7 +542,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         style={{ background: '#f0f2f5' }}
         width="25%"
       >
-        <Card style={{ height: '100%' }}>
+        <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }}>
           <Button
             type="primary"
             block
@@ -550,6 +552,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             }}>
             添加Redis连接
           </Button>
+          {/* <div> */}
           <OperationToolBar
             form={form}
             currentTreeNode={currentTreeNode}
@@ -561,24 +564,29 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             refreshRedisConnection={refreshRedisConnection}
             refreshCurrentConnectionDatabase={refreshCurrentConnectionDatabase}
           />
-          <Tree
-            style={{ marginTop: 10 }}
-            showLine
-            showIcon
-            //loadData={onLoadData}
-            switcherIcon={<CaretDownOutlined />}
-            onExpand={onTreeNodeExpand}
-            onSelect={onTreeNodeSelect}
-            expandedKeys={expandedKeys}
-            treeData={redisConnectionData}
-          />
+          <Scrollbars
+            autoHide
+            style={{
+              marginTop: 20, height: 'calc(100% - 104px)'
+            }}>
+            <Tree
+              showLine
+              showIcon
+              //loadData={onLoadData}
+              switcherIcon={<CaretDownOutlined />}
+              onExpand={onTreeNodeExpand}
+              onSelect={onTreeNodeSelect}
+              expandedKeys={expandedKeys}
+              treeData={redisConnectionData}
+            />
+          </Scrollbars>
         </Card>
         {/* <Divider type='vertical' style={{ height: '100%' }} /> */}
       </Sider>
       <Layout>
-        <Card style={{ height: '10%' }} bordered={false}>
+        <Card style={{ height: '52px' }} bordered={false}>
         </Card>
-        <Content style={{ height: '90%' }}>
+        <Content style={{ height: 'calc(100% - 128px)' }}>
           <ValueDisplayCard
             form={textAreaForm}
             currentRedisKey={currentRedisKey}
@@ -587,7 +595,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             onRedisValueUpdate={onRedisValueUpdate}
           />
         </Content>
-        <Card style={{ height: '10%', textAlign: 'center' }}>
+        <Card style={{ height: '76px', textAlign: 'center' }}>
           Developed by Dongyanjun ©2021
           </Card>
       </Layout>

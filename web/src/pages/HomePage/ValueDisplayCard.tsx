@@ -74,14 +74,14 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
         return <Empty style={{ verticalAlign: 'center' }} />;
       }
     } else {
-      return <Empty />;
+      return <Empty style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
     }
   }
 
 
   return (
     <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }} bordered={false}>
-      <div style={{ height: '20%' }}>
+      <div style={{ height: '52px' }}>
         <div style={{ float: 'left', width: '50%' }}>
           <Form
             form={form}
@@ -106,7 +106,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
           </Space>
         </div>
       </div>
-      <div style={{ height: '80%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ height: 'calc(100% - 52px)', display: 'block' }}>
         {getValueDisplayArea(currentRedisResult)}
       </div>
     </Card >

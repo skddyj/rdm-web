@@ -48,10 +48,10 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
   }, [currentRedisResult]);
 
   return (
-    <div style={{ height: '80%', textAlign: 'right' }}>
+    <div style={{ height: '100%', textAlign: 'right' }}>
       <Form
         form={form}
-        style={{ height: '80%' }}
+        style={{ height: '100%' }}
         name="stringRedisValueForm"
       >
         <Form.Item

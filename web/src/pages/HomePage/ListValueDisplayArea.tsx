@@ -102,7 +102,7 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
   ];
 
   return (
-    <div style={{ height: '80%', textAlign: 'right' }}>
+    <div style={{ height: '100%', textAlign: 'right' }}>
       <ProTable
         rowKey="id"
         search={false}
