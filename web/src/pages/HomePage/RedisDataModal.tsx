@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Result, Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb, Radio } from 'antd';
 import {
   ProFormSelect,
@@ -28,6 +28,7 @@ const typeOptions = [
 
 export type RedisDataModalProps = {
   form;
+  currentTreeNode;
   handleAddRedisData;
   handleDataModalVisible;
   refreshCurrentDatabaseKeys;
@@ -40,11 +41,30 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
 
   const {
     form,
+    currentTreeNode,
     handleAddRedisData,
     handleDataModalVisible,
     refreshCurrentDatabaseKeys,
     dataModalVisible
   } = props;
+
+  /** 所有Redis连接数据*/
+  const [type, setType] = useState('');
+
+  const onTypeChange = (type) => {
+    console.log(type)
+    setType(type)
+  }
+
+  const createParamByType = (values) => {
+    console.log(currentTreeNode)
+    const { connectionId, databaseId } = currentTreeNode;
+    const data = { ...values, connectionId, databaseId }
+    if (values.type === 'list' || values.type === 'zset') {
+      data.value = [values.value]
+    }
+    return data;
+  }
 
   return (
     <Modal
@@ -58,7 +78,7 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
       footer={[
         <Button key="back" onClick={() => {
           form.resetFields();
-          handleAddRedisData(false);
+          handleDataModalVisible(false);
         }}>
           取消
           </Button>,
@@ -67,7 +87,7 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
             .validateFields()
             .then((values) => {
               form.resetFields();
-              handleAddRedisData(values).then((success) => {
+              handleAddRedisData(createParamByType(values)).then((success) => {
                 console.log("success", success);
                 if (success) {
                   refreshCurrentDatabaseKeys();
@@ -131,11 +151,48 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
             placeholder="请选择类型"
             allowClear
             options={typeOptions}
+            onChange={onTypeChange}
           >
           </Select>
         </Form.Item>
+        {type === 'zset' ?
+          (<Form.Item
+            name="score"
+            label="分值"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.redisDataManage.score"
+                    defaultMessage="分值为必填项"
+                  />
+                ),
+              },
+            ]}
+          >
+            <Input placeholder='请输入分值' />
+          </Form.Item>) : null}
+        {type === 'hash' ?
+          (<Form.Item
+            name="hashKey"
+            label="Hash Key"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.redisDataManage.hashKey"
+                    defaultMessage="Hash Key为必填项"
+                  />
+                ),
+              },
+            ]}
+          >
+            <Input placeholder='请输入Hash Key' />
+          </Form.Item>) : null}
         <Form.Item
-          name="port"
+          name="value"
           label="Value"
           rules={[
             {

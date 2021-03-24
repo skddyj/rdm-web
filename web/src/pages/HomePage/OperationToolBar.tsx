@@ -34,6 +34,7 @@ export type OperationToolBarProps = {
   handleRemoveRedisConnection;
   refreshRedisConnection;
   refreshCurrentConnectionDatabase;
+  refreshCurrentDatabaseKeys;
 };
 
 const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
@@ -49,7 +50,8 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
     handleDataModalVisible,
     handleRemoveRedisConnection,
     refreshRedisConnection,
-    refreshCurrentConnectionDatabase
+    refreshCurrentConnectionDatabase,
+    refreshCurrentDatabaseKeys
   } = props;
 
   const getOperationToolBar = () => {
@@ -107,7 +109,12 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             }}
             type="primary"
             icon={<FileAddOutlined />} />
-          <Button title='刷新' type="primary" icon={<RedoOutlined />} />
+          <Button title='刷新'
+            onClick={
+              () => {
+                refreshCurrentDatabaseKeys()
+              }}
+            type="primary" icon={<RedoOutlined />} />
         </Space>
       )
     } else {

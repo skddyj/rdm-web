@@ -178,8 +178,8 @@ const TableList: React.FC = (props) => {
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      dataIndex: 'redisConnectionId',
-      title: <FormattedMessage id="pages.redisDataManage.redisConnectionId" defaultMessage="Redis连接" />,
+      dataIndex: 'connectionId',
+      title: <FormattedMessage id="pages.redisDataManage.connectionId" defaultMessage="Redis连接" />,
       valueType: 'select',
       renderFormItem: (item, { type, defaultRender, ...rest }, form) => {
         return (

@@ -1,6 +1,7 @@
 package com.codeoffice.utils;
 
 import com.codeoffice.model.RedisDataModel;
+import com.codeoffice.model.RedisDataZSetModel;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -189,18 +190,64 @@ public class RedisOperationUtil {
     }
 
     /**
-     * @description: sadd
+     * @description: zadd
      * @date: 2021/3/17
      * @param: id
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long zadd(Long id, Integer databaseId, String key, Set<String> list) {
+    public Long zadd(Long id, Integer databaseId, String key, Set<RedisDataZSetModel> list) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.zadd(key,list.stream().toArray(String[]::new));
+            return commands.zadd(key,list.stream().toArray(RedisDataZSetModel[]::new));
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: hset
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long hset(Long id, Integer databaseId, String key, Map<String,String> value) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.hset(key,value);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: hset
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long del(Long id, Integer databaseId, String key) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.del(key);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {

@@ -1,5 +1,5 @@
 export type TableListItem = {
-  redisConnectionId?: string;
+  connectionId?: string;
   batabaseId?: string;
   key?: string;
   value?: string;

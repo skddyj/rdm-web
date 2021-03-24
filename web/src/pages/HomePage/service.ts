@@ -100,8 +100,21 @@ export async function setKeyValue(params) {
 /**
  * 添加Redis 键值
  */
-export async function addRedisKeyValue(params: RedisConnectionParams) {
-  return request('/api/redisData/', {
+export async function addRedisKeyValue(params) {
+  return request('/api/redisData/addKey', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+
+/**
+ * 删除Redis 键值
+ */
+ export async function removeRedisKeyValue(params) {
+  return request('/api/redisData/removeKey', {
     method: 'POST',
     data: {
       ...params,

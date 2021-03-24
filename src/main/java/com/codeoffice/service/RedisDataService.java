@@ -20,6 +20,8 @@ public interface RedisDataService {
 
     RestResponse addKey(RedisDataUpdateRequest request);
 
+    RestResponse removeKey(RedisDataUpdateRequest request);
+
     RestResponse keysPages(RedisDataQueryRequest request);
 
     RestResponse mget(RedisDataQueryRequest request);

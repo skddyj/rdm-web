@@ -50,10 +50,16 @@ public class RedisDataController {
         return redisDataService.get(request);
     }
 
-    @ApiOperation("add key")
+    @ApiOperation("addKey")
     @PostMapping(value = "/addKey")
     public RestResponse addKey(@RequestBody RedisDataUpdateRequest request) {
         return redisDataService.addKey(request);
+    }
+
+    @ApiOperation("removeKey")
+    @PostMapping(value = "/removeKey")
+    public RestResponse removeKey(@RequestBody RedisDataUpdateRequest request) {
+        return redisDataService.removeKey(request);
     }
 
     @ApiOperation("set key")

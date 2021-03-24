@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class RedisDataUpdateRequest {
 
-    private Long redisConnectionId;
+    private Long connectionId;
 
     private Integer databaseId;
 

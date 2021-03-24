@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class RedisDataQueryRequest extends BaseRequest {
 
-    private Long redisConnectionId;
+    private Long connectionId;
 
     private Integer databaseId;
 

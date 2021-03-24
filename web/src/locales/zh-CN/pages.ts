@@ -77,11 +77,13 @@ export default {
 
   'pages.redisConnectionManage.newRedisKey' :"新建Redis Key",
   'pages.redisConnectionManage.updateRedisKey' :"修改Redis Key",
-  'pages.redisDataManage.redisConnectionId': 'Redis连接',
+  'pages.redisDataManage.connectionId': 'Redis连接',
   'pages.redisDataManage.databaseId': 'Redis数据库',
   'pages.redisDataManage.key': 'Key',
   'pages.redisDataManage.value': 'Value',
   'pages.redisDataManage.type': '类型',
+  'pages.redisDataManage.score': '分值',
+  'pages.redisDataManage.hashKey': 'Hash Key',
   'pages.redisDataManage.list.row': 'Row',
 
   'pages.redisDataManage.createForm.newRedisData' :"新建Key",

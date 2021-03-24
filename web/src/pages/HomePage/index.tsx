@@ -34,7 +34,7 @@ import {
   queryAllRedisConnection, queryDatabaseCount, queryDatabaseKeys,
   queryKeyValue, updateRedisConnection, addRedisConnection,
   removeRedisConnection, testRedisConnection,
-  setKeyValue, addRedisKeyValue
+  setKeyValue, addRedisKeyValue, removeRedisKeyValue
 } from './service';
 
 import RedisConnectionModal from './RedisConnectionModal';
@@ -62,119 +62,6 @@ export type BasicLayoutProps = {
   settings: Settings;
   dispatch: Dispatch;
 } & ProLayoutProps;
-
-/** 
- * 获取所有Redis连接
- */
-const getAllRedisConnection = async () => {
-  try {
-    return await queryAllRedisConnection().then((response) => {
-      if (response && response.success) {
-        return response.result.map((e) => {
-          return {
-            title: e.name, key: `${e.id}`, level: 1, connectionId: e.id, isLeaf: false, redisConnectionVo: e, icon: < DatabaseOutlined />
-          }
-        })
-      }
-    });
-  } catch (error) {
-    message.error('查询Redis连接失败');
-    return [];
-  }
-};
-
-/**
- * 添加Redis Key
- */
-const handleAddRedisKey = async (fields) => {
-  const hide = message.loading('正在添加');
-  try {
-    return await addRedisKeyValue({ ...fields }).then((response) => {
-      if (response && response.success) {
-        hide();
-        message.success('添加成功');
-        return true;
-      }
-      throw new Error(response.message);
-    });
-  } catch (error) {
-    hide();
-    message.error(`添加失败，请重试，失败原因：${error}`);
-    return false;
-  }
-};
-
-
-/**
- * 获取Redis数据库
- */
-const getRedisDatabaseCount = async (id) => {
-  try {
-    return await queryDatabaseCount(id).then((response) => {
-      if (response && response.success) {
-        return response.result;
-      }
-    });
-  } catch (error) {
-    message.error('查询数据库数量失败');
-    return 0;
-  }
-};
-
-/**
- * 获取Redis数据库下所有Key
- */
-const getRedisKeys = async (redisConnectionId, databaseId) => {
-  try {
-    return await queryDatabaseKeys({ redisConnectionId, databaseId }).then((response) => {
-      if (response && response.success) {
-        return response.result;
-      }
-      message.error(response.message)
-    });
-  } catch (error) {
-    message.error('查询Keys失败');
-    return 0;
-  }
-};
-
-/**
- * 获取Redis Key对应Value
- */
-const getRedisValue = async (redisConnectionId, databaseId, key) => {
-  try {
-    return await queryKeyValue({ redisConnectionId, databaseId, key }).then((response) => {
-      if (response && response.success) {
-        return response.result;
-      }
-      message.error(response.message)
-    });
-  } catch (error) {
-    message.error('查询Key失败');
-    return 0;
-  }
-};
-
-/**
- * 更新Redis Key对应Value
- */
-const handleUpdateRedisValue = async (fields) => {
-  const hide = message.loading('正在更新');
-  try {
-    return await setKeyValue(fields).then((response) => {
-      if (response && response.success) {
-        hide();
-        message.success('更新成功');
-        return true;
-      }
-      throw new Error(response.message);
-    });
-  } catch (error) {
-    hide();
-    message.error(`更新失败，请重试，失败原因：${error}`);
-    return false;
-  }
-};
 
 
 const HomePage: React.FC<BasicLayoutProps> = (props) => {
@@ -204,7 +91,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   /** 当前选择的Redis Key*/
   const [currentRedisKey, setCurrentRedisKey] = useState();
   /** 当前选择的树节点数据*/
-  const [currentTreeNode, setCurrentTreeNode] = useState();
+  const [currentTreeNode, setCurrentTreeNode] = useState({});
   /** 当前点击的Key数据*/
   const [currentRedisResult, setCurrentRedisResult] = useState();
 
@@ -308,6 +195,145 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     }
   };
 
+  /** 
+   * 获取所有Redis连接
+   */
+  const getAllRedisConnection = async () => {
+    try {
+      return await queryAllRedisConnection().then((response) => {
+        if (response && response.success) {
+          return response.result.map((e) => {
+            return {
+              title: e.name, key: `${e.id}`, connectionKey: `${e.id}`, level: 1, connectionId: e.id, isLeaf: false, redisConnectionVo: e, icon: < DatabaseOutlined />
+            }
+          })
+        }
+      });
+    } catch (error) {
+      message.error('查询Redis连接失败');
+      return [];
+    }
+  };
+
+  /**
+   * 添加Redis Key
+   */
+  const handleAddRedisKey = async (fields) => {
+    const hide = message.loading('正在添加');
+    try {
+      return await addRedisKeyValue({ ...fields }).then((response) => {
+        if (response && response.success) {
+          hide();
+          message.success('添加成功');
+          refreshCurrentConnectionDatabase();
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`添加失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+  /**
+   * 删除Redis Key
+   */
+  const handleRemoveRedisKey = async (fields) => {
+    const hide = message.loading('正在删除');
+    try {
+      return await removeRedisKeyValue({ ...fields }).then((response) => {
+        if (response && response.success) {
+          hide();
+          message.success('删除成功');
+          refreshDatabaseKeys(currentTreeNode);
+          clearSelected()
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`删除失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+
+  /**
+   * 获取Redis数据库
+   */
+  const getRedisDatabaseCount = async (id) => {
+    try {
+      return await queryDatabaseCount(id).then((response) => {
+        if (response && response.success) {
+          return response.result;
+        }
+      });
+    } catch (error) {
+      message.error('查询数据库数量失败');
+      return 0;
+    }
+  };
+
+  /**
+   * 获取Redis数据库下所有Key
+   */
+  const getRedisKeys = async (connectionId, databaseId) => {
+    try {
+      return await queryDatabaseKeys({ connectionId, databaseId }).then((response) => {
+        if (response && response.success) {
+          return response.result;
+        }
+        message.error(response.message)
+      });
+    } catch (error) {
+      message.error('查询Keys失败');
+      return 0;
+    }
+  };
+
+  /**
+   * 获取Redis Key对应Value
+   */
+  const getRedisValue = async (connectionId, databaseId, key) => {
+    try {
+      return await queryKeyValue({ connectionId, databaseId, key }).then((response) => {
+        if (response && response.success) {
+          return response.result;
+        }
+        message.error(response.message)
+      });
+    } catch (error) {
+      message.error('查询Key失败');
+      return 0;
+    }
+  };
+
+  /**
+   * 更新Redis Key对应Value
+   */
+  const handleUpdateRedisValue = async (fields) => {
+    const hide = message.loading('正在更新');
+    try {
+      return await setKeyValue(fields).then((response) => {
+        if (response && response.success) {
+          hide();
+          message.success('更新成功');
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`更新失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+
+
   const refreshRedisConnection = () => {
     let newRedisConnectionData = [...redisConnectionData];
     getAllRedisConnection().then((data) => {
@@ -343,6 +369,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    */
   const clearSelected = () => {
     setCurrentTreeNode(undefined);
+    setCurrentRedisKey(undefined);
+    setCurrentRedisResult(undefined);
   }
 
   /** 
@@ -372,7 +400,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const onRedisValueUpdate = () => {
     const { connectionId, databaseId, redisKey } = currentTreeNode;
     const { redisValue } = textAreaForm.getFieldsValue();
-    handleUpdateRedisValue({ redisConnectionId: connectionId, databaseId, key: redisKey, value: redisValue })
+    handleUpdateRedisValue({ connectionId, databaseId, key: redisKey, value: redisValue })
   };
 
   /**
@@ -436,7 +464,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    */
   const onTreeNodeExpand = (expandedKeys, { expanded: bool, node }) => {
     console.log("expandedKeys", expandedKeys)
-    const { key, title, children, level, connectionId, databaseId } = node;
+    const { key, title, children, level, connectionId, databaseId, connectionKey, databaseKey } = node;
     const treeNodeKey = key;
     if (bool) {
       if (children && children.length > 0) {
@@ -445,7 +473,11 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       }
       if (level === 1) {
         getRedisDatabaseCount(connectionId).then((databaseCount) => {
-          const databaseData = Array.from({ length: databaseCount }, (k, v) => { return { title: `database ${v}`, key: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined /> } })
+          const databaseData = Array.from({ length: databaseCount }, (k, v) => {
+            return {
+              title: `database ${v}`, key: `${treeNodeKey}-${v}`, connectionKey, databaseKey: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined />
+            }
+          })
           setRedisConnectionData(origin =>
             updateRedisConnectionData(origin, treeNodeKey, databaseData),
           );
@@ -455,7 +487,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       else if (level === 2) {
         getRedisKeys(connectionId, databaseId).then((redisKeys) => {
           const redisKeyData = redisKeys.map((redisKey) => {
-            return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
+            return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, connectionKey, databaseKey, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
           });
           setRedisConnectionData(origin =>
             updateRedisConnectionData(origin, treeNodeKey, redisKeyData),
@@ -493,14 +525,17 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 刷新Database所有Key
    */
   const refreshDatabaseKeys = (node) => {
-    const { key, connectionId, databaseId } = node;
-    const treeNodeKey = key;
+    console.log("refreshDatabaseKeys", node)
+    const { key, connectionId, databaseId, connectionKey, databaseKey } = node;
+    setRedisConnectionData(origin =>
+      updateRedisConnectionData(origin, databaseKey, []),
+    );
     getRedisKeys(connectionId, databaseId).then((redisKeys) => {
       const redisKeyData = redisKeys.map((redisKey) => {
-        return { title: redisKey, key: `${treeNodeKey}-${redisKey}`, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
+        return { title: redisKey, key: `${databaseKey}-${redisKey}`, connectionKey, databaseKey, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
       });
       setRedisConnectionData(origin =>
-        updateRedisConnectionData(origin, treeNodeKey, redisKeyData),
+        updateRedisConnectionData(origin, databaseKey, redisKeyData),
       );
     })
   }
@@ -516,19 +551,18 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 刷新连接的Database
    */
   const refreshConnectionDatabase = (node) => {
+    const { key, connectionId, connectionKey } = node;
     setRedisConnectionData(origin =>
-      updateRedisConnectionData(origin, treeNodeKey, []),
+      updateRedisConnectionData(origin, connectionKey, []),
     );
-    const { key, connectionId } = node;
-    const treeNodeKey = key;
     getRedisDatabaseCount(connectionId).then((databaseCount) => {
       const databaseData = Array.from({ length: databaseCount }, (k, v) => {
         return {
-          title: `database ${v}`, key: `${treeNodeKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined />
+          title: `database ${v}`, key: `${connectionKey}-${v}`, connectionKey, databaseKey: `${connectionKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: false, icon: < DatabaseOutlined />
         }
       })
       setRedisConnectionData(origin =>
-        updateRedisConnectionData(origin, treeNodeKey, databaseData),
+        updateRedisConnectionData(origin, connectionKey, databaseData),
       );
       // 折叠当前Redis连接所有有database
       const newExpandedKeys = [...expandedKeys].filter(e => e === currentTreeNode.key || !e.startsWith(currentTreeNode.key));
@@ -552,7 +586,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             }}>
             添加Redis连接
           </Button>
-          {/* <div> */}
           <OperationToolBar
             form={form}
             currentTreeNode={currentTreeNode}
@@ -563,6 +596,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             handleRemoveRedisConnection={handleRemoveRedisConnection}
             refreshRedisConnection={refreshRedisConnection}
             refreshCurrentConnectionDatabase={refreshCurrentConnectionDatabase}
+            refreshCurrentDatabaseKeys={refreshCurrentDatabaseKeys}
           />
           <Scrollbars
             autoHide
@@ -581,7 +615,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             />
           </Scrollbars>
         </Card>
-        {/* <Divider type='vertical' style={{ height: '100%' }} /> */}
       </Sider>
       <Layout>
         <Card style={{ height: '52px' }} bordered={false}>
@@ -593,6 +626,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             currentTreeNode={currentTreeNode}
             currentRedisResult={currentRedisResult}
             onRedisValueUpdate={onRedisValueUpdate}
+            handleRemoveRedisKey={handleRemoveRedisKey}
           />
         </Content>
         <Card style={{ height: '76px', textAlign: 'center' }}>
@@ -611,6 +645,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       />
       <RedisDataModal
         form={form}
+        currentTreeNode={currentTreeNode}
         dataModalVisible={dataModalVisible}
         handleAddRedisData={handleAddRedisKey}
         handleDataModalVisible={handleDataModalVisible}
