@@ -3,7 +3,7 @@
   "version": "4.5.0",
   "private": true,
   "description": "An out-of-box UI solution for enterprise applications",
-  "homepage": "./",
+  "homepage": "https://skddyj.github.io/rdm-web"
   "scripts": {
     "analyze": "cross-env ANALYZE=1 umi build",
     "build": "umi build",
