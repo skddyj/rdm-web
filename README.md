@@ -12,7 +12,7 @@ a Web management tool for Redis
 
 ![](homepage.png)
 
-![](homepage.png)
+![](homepage1.png)
 
 ![](homepage2.png)
 
