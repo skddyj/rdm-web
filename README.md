@@ -31,7 +31,7 @@ $ cd rdm-web/target
 $ java -jar rdm-web-0.0.1-SNAPSHOT.jar
 ```
 
-### FRONT-End
+### Front-End
 
 ```bash
 $ cd rdm-web/web
