@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Empty, Tooltip, Space, Breadcrumb } from 'antd';
 import {
   ProFormSelect,
@@ -20,6 +20,9 @@ import {
 } from '@ant-design/icons';
 import StringValueDisplayArea from './StringValueDisplayArea';
 import ListValueDisplayArea from './ListValueDisplayArea';
+import RedisDataRenameModal from './RedisDataRenameModal';
+import RedisDataTtlModal from './RedisDataTtlModal';
+import { renameRedisKeyValue } from './service';
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
@@ -27,8 +30,8 @@ const { confirm } = Modal;
 export enum ModalType { Create, Update };
 
 const layout = {
-  labelCol: { span: 2 },
-  wrapperCol: { span: 22 },
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
 };
 
 
@@ -39,6 +42,9 @@ export type ValueDisplayCardProps = {
   currentRedisResult;
   onRedisValueUpdate;
   handleRemoveRedisKey;
+  handleRenameRedisKey;
+  handleRefreshRedisValue;
+  handleExpireRedisKey;
 };
 
 const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
@@ -51,13 +57,24 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     currentTreeNode,
     currentRedisResult,
     onRedisValueUpdate,
-    handleRemoveRedisKey
+    handleRemoveRedisKey,
+    handleRenameRedisKey,
+    handleRefreshRedisValue,
+    handleExpireRedisKey
   } = props;
+
+  const [dataRenameModalVisible, handleDataRenameModalVisible] = useState<boolean>(false);
+
+  const [dataTtlModalVisible, handleDataTtlModalVisible] = useState<boolean>(false);
 
 
   useEffect(() => {
-    form.setFieldsValue({ redisKey: currentRedisKey })
-  }, [currentRedisKey]);
+    console.log(currentRedisResult)
+    if (currentRedisResult) {
+      const { key, ttl } = currentRedisResult;
+      form.setFieldsValue({ redisKey: key, ttl })
+    }
+  }, [currentRedisResult]);
 
   const stringValueDisplayArea = (
     <StringValueDisplayArea
@@ -112,8 +129,8 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
   }
 
   const removeRedisKey = () => {
-    const { connectionId, databaseId, level } = currentTreeNode;
-    if (level && level === 3) {
+    if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
+      const { connectionId, databaseId } = currentTreeNode;
       const data = { connectionId, databaseId, key: currentRedisKey }
       confirm({
         title: '删除确认',
@@ -128,44 +145,94 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     } else {
       message.info('请选择一个Key！', 3);
     }
-
   }
 
 
   return (
     <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }} bordered={false}>
       <div style={{ height: '40px' }}>
-        <div style={{ float: 'left', width: '50%' }}>
-          <Form
-            {...layout}
-            form={form}
-            name="redisKeyForm"
+        <Form
+          style={{ float: 'left', width: '40%' }}
+          layout="inline"
+          {...layout}
+          form={form}
+          name="redisKeyForm"
+        >
+          <Form.Item
+            style={{ width: '100%' }}
+            name="redisKey"
+            label={getRedisKeyFormLabel(currentRedisResult)}
           >
-            <Form.Item
-              name="redisKey"
-              label={getRedisKeyFormLabel(currentRedisResult)}
-            >
-              <Input size='middle' disabled style={{ width: '100%', backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
-            </Form.Item>
-          </Form>
-        </div>
-        <div style={{ float: 'right' }}>
+            <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
+          </Form.Item>
+        </Form>
+        <Form
+          style={{ float: 'left', width: '20%' }}
+          layout="inline"
+          {...layout}
+          form={form}
+          name="redisKeyTtlForm"
+        >
+          <Form.Item
+            name="ttl"
+            label={<b>TTL</b>}
+          >
+            <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
+          </Form.Item>
+        </Form>
+        <div style={{ float: 'left', width: 'calc(40% - 20px)', marginLeft: '20px' }}>
           <Space size='large' style={{ height: '20%', textAlign: 'center' }}>
-            <Button type="primary" onClick={onRedisValueUpdate}>保存</Button>
-            <Button type="primary" >重命名</Button>
+            <Button type="primary"
+              onClick={onRedisValueUpdate}
+            >保存</Button>
+            <Button type="primary"
+              onClick={() => {
+                if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
+                  handleDataRenameModalVisible(true);
+                } else {
+                  message.info('请选择一个Key！', 3);
+                }
+              }}>重命名</Button>
             <Button type="primary"
               onClick={() => {
                 removeRedisKey()
               }}>删除</Button>
-            <Button type="primary" >设置TTL</Button>
-            <Button type="primary" >刷新</Button>
+            <Button type="primary"
+              onClick={() => {
+                if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
+                  handleDataTtlModalVisible(true);
+                } else {
+                  message.info('请选择一个Key！', 3);
+                }
+              }}>设置TTL</Button>
+            <Button type="primary"
+              onClick={() => {
+                if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
+                  handleRefreshRedisValue(currentTreeNode);
+                } else {
+                  message.info('请选择一个Key！', 3);
+                }
+              }} >刷新</Button>
           </Space>
         </div>
       </div>
       <div style={{ height: 'calc(100% - 52px)', display: 'block', float: 'none' }}>
         {getValueDisplayArea(currentRedisResult)}
       </div>
+      <RedisDataRenameModal
+        currentTreeNode={currentTreeNode}
+        handleRenameRedisKey={handleRenameRedisKey}
+        handleDataRenameModalVisible={handleDataRenameModalVisible}
+        dataRenameModalVisible={dataRenameModalVisible}
+      />
+      <RedisDataTtlModal
+        currentTreeNode={currentTreeNode}
+        handleExpireRedisKey={handleExpireRedisKey}
+        handleDataTtlModalVisible={handleDataTtlModalVisible}
+        dataTtlModalVisible={dataTtlModalVisible}
+      />
     </Card >
+
   );
 };
 

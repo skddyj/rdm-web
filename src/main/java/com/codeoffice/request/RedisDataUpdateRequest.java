@@ -19,4 +19,8 @@ public class RedisDataUpdateRequest {
     private String key;
 
     private Object value;
+
+    private String newKey;
+
+    private Long ttl;
 }

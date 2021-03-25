@@ -85,6 +85,9 @@ export default {
   'pages.redisDataManage.score': '分值',
   'pages.redisDataManage.hashKey': 'Hash Key',
   'pages.redisDataManage.list.row': 'Row',
+  'pages.redisDataManage.ttl': 'TTL',
 
   'pages.redisDataManage.createForm.newRedisData' :"新建Key",
+
+  'pages.redisDataManage.createForm.renameRedisKey' :"重命名Key",
 };

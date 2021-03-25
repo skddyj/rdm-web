@@ -123,4 +123,28 @@ export async function addRedisKeyValue(params) {
   });
 }
 
+/**
+ * 重命名Redis 键值
+ */
+ export async function renameRedisKeyValue(params) {
+  return request('/api/redisData/renameKey', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
 
+/**
+ * Redis 键值设置ttl
+ */
+ export async function expireRedisKeyValue(params) {
+  return request('/api/redisData/expire', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}

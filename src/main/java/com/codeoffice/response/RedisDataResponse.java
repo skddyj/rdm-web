@@ -12,7 +12,11 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class RedisDataResponse<T> {
+    private String key;
+
     private T value;
 
     private String type;
+
+    private Long ttl;
 }

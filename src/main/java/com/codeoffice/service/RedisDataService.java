@@ -22,6 +22,10 @@ public interface RedisDataService {
 
     RestResponse removeKey(RedisDataUpdateRequest request);
 
+    RestResponse renameKey(RedisDataUpdateRequest request);
+
+    RestResponse expire(RedisDataUpdateRequest request);
+
     RestResponse keysPages(RedisDataQueryRequest request);
 
     RestResponse mget(RedisDataQueryRequest request);

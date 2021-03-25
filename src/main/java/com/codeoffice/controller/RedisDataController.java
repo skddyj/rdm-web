@@ -62,6 +62,18 @@ public class RedisDataController {
         return redisDataService.removeKey(request);
     }
 
+    @ApiOperation("renameKey")
+    @PostMapping(value = "/renameKey")
+    public RestResponse renameKey(@RequestBody RedisDataUpdateRequest request) {
+        return redisDataService.renameKey(request);
+    }
+
+    @ApiOperation("expire")
+    @PostMapping(value = "/expire")
+    public RestResponse expire(@RequestBody RedisDataUpdateRequest request) {
+        return redisDataService.expire(request);
+    }
+
     @ApiOperation("set key")
     @PostMapping(value = "/set")
     public RestResponse set(@RequestBody RedisDataUpdateRequest request) {

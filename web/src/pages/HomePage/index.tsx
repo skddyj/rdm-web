@@ -34,7 +34,8 @@ import {
   queryAllRedisConnection, queryDatabaseCount, queryDatabaseKeys,
   queryKeyValue, updateRedisConnection, addRedisConnection,
   removeRedisConnection, testRedisConnection,
-  setKeyValue, addRedisKeyValue, removeRedisKeyValue
+  setKeyValue, addRedisKeyValue, removeRedisKeyValue, renameRedisKeyValue,
+  expireRedisKeyValue
 } from './service';
 
 import RedisConnectionModal from './RedisConnectionModal';
@@ -91,7 +92,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   /** 当前选择的Redis Key*/
   const [currentRedisKey, setCurrentRedisKey] = useState();
   /** 当前选择的树节点数据*/
-  const [currentTreeNode, setCurrentTreeNode] = useState({});
+  const [currentTreeNode, setCurrentTreeNode] = useState();
   /** 当前点击的Key数据*/
   const [currentRedisResult, setCurrentRedisResult] = useState();
 
@@ -225,7 +226,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('添加成功');
-          refreshCurrentConnectionDatabase();
+          refreshCurrentDatabaseKeys();
           return true;
         }
         throw new Error(response.message);
@@ -256,6 +257,55 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     } catch (error) {
       hide();
       message.error(`删除失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+  /**
+   * 重命名Redis Key
+   */
+  const handleRenameRedisKey = async (fields) => {
+    const hide = message.loading('正在重命名');
+    try {
+      return await renameRedisKeyValue({ ...fields }).then((response) => {
+        if (response && response.success) {
+          console.log(response)
+          hide();
+          message.success('重命名成功');
+          refreshDatabaseKeys(currentTreeNode);
+          clearSelected()
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`重命名失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+
+  /**
+ * Redis Key设置ttl
+ */
+  const handleExpireRedisKey = async (fields) => {
+    const hide = message.loading('正在更新TTL');
+    try {
+      return await expireRedisKeyValue({ ...fields }).then((response) => {
+        if (response && response.success) {
+          console.log(response)
+          hide();
+          message.success('更新TTL成功');
+          handleRefreshRedisValue(currentTreeNode);
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      refreshCurrentDatabaseKeys();
+      message.error(`更新TTL失败，请重试，失败原因：${error}`);
       return false;
     }
   };
@@ -310,6 +360,16 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       return 0;
     }
   };
+
+  /**
+   * 刷新redis value
+   */
+  const handleRefreshRedisValue = ({ connectionId, databaseId, redisKey }) => {
+    getRedisValue(connectionId, databaseId, redisKey).then((result) => {
+      setCurrentRedisResult(result)
+    })
+  }
+
 
   /**
    * 更新Redis Key对应Value
@@ -627,6 +687,9 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             currentRedisResult={currentRedisResult}
             onRedisValueUpdate={onRedisValueUpdate}
             handleRemoveRedisKey={handleRemoveRedisKey}
+            handleRenameRedisKey={handleRenameRedisKey}
+            handleRefreshRedisValue={handleRefreshRedisValue}
+            handleExpireRedisKey={handleExpireRedisKey}
           />
         </Content>
         <Card style={{ height: '76px', textAlign: 'center' }}>

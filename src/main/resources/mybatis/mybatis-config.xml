@@ -13,6 +13,7 @@
         <setting name="defaultExecutorType" value="REUSE"/>
         <!-- 设置超时时间，它决定驱动等待一个数据库响应的时间 -->
         <setting name="defaultStatementTimeout" value="600"/>
+        <setting name="logImpl" value="STDOUT_LOGGING" />
     </settings>
 <!--    别名配置-->
     <typeAliases>

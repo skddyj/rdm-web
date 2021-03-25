@@ -14,6 +14,7 @@ import com.codeoffice.response.RedisDataResponse;
 import com.codeoffice.service.RedisDataService;
 import com.codeoffice.utils.RedisOperationUtil;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class RedisDataServiceImpl implements RedisDataService {
 
@@ -60,7 +62,11 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (request.getConnectionId() == null || request.getDatabaseId() == null || request.getKey() == null) {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
-        return this.getByType(request);
+        Long exists = redisOperationUtil.exist(request.getConnectionId(), request.getDatabaseId(), request.getKey());
+        if (exists > 0) {
+            return this.getByType(request);
+        }
+        return RestResponse.error(RestCode.REDIS_DATA_NO_SUCH_KEY);
     }
 
     @Override
@@ -86,6 +92,37 @@ public class RedisDataServiceImpl implements RedisDataService {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
         return RestResponse.success(redisOperationUtil.del(request.getConnectionId(), request.getDatabaseId(), request.getKey()));
+    }
+
+    @Override
+    public RestResponse renameKey(RedisDataUpdateRequest request) {
+        if (request.getConnectionId() == null || request.getDatabaseId() == null || request.getKey() == null) {
+            return RestResponse.error(RestCode.ILLEGAL_PARAMS);
+        }
+        try {
+            boolean flag = redisOperationUtil.renamenx(request.getConnectionId(), request.getDatabaseId(), request.getKey(), request.getNewKey());
+            if (flag) {
+                return RestResponse.success(true);
+            } else {
+                return RestResponse.error(RestCode.REDIS_DATA_NEW_KEY_EXISTED);
+            }
+        } catch (Exception e) {
+            return RestResponse.error(RestCode.REDIS_DATA_NO_SUCH_KEY);
+        }
+    }
+
+    @Override
+    public RestResponse expire(RedisDataUpdateRequest request) {
+        if (request.getConnectionId() == null || request.getDatabaseId() == null || request.getKey() == null) {
+            return RestResponse.error(RestCode.ILLEGAL_PARAMS);
+        }
+        boolean flag = redisOperationUtil.expire(request.getConnectionId(), request.getDatabaseId(), request.getKey(), request.getTtl());
+        System.out.println(flag);
+        if (flag) {
+            return RestResponse.success(true);
+        } else {
+            return RestResponse.error(RestCode.REDIS_DATA_NO_SUCH_KEY);
+        }
     }
 
 
@@ -149,13 +186,14 @@ public class RedisDataServiceImpl implements RedisDataService {
 
     private RestResponse getByType(RedisDataQueryRequest request) {
         String type = redisOperationUtil.type(request.getConnectionId(), request.getDatabaseId(), request.getKey());
+        Long ttl = redisOperationUtil.ttl(request.getConnectionId(), request.getDatabaseId(), request.getKey());
         if (type.equals("string")) {
             String result = redisOperationUtil.get(request.getConnectionId(), request.getDatabaseId(), request.getKey());
-            RedisDataResponse redisDataResponse = new RedisDataResponse(result, type);
+            RedisDataResponse redisDataResponse = new RedisDataResponse(request.getKey(), result, type, ttl);
             return RestResponse.success(redisDataResponse);
         } else if (type.equals("list")) {
             List result = redisOperationUtil.lrange(request.getConnectionId(), request.getDatabaseId(), request.getKey());
-            RedisDataResponse redisDataResponse = new RedisDataResponse(result, type);
+            RedisDataResponse redisDataResponse = new RedisDataResponse(request.getKey(), result, type, ttl);
             return RestResponse.success(redisDataResponse);
         }
         return null;
