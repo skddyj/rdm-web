@@ -96,6 +96,7 @@ public class RedisClientUtil implements InitializingBean {
      * @return: java.util.Map<java.lang.Integer, org.apache.commons.pool2.impl.GenericObjectPool>
      */
     public Map<Integer, RedisClient> getRedisClientMap(Long id) {
+        log.info("redisClientMap:{}",redisClientMap);
         return this.redisClientMap.get(id);
     }
 

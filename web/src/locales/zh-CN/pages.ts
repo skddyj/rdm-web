@@ -88,6 +88,6 @@ export default {
   'pages.redisDataManage.ttl': 'TTL',
 
   'pages.redisDataManage.createForm.newRedisData' :"新建Key",
-
   'pages.redisDataManage.createForm.renameRedisKey' :"重命名Key",
+  'pages.redisDataManage.createForm.setTTL' :"设置TTL",
 };

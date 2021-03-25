@@ -12,9 +12,9 @@ a Web management tool for Redis
 
 ![](homepage.png)
 
-![](homepage2.png)
+![](homepage.png)
 
-![](homepage3.png)
+![](homepage2.png)
 
 </div>
 

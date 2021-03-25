@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch } from 'umi';
 import { Link, useIntl, connect, history, FormattedMessage } from 'umi';
 import { GithubOutlined, SoundTwoTone } from '@ant-design/icons';
-import { Result, Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb } from 'antd';
+import { Result, Button, Divider, Layout, Menu, Tree, message, Spin, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb } from 'antd';
 
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
@@ -22,7 +22,7 @@ import logo from '../assets/logo.svg';
 import DraggleLayout from './DraggleLayout'
 const { Header, Content, Footer, Sider } = Layout;
 import {
-  EditOutlined,
+  FileAddFilled,
   CaretDownOutlined,
   DatabaseOutlined,
   FileAddOutlined,
@@ -83,6 +83,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const [redisConnectionData, setRedisConnectionData] = useState([]);
   /** 展开的树节点Key*/
   const [expandedKeys, setExpandedKeys] = useState<[]>([]);
+  /** 选中的树节点Key*/
+  const [selectedKeys, setSelectedKeys] = useState<[]>([]);
   /** Redis连接弹窗 */
   const [connectionModalVisible, handleConnectionModalVisible] = useState<boolean>(false);
   /** RedisData弹窗 */
@@ -95,10 +97,13 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const [currentTreeNode, setCurrentTreeNode] = useState();
   /** 当前点击的Key数据*/
   const [currentRedisResult, setCurrentRedisResult] = useState();
+  /** RedisData弹窗 */
+  const [loadingTree, handleLoadingTree] = useState<boolean>(true);
 
   /** 初始化树数据 */
   useEffect(() => {
     getAllRedisConnection().then((data) => {
+      handleLoadingTree(false)
       setRedisConnectionData(data)
     })
   }, []);
@@ -208,6 +213,29 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
               title: e.name, key: `${e.id}`, connectionKey: `${e.id}`, level: 1, connectionId: e.id, isLeaf: false, redisConnectionVo: e, icon: < DatabaseOutlined />
             }
           })
+        }
+      });
+    } catch (error) {
+      message.error('查询Redis连接失败');
+      return [];
+    }
+  };
+
+  /** 
+   * 加载所有Redis连接
+   */
+  const loadAllRedisConnection = async () => {
+    handleLoadingTree(true);
+    try {
+      return await queryAllRedisConnection().then((response) => {
+        if (response && response.success) {
+          const data = response.result.map((e) => {
+            return {
+              title: e.name, key: `${e.id}`, connectionKey: `${e.id}`, level: 1, connectionId: e.id, isLeaf: false, redisConnectionVo: e, icon: < DatabaseOutlined />
+            }
+          });
+          handleLoadingTree(false)
+          setRedisConnectionData(data);
         }
       });
     } catch (error) {
@@ -392,9 +420,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     }
   };
 
-
-
   const refreshRedisConnection = () => {
+    handleLoadingTree(true);
     let newRedisConnectionData = [...redisConnectionData];
     getAllRedisConnection().then((data) => {
       // 遍历后端数据
@@ -415,6 +442,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
           newRedisConnectionData.splice(newRedisConnectionData.findIndex(row => row.connectionId === rowData.connectionId), 1)
         }
       });
+      handleLoadingTree(false);
       setRedisConnectionData([...newRedisConnectionData])
       expandKey.forEach((key) => {
         onTreeNodeFold(key, true)
@@ -428,9 +456,17 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 清空选中 
    */
   const clearSelected = () => {
+    setSelectedKeys([]);
     setCurrentTreeNode(undefined);
     setCurrentRedisKey(undefined);
     setCurrentRedisResult(undefined);
+  }
+
+  /** 
+   * 关闭所有展开
+   */
+  const clearExpanded = () => {
+    setExpandedKeys([])
   }
 
   /** 
@@ -505,6 +541,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 树节点选择
    */
   const onTreeNodeSelect = (selectedKeys, { selected, selectedNodes, node, event }) => {
+    setSelectedKeys(selectedKeys);
     if (selected) {
       setCurrentTreeNode(node);
       if (node.level === 3) {
@@ -638,6 +675,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       >
         <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }}>
           <Button
+            icon={<FileAddFilled />}
             type="primary"
             block
             onClick={() => {
@@ -654,25 +692,33 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             handleConnectionModalVisible={handleConnectionModalVisible}
             handleDataModalVisible={handleDataModalVisible}
             handleRemoveRedisConnection={handleRemoveRedisConnection}
-            refreshRedisConnection={refreshRedisConnection}
             refreshCurrentConnectionDatabase={refreshCurrentConnectionDatabase}
             refreshCurrentDatabaseKeys={refreshCurrentDatabaseKeys}
+            clearExpanded={clearExpanded}
+            clearSelected={clearSelected}
+            loadAllRedisConnection={loadAllRedisConnection}
           />
           <Scrollbars
             autoHide
             style={{
               marginTop: 20, height: 'calc(100% - 104px)'
             }}>
-            <Tree
-              showLine
-              showIcon
-              //loadData={onLoadData}
-              switcherIcon={<CaretDownOutlined />}
-              onExpand={onTreeNodeExpand}
-              onSelect={onTreeNodeSelect}
-              expandedKeys={expandedKeys}
-              treeData={redisConnectionData}
-            />
+            {loadingTree ?
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                <Spin />
+              </div> :
+              <Tree
+                showLine
+                showIcon
+                //loadData={onLoadData}
+                switcherIcon={<CaretDownOutlined />}
+                onExpand={onTreeNodeExpand}
+                onSelect={onTreeNodeSelect}
+                selectedKeys={selectedKeys}
+                expandedKeys={expandedKeys}
+                treeData={redisConnectionData}
+              />}
+
           </Scrollbars>
         </Card>
       </Sider>
@@ -698,12 +744,14 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       </Layout>
       <RedisConnectionModal
         form={form}
+        currentTreeNode={currentTreeNode}
         connectionModalType={connectionModalType}
         connectionModalVisible={connectionModalVisible}
         handleAddRedisConnection={handleAddRedisConnection}
         handleUpdateRedisConnection={handleUpdateRedisConnection}
         handleTestRedisConnection={handleTestRedisConnection}
-        refreshCurrentConnectionDatabase={refreshCurrentConnectionDatabase}
+        loadAllRedisConnection={loadAllRedisConnection}
+        clearSelected={clearSelected}
         handleConnectionModalVisible={handleConnectionModalVisible}
       />
       <RedisDataModal

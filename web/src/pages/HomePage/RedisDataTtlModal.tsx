@@ -49,8 +49,8 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
   return (
     <Modal
       title={formatMessage({
-        id: 'pages.redisDataManage.createForm.renameRedisKey',
-        defaultMessage: '重命名Key'
+        id: 'pages.redisDataManage.createForm.setTTL',
+        defaultMessage: '设置TTL'
       })}
       width="600px"
       destroyOnClose
@@ -107,7 +107,7 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
             },
           ]}
         >
-          <InputNumber style={{ width: '100%' }} placeholder='请输入TTL' />
+          <InputNumber style={{ width: '100%' }} placeholder='请输入TTL' step={10} />
         </Form.Item >
       </Form>
     </Modal>

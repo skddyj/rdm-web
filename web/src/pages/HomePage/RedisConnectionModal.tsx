@@ -19,13 +19,15 @@ export enum ModalType { Create, Update };
 
 export type RedisConnectionModalProps = {
   form;
+  currentTreeNode;
   handleAddRedisConnection;
   handleUpdateRedisConnection;
   handleTestRedisConnection;
   handleConnectionModalVisible;
-  refreshCurrentConnectionDatabase;
+  loadAllRedisConnection;
   connectionModalType;
   connectionModalVisible;
+  clearSelected;
 };
 
 const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
@@ -34,13 +36,15 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
 
   const {
     form,
+    currentTreeNode,
     handleAddRedisConnection,
     handleUpdateRedisConnection,
     handleTestRedisConnection,
     handleConnectionModalVisible,
-    refreshCurrentConnectionDatabase,
+    loadAllRedisConnection,
     connectionModalType,
-    connectionModalVisible
+    connectionModalVisible,
+    clearSelected
   } = props;
 
   return (
@@ -85,10 +89,12 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
                   }
                 });
               } else if (connectionModalType === ModalType.Update) {
-                handleUpdateRedisConnection({ id: currentRow?.id, ...values }).then((success) => {
+                console.log()
+                handleUpdateRedisConnection({ id: currentTreeNode?.connectionId, ...values }).then((success) => {
                   console.log("success", success);
                   if (success) {
-                    refreshCurrentConnectionDatabase();
+                    clearSelected();
+                    loadAllRedisConnection();
                     handleConnectionModalVisible(false);
                   }
                 });
@@ -195,6 +201,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
         <Form.Item
           name="connectionType"
           label="连接类型"
+          initialValue={1}
           rules={[
             {
               required: true,

@@ -14,7 +14,10 @@ import {
   CaretDownOutlined,
   DatabaseOutlined,
   FileAddOutlined,
-  RedoOutlined,
+  ReloadOutlined,
+  SettingOutlined,
+  SaveOutlined,
+  FormOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
@@ -73,6 +76,8 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     if (currentRedisResult) {
       const { key, ttl } = currentRedisResult;
       form.setFieldsValue({ redisKey: key, ttl })
+    } else {
+      form.resetFields();
     }
   }, [currentRedisResult]);
 
@@ -135,7 +140,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
       confirm({
         title: '删除确认',
         icon: <ExclamationCircleOutlined />,
-        content: '此操作不可恢复，确认删除吗 ？',
+        content: '此操作不可恢复，是否继续 ？',
         onOk() {
           handleRemoveRedisKey(data)
         },
@@ -150,7 +155,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
 
   return (
     <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }} bordered={false}>
-      <div style={{ height: '40px' }}>
+      <div style={{ height: '32px' }}>
         <Form
           style={{ float: 'left', width: '40%' }}
           layout="inline"
@@ -181,11 +186,13 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
           </Form.Item>
         </Form>
         <div style={{ float: 'left', width: 'calc(40% - 20px)', marginLeft: '20px' }}>
-          <Space size='large' style={{ height: '20%', textAlign: 'center' }}>
+          <Space style={{ height: '20%', textAlign: 'center' }}>
             <Button type="primary"
               onClick={onRedisValueUpdate}
+              icon={<SaveOutlined />}
             >保存</Button>
             <Button type="primary"
+              icon={<FormOutlined />}
               onClick={() => {
                 if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
                   handleDataRenameModalVisible(true);
@@ -194,10 +201,12 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
                 }
               }}>重命名</Button>
             <Button type="primary"
+              icon={<DeleteOutlined />}
               onClick={() => {
                 removeRedisKey()
               }}>删除</Button>
             <Button type="primary"
+              icon={<SettingOutlined />}
               onClick={() => {
                 if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
                   handleDataTtlModalVisible(true);
@@ -206,6 +215,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
                 }
               }}>设置TTL</Button>
             <Button type="primary"
+              icon={<ReloadOutlined />}
               onClick={() => {
                 if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
                   handleRefreshRedisValue(currentTreeNode);
@@ -216,7 +226,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
           </Space>
         </div>
       </div>
-      <div style={{ height: 'calc(100% - 52px)', display: 'block', float: 'none' }}>
+      <div style={{ marginTop: '20px', height: 'calc(100% - 52px)', display: 'block', float: 'none' }}>
         {getValueDisplayArea(currentRedisResult)}
       </div>
       <RedisDataRenameModal

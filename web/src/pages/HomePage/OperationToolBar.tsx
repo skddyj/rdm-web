@@ -32,9 +32,11 @@ export type OperationToolBarProps = {
   handleConnectionModalVisible;
   handleDataModalVisible;
   handleRemoveRedisConnection;
-  refreshRedisConnection;
   refreshCurrentConnectionDatabase;
   refreshCurrentDatabaseKeys;
+  clearExpanded;
+  clearSelected;
+  loadAllRedisConnection;
 };
 
 const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
@@ -49,9 +51,11 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
     handleConnectionModalVisible,
     handleDataModalVisible,
     handleRemoveRedisConnection,
-    refreshRedisConnection,
     refreshCurrentConnectionDatabase,
-    refreshCurrentDatabaseKeys
+    refreshCurrentDatabaseKeys,
+    clearExpanded,
+    clearSelected,
+    loadAllRedisConnection
   } = props;
 
   const getOperationToolBar = () => {
@@ -62,11 +66,11 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
           <Button title='编辑'
             onClick={() => {
               confirm({
-                title: '关闭确认',
+                title: '编辑确认',
                 icon: <ExclamationCircleOutlined />,
-                content: '编辑连接信息需要关闭当前连接，确认继续吗 ？',
+                content: '编辑连接信息需要关闭所有连接，是否继续 ？',
                 onOk() {
-                  onTreeNodeFold(currentTreeNode.key, true)
+                  clearExpanded();
                   form.setFieldsValue(currentTreeNode.redisConnectionVo);
                   setConnectionModalType(ModalType.Update)
                   handleConnectionModalVisible(true);
@@ -74,7 +78,6 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
                 onCancel() {
                 },
               });
-
             }}
             type="primary" icon={<EditOutlined />} />
           <Button title='删除'
@@ -82,7 +85,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
               confirm({
                 title: '删除确认',
                 icon: <ExclamationCircleOutlined />,
-                content: '此操作不可恢复，确认删除吗 ？',
+                content: '此操作不可恢复，是否继续 ？',
                 onOk() {
                   onTreeNodeFold(currentTreeNode.key)
                   handleRemoveRedisConnection(currentTreeNode);
@@ -117,14 +120,32 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             type="primary" icon={<RedoOutlined />} />
         </Space>
       )
+    } else if (currentTreeNode && currentTreeNode.level === 3) {
+      return (
+        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
+          <Search placeholder="请输入" enterButton />
+        </Space>
+      )
     } else {
       return (
         <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
           <Search placeholder="请输入" enterButton />
           <Button title='刷新'
             onClick={() => {
-              refreshRedisConnection()
-            }} type="primary" icon={<RedoOutlined />} />
+              confirm({
+                title: '刷新确认',
+                icon: <ExclamationCircleOutlined />,
+                content: '该操作会关闭所有连接，是否继续 ？',
+                onOk() {
+                  clearExpanded();
+                  clearSelected
+                  loadAllRedisConnection();
+                },
+                onCancel() {
+                },
+              });
+            }}
+            type="primary" icon={<RedoOutlined />} />
         </Space>
       )
     }
