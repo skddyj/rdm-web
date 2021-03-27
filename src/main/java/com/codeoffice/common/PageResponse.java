@@ -54,7 +54,7 @@ public class PageResponse<T> implements Serializable {
         }
     }
 
-    public PageResponse(int current, int pageSize, int total, int totalPage, List<T> list) {
+    public PageResponse(int current, int pageSize, long total, int totalPage, List<T> list) {
         this.current = current;
         this.pageSize = pageSize;
         this.data = list;

@@ -4,6 +4,8 @@ import com.codeoffice.model.RedisDataModel;
 import com.codeoffice.model.RedisDataZSetModel;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.ScoredValue;
+import io.lettuce.core.TransactionResult;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import lombok.extern.slf4j.Slf4j;
@@ -109,7 +111,7 @@ public class RedisOperationUtil {
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.expire(key,l);
+            return commands.expire(key, l);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -151,12 +153,12 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public String set(Long id, Integer databaseId, String key,String value) {
+    public String set(Long id, Integer databaseId, String key, String value) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.set(key,value);
+            return commands.set(key, value);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -168,18 +170,18 @@ public class RedisOperationUtil {
     }
 
     /**
-     * @description: rpush
+     * @description: lpush
      * @date: 2021/3/17
      * @param: id
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long rpush(Long id, Integer databaseId, String key,List<String> list) {
+    public Long lpush(Long id, Integer databaseId, String key, String... value) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.rpush(key,list.stream().toArray(String[]::new));
+            return commands.lpush(key, value);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -191,18 +193,87 @@ public class RedisOperationUtil {
     }
 
     /**
-     * @description: rpop
+     * @description: update
      * @date: 2021/3/17
      * @param: id
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public List lrange(Long id, Integer databaseId, String key) {
+    public String lset(Long id, Integer databaseId, String key, Long index, String newValue) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.lrange(key,0,-1);
+            return commands.lset(key, index, newValue);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: lrem
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long lrem(Long id, Integer databaseId, String key, String value) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.lrem(key, 1, value);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: lrange
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public List lrange(Long id, Integer databaseId, String key, long start, long end) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.lrange(key, start, end);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: llen
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long llen(Long id, Integer databaseId, String key) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.llen(key);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -220,12 +291,12 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long sadd(Long id, Integer databaseId, String key, Set<String> list) {
+    public Long sadd(Long id, Integer databaseId, String key, String... value) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.sadd(key,list.stream().toArray(String[]::new));
+            return commands.sadd(key, value);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -243,12 +314,12 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long zadd(Long id, Integer databaseId, String key, Set<RedisDataZSetModel> list) {
+    public Long zadd(Long id, Integer databaseId, String key, ScoredValue... scoredValue) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.zadd(key,list.stream().toArray(RedisDataZSetModel[]::new));
+            return commands.zadd(key, scoredValue);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -266,12 +337,12 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long hset(Long id, Integer databaseId, String key, Map<String,String> value) {
+    public Long hset(Long id, Integer databaseId, String key, Map<String, String> value) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.hset(key,value);
+            return commands.hset(key, value);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -290,12 +361,12 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Boolean renamenx(Long id, Integer databaseId, String key1,String key2) {
+    public Boolean renamenx(Long id, Integer databaseId, String key1, String key2) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            return commands.renamenx(key1,key2);
+            return commands.renamenx(key1, key2);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -387,8 +458,8 @@ public class RedisOperationUtil {
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            List<KeyValue<String,String>> resultKeyValues=commands.mget(keys.stream().toArray(String[]::new));
-            return resultKeyValues.stream().map(e-> new RedisDataModel(e.getKey(),e.getValue())).collect(Collectors.toList());
+            List<KeyValue<String, String>> resultKeyValues = commands.mget(keys.stream().toArray(String[]::new));
+            return resultKeyValues.stream().map(e -> new RedisDataModel(e.getKey(), e.getValue())).collect(Collectors.toList());
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {

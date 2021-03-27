@@ -8,6 +8,19 @@ export type TableListItem = {
   username?: string;
 };
 
+export type TreeNodeItem = {
+  title?: string;
+  key?: string;
+  isLeaf?: boolean;
+  level?: number;
+  connectionId?: number;
+  databaseId?:number;
+  connectionKey?: string;  
+  databaseKey?:string;
+  redisKey?:string;
+  icon?: any;
+};
+
 export type TableSearchItem = {
   name?: string;
 

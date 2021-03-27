@@ -25,7 +25,7 @@ import StringValueDisplayArea from './StringValueDisplayArea';
 import ListValueDisplayArea from './ListValueDisplayArea';
 import RedisDataRenameModal from './RedisDataRenameModal';
 import RedisDataTtlModal from './RedisDataTtlModal';
-import { renameRedisKeyValue } from './service';
+import { queryKeyAttr } from './service';
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
@@ -40,9 +40,7 @@ const layout = {
 
 export type ValueDisplayCardProps = {
   form;
-  currentRedisKey;
   currentTreeNode;
-  currentRedisResult;
   onRedisValueUpdate;
   handleRemoveRedisKey;
   handleRenameRedisKey;
@@ -56,9 +54,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
 
   const {
     form,
-    currentRedisKey,
     currentTreeNode,
-    currentRedisResult,
     onRedisValueUpdate,
     handleRemoveRedisKey,
     handleRenameRedisKey,
@@ -70,64 +66,66 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
 
   const [dataTtlModalVisible, handleDataTtlModalVisible] = useState<boolean>(false);
 
+  const [currentRedisKeyType, setCurrentRedisKeyType] = useState();
+
 
   useEffect(() => {
-    console.log(currentRedisResult)
-    if (currentRedisResult) {
-      const { key, ttl } = currentRedisResult;
-      form.setFieldsValue({ redisKey: key, ttl })
-    } else {
-      form.resetFields();
+    if (currentTreeNode && currentTreeNode.level === 3) {
+      getKeyAttr().then((attr) => {
+        const { type, key, ttl } = attr;
+        form.setFieldsValue({ redisKey: key, ttl })
+        setCurrentRedisKeyType(type)
+      });
     }
-  }, [currentRedisResult]);
+  });
+
+  const getKeyAttr = async () => {
+    const { connectionId, databaseId, redisKey } = currentTreeNode
+    try {
+      return await queryKeyAttr({ connectionId, databaseId, key: redisKey }).then((response) => {
+        if (response && response.success) {
+          return response.result;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      message.error('查询Key属性失败');
+    }
+  }
 
   const stringValueDisplayArea = (
     <StringValueDisplayArea
-      form={form}
-      currentRedisKey={currentRedisKey}
       currentTreeNode={currentTreeNode}
-      currentRedisResult={currentRedisResult}
     />
   );
 
   const listValueDisplayArea = (
     <ListValueDisplayArea
-      form={form}
-      currentRedisKey={currentRedisKey}
       currentTreeNode={currentTreeNode}
-      currentRedisResult={currentRedisResult}
     />
   );
 
-  const getValueDisplayArea = (currentRedisResult) => {
-    if (currentRedisResult) {
-      if (currentRedisResult.type === 'string') {
-        return stringValueDisplayArea;
-      } else if (currentRedisResult.type === 'list') {
-        return listValueDisplayArea;
-      } else {
-        return <Empty style={{ verticalAlign: 'center' }} />;
-      }
+  const getValueDisplayArea = () => {
+    if (currentRedisKeyType === 'string') {
+      return stringValueDisplayArea;
+    } else if (currentRedisKeyType === 'list') {
+      return listValueDisplayArea;
     } else {
       return <Empty style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
     }
   }
 
-  const getRedisKeyFormLabel = (currentRedisResult) => {
-    if (currentRedisResult) {
-      if (currentRedisResult.type === 'string') {
-        return <b>String</b>;
-      } else if (currentRedisResult.type === 'list') {
-        return <b>List</b>;
-      } else if (currentRedisResult.type === 'set') {
-        return <b>Set</b>;
-      } else if (currentRedisResult.type === 'zset') {
-        return <b>ZSet</b>;
-      } else if (currentRedisResult.type === 'hash') {
-        return <b>Hash</b>;
-      } else {
-        return <b>Key</b>;
-      }
+  const getRedisKeyFormLabel = () => {
+    if (currentRedisKeyType === 'string') {
+      return <b>String</b>;
+    } else if (currentRedisKeyType === 'list') {
+      return <b>List</b>;
+    } else if (currentRedisKeyType === 'set') {
+      return <b>Set</b>;
+    } else if (currentRedisKeyType === 'zset') {
+      return <b>ZSet</b>;
+    } else if (currentRedisKeyType === 'hash') {
+      return <b>Hash</b>;
     } else {
       return <b>Key</b>;
     }
@@ -135,8 +133,8 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
 
   const removeRedisKey = () => {
     if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
-      const { connectionId, databaseId } = currentTreeNode;
-      const data = { connectionId, databaseId, key: currentRedisKey }
+      const { connectionId, databaseId, redisKey } = currentTreeNode;
+      const data = { connectionId, databaseId, key: redisKey }
       confirm({
         title: '删除确认',
         icon: <ExclamationCircleOutlined />,
@@ -166,7 +164,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
           <Form.Item
             style={{ width: '100%' }}
             name="redisKey"
-            label={getRedisKeyFormLabel(currentRedisResult)}
+            label={getRedisKeyFormLabel()}
           >
             <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
           </Form.Item>
@@ -227,7 +225,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
         </div>
       </div>
       <div style={{ marginTop: '20px', height: 'calc(100% - 52px)', display: 'block', float: 'none' }}>
-        {getValueDisplayArea(currentRedisResult)}
+        {getValueDisplayArea()}
       </div>
       <RedisDataRenameModal
         currentTreeNode={currentTreeNode}

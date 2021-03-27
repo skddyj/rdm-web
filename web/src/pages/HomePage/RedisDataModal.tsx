@@ -56,12 +56,17 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
     setType(type)
   }
 
-  const createParamByType = (values) => {
+  const createParamByType = (fields) => {
     console.log(currentTreeNode)
+    const { type, value } = fields;
     const { connectionId, databaseId } = currentTreeNode;
-    const data = { ...values, connectionId, databaseId }
-    if (values.type === 'list' || values.type === 'zset') {
-      data.value = [values.value]
+    const data = { ...fields, connectionId, databaseId }
+    if (type === 'list' || type === 'set') {
+      data.value = fields.value
+    } else if (type === 'zset') {
+      data.value = { score: fields.score, value }
+    } else if (type === 'hash') {
+      data.value = { hashKey: fields.hashKey, value }
     }
     return data;
   }

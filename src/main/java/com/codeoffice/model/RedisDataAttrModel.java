@@ -7,9 +7,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @ToString
-public class RedisDataZSetModel {
+public class RedisDataAttrModel {
+    private String key;
 
-    private Double score;
+    private String type;
 
-    private String value;
+    private Long ttl;
 }

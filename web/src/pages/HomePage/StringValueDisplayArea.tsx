@@ -18,6 +18,7 @@ import {
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
+import { queryRedisValue } from './service'
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
@@ -25,27 +26,42 @@ const { confirm } = Modal;
 export enum ModalType { Create, Update };
 
 export type StringValueDisplayAreaProps = {
-  form;
-  currentRedisKey;
   currentTreeNode;
-  currentRedisResult;
 };
 
 const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) => {
   /** 国际化 */
   const { formatMessage } = useIntl();
 
+  const [form] = Form.useForm();
+
   const {
-    form,
-    currentRedisKey,
-    currentTreeNode,
-    currentRedisResult
+    currentTreeNode
   } = props;
 
-  /** 初始化树数据 */
+
   useEffect(() => {
-    form.setFieldsValue({ stringRedisValue: currentRedisResult.value })
-  }, [currentRedisResult]);
+    if (currentTreeNode) {
+      getStringKeyValue().then((value) => {
+        form.setFieldsValue({ stringRedisValue: value })
+      });
+    }
+  });
+
+  const getStringKeyValue = async () => {
+    const { connectionId, databaseId, redisKey } = currentTreeNode
+    try {
+      return await queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'string' }).then((response) => {
+        if (response && response.success) {
+          console.log(response.result)
+          return response.result.value;
+        }
+        throw new Error(response.message);
+      })
+    } catch (error) {
+      message.error('查询Key值失败');
+    }
+  }
 
   return (
     <div style={{ height: '100%', textAlign: 'right' }}>

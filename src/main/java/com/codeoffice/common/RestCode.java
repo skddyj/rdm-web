@@ -41,7 +41,7 @@ public enum RestCode {
     DELETE_IDS_IS_NULL(31000, "ID不能为空"),
     REDIS_CONNECTION_FAILED(31001, "Redis连接失败"),
 
-    REDIS_DATA_NEW_KEY_EXISTED(31002, "New Key已存在，请重新输入"),
+    REDIS_DATA_KEY_EXISTED(31002, "该Key已存在，请重新输入"),
     REDIS_DATA_NO_SUCH_KEY(31003, "该Key不存在或已删除"),
     ;
 

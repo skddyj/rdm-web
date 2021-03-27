@@ -80,8 +80,21 @@ export async function queryDatabaseKeys(params) {
 }
 
 /***********************Redis数据****************************/
-export async function queryKeyValue(params) {
-  return request('/api/redisData/get', {
+/**
+ * 添加Redis键
+ */
+ export async function addRedisKey(params) {
+  return request('/api/redisData/addKey', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+
+export async function queryKeyAttr(params) {
+  return request('/api/redisData/getKeyAttr', {
     params,
   })
 }
@@ -97,17 +110,25 @@ export async function setKeyValue(params) {
   });
 }
 
+
 /**
- * 添加Redis 键值
+ * 添加Redis键
  */
-export async function addRedisKeyValue(params) {
-  return request('/api/redisData/addKey', {
+ export async function addRedisValue(params) {
+  return request('/api/redisData/addValue', {
     method: 'POST',
     data: {
       ...params,
       method: 'post',
     },
   });
+}
+
+
+export async function queryRedisValue(params) {
+  return request('/api/redisData/getValue', {
+    params,
+  })
 }
 
 /**

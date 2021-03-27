@@ -32,9 +32,9 @@ import {
 } from '@ant-design/icons';
 import {
   queryAllRedisConnection, queryDatabaseCount, queryDatabaseKeys,
-  queryKeyValue, updateRedisConnection, addRedisConnection,
+  queryRedisValue, updateRedisConnection, addRedisConnection,
   removeRedisConnection, testRedisConnection,
-  setKeyValue, addRedisKeyValue, removeRedisKeyValue, renameRedisKeyValue,
+  setKeyValue, addRedisKey, removeRedisKeyValue, renameRedisKeyValue,
   expireRedisKeyValue
 } from './service';
 
@@ -91,12 +91,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const [dataModalVisible, handleDataModalVisible] = useState<boolean>(false);
   /** Redis连接弹窗类型 */
   const [connectionModalType, setConnectionModalType] = useState<ModalType>(ModalType.Create);
-  /** 当前选择的Redis Key*/
-  const [currentRedisKey, setCurrentRedisKey] = useState();
   /** 当前选择的树节点数据*/
   const [currentTreeNode, setCurrentTreeNode] = useState();
-  /** 当前点击的Key数据*/
-  const [currentRedisResult, setCurrentRedisResult] = useState();
   /** RedisData弹窗 */
   const [loadingTree, handleLoadingTree] = useState<boolean>(true);
 
@@ -250,7 +246,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const handleAddRedisKey = async (fields) => {
     const hide = message.loading('正在添加');
     try {
-      return await addRedisKeyValue({ ...fields }).then((response) => {
+      return await addRedisKey({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
           message.success('添加成功');
@@ -348,10 +344,10 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           return response.result;
         }
+        throw new Error(response.message);
       });
     } catch (error) {
       message.error('查询数据库数量失败');
-      return 0;
     }
   };
 
@@ -364,39 +360,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           return response.result;
         }
-        message.error(response.message)
+        throw new Error(response.message);
       });
     } catch (error) {
       message.error('查询Keys失败');
-      return 0;
     }
   };
-
-  /**
-   * 获取Redis Key对应Value
-   */
-  const getRedisValue = async (connectionId, databaseId, key) => {
-    try {
-      return await queryKeyValue({ connectionId, databaseId, key }).then((response) => {
-        if (response && response.success) {
-          return response.result;
-        }
-        message.error(response.message)
-      });
-    } catch (error) {
-      message.error('查询Key失败');
-      return 0;
-    }
-  };
-
-  /**
-   * 刷新redis value
-   */
-  const handleRefreshRedisValue = ({ connectionId, databaseId, redisKey }) => {
-    getRedisValue(connectionId, databaseId, redisKey).then((result) => {
-      setCurrentRedisResult(result)
-    })
-  }
 
 
   /**
@@ -458,8 +427,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const clearSelected = () => {
     setSelectedKeys([]);
     setCurrentTreeNode(undefined);
-    setCurrentRedisKey(undefined);
-    setCurrentRedisResult(undefined);
   }
 
   /** 
@@ -544,12 +511,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     setSelectedKeys(selectedKeys);
     if (selected) {
       setCurrentTreeNode(node);
-      if (node.level === 3) {
-        setCurrentRedisKey(node.redisKey)
-        getRedisValue(node.connectionId, node.databaseId, node.redisKey).then((result) => {
-          setCurrentRedisResult(result)
-        })
-      }
+      
     } else {
       setCurrentTreeNode(undefined)
     }
@@ -728,13 +690,11 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         <Content style={{ height: 'calc(100% - 128px)' }}>
           <ValueDisplayCard
             form={textAreaForm}
-            currentRedisKey={currentRedisKey}
             currentTreeNode={currentTreeNode}
-            currentRedisResult={currentRedisResult}
             onRedisValueUpdate={onRedisValueUpdate}
             handleRemoveRedisKey={handleRemoveRedisKey}
             handleRenameRedisKey={handleRenameRedisKey}
-            handleRefreshRedisValue={handleRefreshRedisValue}
+            //handleRefreshRedisValue={handleRefreshRedisValue}
             handleExpireRedisKey={handleExpireRedisKey}
           />
         </Content>

@@ -2,6 +2,7 @@ package com.codeoffice.service;
 
 import com.codeoffice.common.RestResponse;
 import com.codeoffice.request.RedisDataQueryRequest;
+import com.codeoffice.request.RedisDataRowUpdateRequest;
 import com.codeoffice.request.RedisDataUpdateRequest;
 
 /**
@@ -14,7 +15,13 @@ public interface RedisDataService {
 
     RestResponse keys(RedisDataQueryRequest request);
 
-    RestResponse get(RedisDataQueryRequest request);
+    RestResponse addValue(RedisDataUpdateRequest request);
+
+    RestResponse getValue(RedisDataQueryRequest request);
+
+    RestResponse updateValue(RedisDataRowUpdateRequest request);
+
+    RestResponse getKeyAttr(RedisDataQueryRequest request);
 
     RestResponse set(RedisDataUpdateRequest request);
 

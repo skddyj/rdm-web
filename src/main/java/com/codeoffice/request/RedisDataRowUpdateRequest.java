@@ -8,7 +8,7 @@ import lombok.Data;
  */
 
 @Data
-public class RedisDataUpdateRequest {
+public class RedisDataRowUpdateRequest {
 
     private Long connectionId;
 
@@ -25,6 +25,4 @@ public class RedisDataUpdateRequest {
     private String newKey;
 
     private Object newValue;
-
-    private Long ttl;
 }
