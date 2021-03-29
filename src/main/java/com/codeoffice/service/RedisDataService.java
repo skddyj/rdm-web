@@ -15,17 +15,19 @@ public interface RedisDataService {
 
     RestResponse keys(RedisDataQueryRequest request);
 
-    RestResponse addValue(RedisDataUpdateRequest request);
+    RestResponse addValue(RedisDataRowUpdateRequest request);
 
     RestResponse getValue(RedisDataQueryRequest request);
 
     RestResponse updateValue(RedisDataRowUpdateRequest request);
 
+    RestResponse removeValue(RedisDataRowUpdateRequest request);
+
     RestResponse getKeyAttr(RedisDataQueryRequest request);
 
-    RestResponse set(RedisDataUpdateRequest request);
+    RestResponse set(RedisDataRowUpdateRequest request);
 
-    RestResponse addKey(RedisDataUpdateRequest request);
+    RestResponse addKey(RedisDataRowUpdateRequest request);
 
     RestResponse removeKey(RedisDataUpdateRequest request);
 

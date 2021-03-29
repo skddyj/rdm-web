@@ -9,6 +9,8 @@ import lombok.*;
 @ToString
 public class RedisDataZSetModel {
 
+    private Integer index;
+
     private Double score;
 
     private String value;

@@ -47,7 +47,7 @@ public class RedisDataController {
 
     @ApiOperation("添加一个key")
     @PostMapping(value = "/addKey")
-    public RestResponse addKey(@RequestBody RedisDataUpdateRequest request) {
+    public RestResponse addKey(@RequestBody RedisDataRowUpdateRequest request) {
         return redisDataService.addKey(request);
     }
 
@@ -58,8 +58,8 @@ public class RedisDataController {
     }
 
     @ApiOperation("key添加value")
-    @GetMapping(value = "/addValue")
-    public RestResponse addValue(@RequestBody RedisDataUpdateRequest request) {
+    @PostMapping(value = "/addValue")
+    public RestResponse addValue(@RequestBody RedisDataRowUpdateRequest request) {
         return redisDataService.addValue(request);
     }
 
@@ -70,9 +70,15 @@ public class RedisDataController {
     }
 
     @ApiOperation("key更新value")
-    @GetMapping(value = "/updateValue")
+    @PostMapping(value = "/updateValue")
     public RestResponse updateValue(@RequestBody RedisDataRowUpdateRequest request) {
         return redisDataService.updateValue(request);
+    }
+
+    @ApiOperation("key删除value")
+    @PostMapping(value = "/removeValue")
+    public RestResponse removeValue(@RequestBody RedisDataRowUpdateRequest request) {
+        return redisDataService.removeValue(request);
     }
 
     @ApiOperation("removeKey")
@@ -95,7 +101,7 @@ public class RedisDataController {
 
     @ApiOperation("set key")
     @PostMapping(value = "/set")
-    public RestResponse set(@RequestBody RedisDataUpdateRequest request) {
+    public RestResponse set(@RequestBody RedisDataRowUpdateRequest request) {
         return redisDataService.set(request);
     }
 

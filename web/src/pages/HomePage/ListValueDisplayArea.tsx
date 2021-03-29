@@ -20,7 +20,8 @@ import {
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { queryRedisValue, addRedisValue } from './service'
+import { queryRedisValue, addRedisValue, updateRedisValue, removeRedisValue } from './service'
+import { ModalType } from './HashValueDisplayArea';
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
@@ -50,13 +51,18 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
 
   const actionRef = useRef<ActionType>();
 
-  const [currentRow, setCurrentRow] = useState();
+  const [currentListRow, setCurrentListRow] = useState();
 
   const [listRowModalType, setListRowModalType] = useState<ListRowModalType>(ListRowModalType.Create);
 
   const [listAddRowModalVisible, handleListAddRowModalVisible] = useState(false);
 
-
+  useEffect(() => {
+    console.log("useEffect")
+    if (actionRef.current) {
+      actionRef.current.reload();
+    }
+  });
 
   /**
    * 添加Redis Value
@@ -82,11 +88,64 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
     }
   };
 
+  /**
+ * 修改Redis Value
+ */
+  const handleUpdateRedisValue = async (fields) => {
+    const hide = message.loading('正在修改');
+    try {
+      return await updateRedisValue({ ...fields }).then((response) => {
+        console.log(fields)
+        if (response && response.success) {
+          hide();
+          message.success('修改成功');
+          if (actionRef.current) {
+            actionRef.current.reload();
+          }
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`修改失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+  /**
+ * 修改Redis Value
+ */
+  const handleRemoveRedisValue = async (fields) => {
+    const hide = message.loading('正在删除');
+    try {
+      return await removeRedisValue({ ...fields }).then((response) => {
+        console.log(fields)
+        if (response && response.success) {
+          hide();
+          message.success('删除成功');
+          if (actionRef.current) {
+            actionRef.current.reload();
+          }
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`删除失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
   const columns: ListValueDisplayTableColumns[] = [
     {
       dataIndex: 'id',
       title: <FormattedMessage id="pages.redisDataManage.row" defaultMessage="Row" />,
-      width: '30%'
+      width: '30%',
+      render: (dom, record) => {
+        return record.index + 1;
+      }
     },
     {
       dataIndex: 'value',
@@ -99,9 +158,9 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
       valueType: 'option',
       render: (dom, record) => [
         <a
-          key="config"
+          key="update"
           onClick={() => {
-            setCurrentRow(record);
+            setCurrentListRow(record);
             form.setFieldsValue(record);
             setListRowModalType(ListRowModalType.Update)
             handleListAddRowModalVisible(true);
@@ -112,10 +171,18 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
         <a
           key="config"
           onClick={() => {
-            setCurrentRow(record);
-            //form.setFieldsValue(record);
-            //setModalType(ModalType.Update)
-            //handleModalVisible(true);
+            confirm({
+              title: '删除确认',
+              icon: <ExclamationCircleOutlined />,
+              content: '此操作不可恢复，是否继续 ？',
+              onOk() {
+                const { value } = record;
+                const { connectionId, databaseId, redisKey } = currentTreeNode;
+                handleRemoveRedisValue({ connectionId, databaseId, key: redisKey, value })
+              },
+              onCancel() {
+              },
+            });
           }}
         >
           <FormattedMessage id="pages.redisConnectionManage.delete" defaultMessage="删除" />
@@ -127,7 +194,7 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
   return (
     <div style={{ height: '100%', textAlign: 'right' }}>
       <ProTable
-        rowKey="id"
+        rowKey="index"
         actionRef={actionRef}
         search={false}
         toolbar={{
@@ -147,9 +214,8 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
             >
               添加
             </Button>,
-          ],
+          ]
         }}
-        // dataSource={dataSource}
         request={(params, sorter, filter) => {
           console.log('params', params)
           const { connectionId, databaseId, redisKey } = currentTreeNode;
@@ -178,6 +244,7 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
         footer={[
           <Button key="cancel" onClick={() => {
             form.resetFields();
+            setListRowModalType(ListRowModalType.Create)
             handleListAddRowModalVisible(false);
           }}>
             取消
@@ -187,10 +254,15 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
               .validateFields()
               .then((values) => {
                 console.log(values)
-                const { listRowValue } = values;
                 const { connectionId, databaseId, redisKey } = currentTreeNode;
+                const { value } = values;
+                if (listRowModalType === ListRowModalType.Create) {
+                  handleAddRedisValue({ connectionId, databaseId, key: redisKey, rowValue: value });
+                } else if (listRowModalType === ListRowModalType.Update) {
+                  const { index } = currentListRow;
+                  handleUpdateRedisValue({ connectionId, databaseId, key: redisKey, index, newRowValue: value });
+                }
                 form.resetFields();
-                handleAddRedisValue({ connectionId, databaseId, key: redisKey, value: listRowValue });
                 handleListAddRowModalVisible(false)
               })
               .catch(info => {

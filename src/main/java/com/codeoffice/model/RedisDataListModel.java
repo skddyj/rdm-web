@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 public class RedisDataListModel {
 
-    private String id;
+    private Integer index;
 
     private String value;
 }

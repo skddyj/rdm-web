@@ -23,6 +23,8 @@ import {
 } from '@ant-design/icons';
 import StringValueDisplayArea from './StringValueDisplayArea';
 import ListValueDisplayArea from './ListValueDisplayArea';
+import SetValueDisplayArea from './SetValueDisplayArea';
+import ZSetValueDisplayArea from './ZSetValueDisplayArea';
 import RedisDataRenameModal from './RedisDataRenameModal';
 import RedisDataTtlModal from './RedisDataTtlModal';
 import { queryKeyAttr } from './service';
@@ -105,11 +107,27 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     />
   );
 
+  const setValueDisplayArea = (
+    <SetValueDisplayArea
+      currentTreeNode={currentTreeNode}
+    />
+  );
+
+  const zsetValueDisplayArea = (
+    <ZSetValueDisplayArea
+      currentTreeNode={currentTreeNode}
+    />
+  );
+
   const getValueDisplayArea = () => {
     if (currentRedisKeyType === 'string') {
       return stringValueDisplayArea;
     } else if (currentRedisKeyType === 'list') {
       return listValueDisplayArea;
+    } else if (currentRedisKeyType === 'set') {
+      return setValueDisplayArea;
+    } else if (currentRedisKeyType === 'zset') {
+      return zsetValueDisplayArea;
     } else {
       return <Empty style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
     }

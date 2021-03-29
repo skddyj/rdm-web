@@ -8,23 +8,9 @@ import lombok.Data;
  */
 
 @Data
-public class RedisDataUpdateRequest {
-
-    private Long connectionId;
-
-    private Integer databaseId;
-
-    private String type;
-
-    private Long index;
-
-    private String key;
-
-    private Object value;
+public class RedisDataUpdateRequest extends RedisBaseRequest{
 
     private String newKey;
-
-    private Object newValue;
 
     private Long ttl;
 }

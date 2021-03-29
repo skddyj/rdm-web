@@ -34,7 +34,7 @@ import {
   queryAllRedisConnection, queryDatabaseCount, queryDatabaseKeys,
   queryRedisValue, updateRedisConnection, addRedisConnection,
   removeRedisConnection, testRedisConnection,
-  setKeyValue, addRedisKey, removeRedisKeyValue, renameRedisKeyValue,
+  setKeyValue, addRedisKey, removeRedisKey, renameRedisKeyValue,
   expireRedisKeyValue
 } from './service';
 
@@ -268,7 +268,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const handleRemoveRedisKey = async (fields) => {
     const hide = message.loading('正在删除');
     try {
-      return await removeRedisKeyValue({ ...fields }).then((response) => {
+      return await removeRedisKey({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
           message.success('删除成功');

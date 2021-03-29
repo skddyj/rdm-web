@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb } from 'antd';
 import {
   ProFormSelect,
@@ -10,6 +10,7 @@ import {
 } from '@ant-design/pro-form';
 import { useIntl, FormattedMessage } from 'umi';
 import ProTable from '@ant-design/pro-table';
+import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import {
   EditOutlined,
   CaretDownOutlined,
@@ -19,49 +20,132 @@ import {
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
+import { queryRedisValue, addRedisValue, updateRedisValue, removeRedisValue } from './service'
+import { ModalType } from './HashValueDisplayArea';
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
 
-export enum ModalType { Create, Update };
-
-export type SetValueDisplayAreaProps = {
-  form;
-  currentTreeNode;
-  currentRedisResult;
+const layout = {
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
 };
 
+export enum ListRowModalType { Create, Update };
+
+export type SetValueDisplayAreaProps = {
+  currentTreeNode;
+};
+
+
+
 const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
+  const {
+    currentTreeNode,
+  } = props;
+
   /** 国际化 */
   const { formatMessage } = useIntl();
 
-  const [currentRow, setCurrentRow] = useState();
+  const [form] = Form.useForm();
 
-  const [dataSource, setDataSource] = useState([]);
+  const actionRef = useRef<ActionType>();
 
+  const [currentListRow, setCurrentListRow] = useState();
 
-  const {
-    form,
-    currentTreeNode,
-    currentRedisResult
-  } = props;
+  const [listRowModalType, setListRowModalType] = useState<ListRowModalType>(ListRowModalType.Create);
 
-  /** 初始化树数据 */
+  const [listAddRowModalVisible, handleListAddRowModalVisible] = useState(false);
+
   useEffect(() => {
-    const dataSource = currentRedisResult.value.map((e, index) => {
-      return {
-        id: index,
-        value: e
-      }
-    })
-    setDataSource(dataSource)
-  }, [currentRedisResult]);
+    console.log("useEffect")
+    if (actionRef.current) {
+      actionRef.current.reload();
+    }
+  });
+
+  /**
+   * 添加Redis Value
+   */
+  const handleAddRedisValue = async (fields) => {
+    const hide = message.loading('正在添加');
+    try {
+      return await addRedisValue({ ...fields }).then((response) => {
+        if (response && response.success) {
+          hide();
+          message.success('添加成功');
+          if (actionRef.current) {
+            actionRef.current.reload();
+          }
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`添加失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+  /**
+ * 修改Redis Value
+ */
+  const handleUpdateRedisValue = async (fields) => {
+    const hide = message.loading('正在修改');
+    try {
+      return await updateRedisValue({ ...fields }).then((response) => {
+        console.log(fields)
+        if (response && response.success) {
+          hide();
+          message.success('修改成功');
+          if (actionRef.current) {
+            actionRef.current.reload();
+          }
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`修改失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
+
+  /**
+ * 修改Redis Value
+ */
+  const handleRemoveRedisValue = async (fields) => {
+    const hide = message.loading('正在删除');
+    try {
+      return await removeRedisValue({ ...fields }).then((response) => {
+        console.log(fields)
+        if (response && response.success) {
+          hide();
+          message.success('删除成功');
+          if (actionRef.current) {
+            actionRef.current.reload();
+          }
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(`删除失败，请重试，失败原因：${error}`);
+      return false;
+    }
+  };
 
   const columns: ListValueDisplayTableColumns[] = [
     {
       dataIndex: 'id',
       title: <FormattedMessage id="pages.redisDataManage.row" defaultMessage="Row" />,
-      width: '30%'
+      width: '30%',
+      render: (dom, record) => {
+        return record.index + 1;
+      }
     },
     {
       dataIndex: 'value',
@@ -74,12 +158,12 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
       valueType: 'option',
       render: (dom, record) => [
         <a
-          key="config"
+          key="update"
           onClick={() => {
-            setCurrentRow(record);
-            //form.setFieldsValue(record);
-            //setModalType(ModalType.Update)
-            //handleModalVisible(true);
+            setCurrentListRow(record);
+            form.setFieldsValue(record);
+            setListRowModalType(ListRowModalType.Update)
+            handleListAddRowModalVisible(true);
           }}
         >
           <FormattedMessage id="pages.redisConnectionManage.update" defaultMessage="修改" />
@@ -87,13 +171,21 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
         <a
           key="config"
           onClick={() => {
-            setCurrentRow(record);
-            //form.setFieldsValue(record);
-            //setModalType(ModalType.Update)
-            //handleModalVisible(true);
+            confirm({
+              title: '删除确认',
+              icon: <ExclamationCircleOutlined />,
+              content: '此操作不可恢复，是否继续 ？',
+              onOk() {
+                const { value } = record;
+                const { connectionId, databaseId, redisKey } = currentTreeNode;
+                handleRemoveRedisValue({ connectionId, databaseId, key: redisKey, value })
+              },
+              onCancel() {
+              },
+            });
           }}
         >
-          <FormattedMessage id="pages.redisConnectionManage.update" defaultMessage="删除" />
+          <FormattedMessage id="pages.redisConnectionManage.delete" defaultMessage="删除" />
         </a>
       ],
     },
@@ -102,7 +194,8 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
   return (
     <div style={{ height: '100%', textAlign: 'right' }}>
       <ProTable
-        rowKey="id"
+        rowKey="index"
+        actionRef={actionRef}
         search={false}
         toolbar={{
           search: {
@@ -115,19 +208,100 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
               key="key"
               type="primary"
               onClick={() => {
-                alert('add');
+                setListRowModalType(ListRowModalType.Create)
+                handleListAddRowModalVisible(true)
               }}
             >
               添加
             </Button>,
-          ],
+          ]
         }}
-        dataSource={dataSource}
-        // pagination={{
-        //   defaultCurrent: 1, pageSize: 10
-        // }}
+        request={(params, sorter, filter) => {
+          console.log('params', params)
+          const { connectionId, databaseId, redisKey } = currentTreeNode;
+          return queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'set', ...params }).then((response) => {
+            if (response && response.success) {
+              console.log(response.result)
+              return response.result.value;
+            }
+            message.error(response.message)
+          })
+        }}
+        pagination={{
+          defaultCurrent: 1, pageSize: 10
+        }}
         columns={columns}
       />
+
+      <Modal
+        title={formatMessage({
+          id: 'pages.redisDataManage.list.addRow',
+          defaultMessage: '添加行'
+        })}
+        width="600px"
+        destroyOnClose
+        visible={listAddRowModalVisible}
+        footer={[
+          <Button key="cancel" onClick={() => {
+            form.resetFields();
+            setListRowModalType(ListRowModalType.Create)
+            handleListAddRowModalVisible(false);
+          }}>
+            取消
+          </Button>,
+          <Button key="submit" type="primary" onClick={() => {
+            form
+              .validateFields()
+              .then((values) => {
+                console.log(values)
+                const { connectionId, databaseId, redisKey } = currentTreeNode;
+                if (listRowModalType === ListRowModalType.Create) {
+                  const { value } = values;
+                  handleAddRedisValue({ connectionId, databaseId, key: redisKey, rowValue: value });
+                } else if (listRowModalType === ListRowModalType.Update) {
+                  const { value: oldRowValue, index } = currentListRow;
+                  handleUpdateRedisValue({ connectionId, databaseId, key: redisKey, index, rowValue: oldRowValue, newRowValue: values });
+                }
+                form.resetFields();
+                handleListAddRowModalVisible(false)
+              })
+              .catch(info => {
+                console.log('Validate Failed:', info);
+              });
+          }}>
+            确定
+          </Button>,
+        ]}
+        onCancel={() => {
+          form.resetFields();
+          handleListAddRowModalVisible(false);
+        }}
+      >
+        <Form
+          {...layout}
+          layout="horizontal"
+          form={form}
+          name="redisKeyRenameForm"
+        >
+          <Form.Item
+            name="value"
+            label="Value"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.redisDataManage.value"
+                    defaultMessage="Value为必填项"
+                  />
+                ),
+              },
+            ]}
+          >
+            <TextArea placeholder='请输入' />
+          </Form.Item >
+        </Form>
+      </Modal>
     </div>
   );
 };

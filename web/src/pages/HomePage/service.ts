@@ -93,6 +93,48 @@ export async function queryDatabaseKeys(params) {
   });
 }
 
+/**
+ * 删除Redis键
+ */
+ export async function removeRedisKey(params) {
+  return request('/api/redisData/removeKey', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+
+/**
+ * 重命名Redis键
+ */
+ export async function renameRedisKeyValue(params) {
+  return request('/api/redisData/renameKey', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+
+/**
+ * 修改Redis键ttl
+ */
+ export async function expireRedisKeyValue(params) {
+  return request('/api/redisData/expire', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+
+/**
+ * 查询Redis键属性
+ */
 export async function queryKeyAttr(params) {
   return request('/api/redisData/getKeyAttr', {
     params,
@@ -112,7 +154,7 @@ export async function setKeyValue(params) {
 
 
 /**
- * 添加Redis键
+ * 添加Redis值
  */
  export async function addRedisValue(params) {
   return request('/api/redisData/addValue', {
@@ -124,7 +166,9 @@ export async function setKeyValue(params) {
   });
 }
 
-
+/**
+ * 查询redis值
+ */
 export async function queryRedisValue(params) {
   return request('/api/redisData/getValue', {
     params,
@@ -132,10 +176,10 @@ export async function queryRedisValue(params) {
 }
 
 /**
- * 删除Redis 键值
+ * 修改Redis值
  */
- export async function removeRedisKeyValue(params) {
-  return request('/api/redisData/removeKey', {
+ export async function updateRedisValue(params) {
+  return request('/api/redisData/updateValue', {
     method: 'POST',
     data: {
       ...params,
@@ -145,23 +189,10 @@ export async function queryRedisValue(params) {
 }
 
 /**
- * 重命名Redis 键值
+ * 删除Redis值
  */
- export async function renameRedisKeyValue(params) {
-  return request('/api/redisData/renameKey', {
-    method: 'POST',
-    data: {
-      ...params,
-      method: 'post',
-    },
-  });
-}
-
-/**
- * Redis 键值设置ttl
- */
- export async function expireRedisKeyValue(params) {
-  return request('/api/redisData/expire', {
+ export async function removeRedisValue(params) {
+  return request('/api/redisData/removeValue', {
     method: 'POST',
     data: {
       ...params,
