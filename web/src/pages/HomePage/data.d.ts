@@ -55,5 +55,4 @@ export type RedisConnectionParams = {
   port?: number;
   password?: string;
   username?: string;
-  desc?: string;
 };

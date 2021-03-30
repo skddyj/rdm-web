@@ -69,18 +69,21 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
 
   const [dataTtlModalVisible, handleDataTtlModalVisible] = useState<boolean>(false);
 
-  const [currentRedisKeyType, setCurrentRedisKeyType] = useState();
+  const [currentRedisKeyAttr, setCurrentRedisKeyAttr] = useState();
 
 
   useEffect(() => {
     if (currentTreeNode && currentTreeNode.level === 3) {
       getKeyAttr().then((attr) => {
-        const { type, key, ttl } = attr;
+        const { key, ttl } = attr;
+        setCurrentRedisKeyAttr(attr);
+        console.log("setCurrentRedisKeyAttr", attr)
         form.setFieldsValue({ redisKey: key, ttl })
-        setCurrentRedisKeyType(type)
       });
+    } else {
+      form.resetFields()
     }
-  });
+  }, [currentTreeNode]);
 
   const getKeyAttr = async () => {
     const { connectionId, databaseId, redisKey } = currentTreeNode
@@ -126,35 +129,48 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     />
   );
 
-  const getValueDisplayArea = () => {
-    if (currentRedisKeyType === 'string') {
-      return stringValueDisplayArea;
-    } else if (currentRedisKeyType === 'list') {
-      return listValueDisplayArea;
-    } else if (currentRedisKeyType === 'set') {
-      return setValueDisplayArea;
-    } else if (currentRedisKeyType === 'zset') {
-      return zsetValueDisplayArea;
-    } else if (currentRedisKeyType === 'hash') {
-      return hashValueDisplayArea;
+  const empty = <Empty style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
+
+  const getValueDisplayArea = (treeNode, redisKeyAttr) => {
+    if (treeNode && treeNode.level === 3) {
+      if (redisKeyAttr && redisKeyAttr.type === 'string') {
+        return stringValueDisplayArea;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'list') {
+        return listValueDisplayArea;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'set') {
+        return setValueDisplayArea;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'zset') {
+        return zsetValueDisplayArea;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'hash') {
+        return hashValueDisplayArea;
+      }
+      return empty;
     } else {
-      return <Empty style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
+      return empty;
     }
   }
 
-  const getRedisKeyFormLabel = () => {
-    if (currentRedisKeyType === 'string') {
-      return <b>String</b>;
-    } else if (currentRedisKeyType === 'list') {
-      return <b>List</b>;
-    } else if (currentRedisKeyType === 'set') {
-      return <b>Set</b>;
-    } else if (currentRedisKeyType === 'zset') {
-      return <b>ZSet</b>;
-    } else if (currentRedisKeyType === 'hash') {
-      return <b>Hash</b>;
+
+  const defaultKey = <b>Key</b>;
+
+
+  const getRedisKeyFormLabel = (treeNode, redisKeyAttr) => {
+    console.log("getRedisKeyFormLabel", treeNode, redisKeyAttr)
+    if (treeNode && treeNode.level === 3) {
+      if (redisKeyAttr && redisKeyAttr.type === 'string') {
+        return <b>String</b>;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'list') {
+        return <b>List</b>;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'set') {
+        return <b>Set</b>;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'zset') {
+        return <b>ZSet</b>;
+      } else if (redisKeyAttr && redisKeyAttr.type === 'hash') {
+        return <b>Hash</b>;
+      }
+      return defaultKey;
     } else {
-      return <b>Key</b>;
+      return defaultKey;
     }
   }
 
@@ -191,7 +207,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
           <Form.Item
             style={{ width: '100%' }}
             name="redisKey"
-            label={getRedisKeyFormLabel()}
+            label={getRedisKeyFormLabel(currentTreeNode, currentRedisKeyAttr)}
           >
             <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
           </Form.Item>
@@ -252,7 +268,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
         </div>
       </div>
       <div style={{ marginTop: '20px', height: 'calc(100% - 52px)', display: 'block', float: 'none' }}>
-        {getValueDisplayArea()}
+        {getValueDisplayArea(currentTreeNode, currentRedisKeyAttr)}
       </div>
       <RedisDataRenameModal
         currentTreeNode={currentTreeNode}

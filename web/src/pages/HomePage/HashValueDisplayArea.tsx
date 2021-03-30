@@ -223,14 +223,16 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
         }}
         request={(params, sorter, filter) => {
           console.log('params', params)
-          const { connectionId, databaseId, redisKey } = currentTreeNode;
-          return queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'zset', ...params }).then((response) => {
-            if (response && response.success) {
-              console.log(response.result)
-              return response.result.value;
-            }
-            message.error(response.message)
-          })
+          if (currentTreeNode) {
+            const { connectionId, databaseId, redisKey } = currentTreeNode;
+            return queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'zset', ...params }).then((response) => {
+              if (response && response.success) {
+                console.log(response.result)
+                return response.result.value;
+              }
+              message.error(response.message)
+            })
+          }
         }}
         pagination={{
           defaultCurrent: 1, pageSize: 10
