@@ -6,10 +6,12 @@ import com.codeoffice.request.RedisDataQueryRequest;
 import com.codeoffice.request.RedisDataRowUpdateRequest;
 import com.codeoffice.request.RedisDataUpdateRequest;
 import com.codeoffice.service.RedisDataService;
+import com.codeoffice.utils.RedisOperationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -27,6 +29,9 @@ public class RedisDataController {
     private RedissonClient redissonClient;
 
     private RedisDataService redisDataService;
+
+    @Autowired
+    private RedisOperationUtil operationUtil;
 
     public RedisDataController(RedissonClient redissonClient, RedisDataService redisDataService) {
         this.redissonClient = redissonClient;
@@ -109,6 +114,12 @@ public class RedisDataController {
     @GetMapping(value = "/mget")
     public RestResponse mget(@ModelAttribute RedisDataQueryRequest request) {
         return redisDataService.keys(request);
+    }
+
+    @ApiOperation("test")
+    @GetMapping(value = "/test")
+    public RestResponse test(@ModelAttribute RedisDataQueryRequest request) {
+        return RestResponse.success(operationUtil.hscan(request.getConnectionId(),request.getDatabaseId(),request.getKey()));
     }
 
 }

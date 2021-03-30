@@ -26,6 +26,7 @@ import ListValueDisplayArea from './ListValueDisplayArea';
 import SetValueDisplayArea from './SetValueDisplayArea';
 import ZSetValueDisplayArea from './ZSetValueDisplayArea';
 import RedisDataRenameModal from './RedisDataRenameModal';
+import HashValueDisplayArea from './HashValueDisplayArea';
 import RedisDataTtlModal from './RedisDataTtlModal';
 import { queryKeyAttr } from './service';
 
@@ -119,6 +120,12 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     />
   );
 
+  const hashValueDisplayArea = (
+    <HashValueDisplayArea
+      currentTreeNode={currentTreeNode}
+    />
+  );
+
   const getValueDisplayArea = () => {
     if (currentRedisKeyType === 'string') {
       return stringValueDisplayArea;
@@ -128,6 +135,8 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
       return setValueDisplayArea;
     } else if (currentRedisKeyType === 'zset') {
       return zsetValueDisplayArea;
+    } else if (currentRedisKeyType === 'hash') {
+      return hashValueDisplayArea;
     } else {
       return <Empty style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
     }

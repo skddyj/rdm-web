@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -283,6 +284,40 @@ public class RedisOperationUtil {
     }
 
     /**
+     * @description: llen
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long hscan(Long id, Integer databaseId, String key) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            ScanArgs scanArgs = ScanArgs.Builder.matches("*").limit(20);
+//            MapScanCursor cursor = commands.hscan(key,scanArgs);
+            ScanIterator<KeyValue<String, String>> iterator = ScanIterator.hscan(commands, key, scanArgs);
+            Stream<KeyValue<String,String>> stream=iterator.stream();
+            Stream<KeyValue<String,String>> stream2=stream.skip(10).limit(10);
+            //log.info("{}",stream2.count());
+            log.info("{}",stream2.collect(Collectors.toList()));
+            while (iterator.hasNext()){
+                KeyValue<String,String> keyValue=iterator.next();
+                System.out.println(keyValue.getKey());
+            }
+            return 0L;
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
      * @description: scard
      * @date: 2021/3/17
      * @param: id
@@ -312,7 +347,7 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Set members(Long id, Integer databaseId, String key, long start, long end) {
+    public Set members(Long id, Integer databaseId, String key) {
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
@@ -536,6 +571,125 @@ public class RedisOperationUtil {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
             return commands.hset(key, value);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: hlen
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long hlen(Long id, Integer databaseId, String key) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.hlen(key);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: hlen
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public List hkeys(Long id, Integer databaseId, String key) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.hkeys(key);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: hmget
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public List hmget(Long id, Integer databaseId, String key, String... field) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.hmget(key, field);
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: hupdate
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long hupdate(Long id, Integer databaseId, String key, String field, Map map) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            commands.multi();
+            commands.hdel(key, field);
+            commands.hset(key, map);
+            TransactionResult result = commands.exec();
+            return 0L;
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: hdel
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public Long hdel(Long id, Integer databaseId, String key, String field) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            return commands.hdel(key, field);
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {

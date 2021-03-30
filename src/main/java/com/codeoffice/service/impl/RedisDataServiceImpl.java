@@ -22,6 +22,7 @@ import com.github.pagehelper.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.lettuce.core.KeyValue;
 import io.lettuce.core.ScoredValue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,7 +248,7 @@ public class RedisDataServiceImpl implements RedisDataService {
         } else if (type.equals("hash")) {
             RedisDataHashModel hashModel = JSONObject.parseObject(JSONObject.toJSONString(value), RedisDataHashModel.class);
             Map map = Maps.newHashMap();
-            map.put(hashModel.getHashKey(), hashModel.getValue());
+            map.put(hashModel.getField(), hashModel.getValue());
             Long result = redisOperationUtil.hset(connectionId, databaseId, key, map);
             return RestResponse.success(result);
         }
@@ -276,9 +277,11 @@ public class RedisDataServiceImpl implements RedisDataService {
             return RestResponse.success(result);
         } else if (type.equals("hash")) {
             RedisDataHashModel hashModel = JSONObject.parseObject(JSONObject.toJSONString(value), RedisDataHashModel.class);
+            RedisDataHashModel newHashModel = JSONObject.parseObject(JSONObject.toJSONString(newValue), RedisDataHashModel.class);
+
             Map map = Maps.newHashMap();
-            map.put(hashModel.getHashKey(), hashModel.getValue());
-            Long result = redisOperationUtil.hset(connectionId, databaseId, key, map);
+            map.put(newHashModel.getField(), newHashModel.getValue());
+            Long result = redisOperationUtil.hupdate(connectionId, databaseId, key, hashModel.getField(), map);
             return RestResponse.success(result);
         }
         return null;
@@ -317,7 +320,7 @@ public class RedisDataServiceImpl implements RedisDataService {
             }
             Page page = new Page(request.getCurrent(), request.getPageSize());
             page.setTotal(len);
-            Set<String> allResultSet = redisOperationUtil.members(request.getConnectionId(), request.getDatabaseId(), request.getKey(), page.getStartRow(), page.getEndRow() - 1);
+            Set<String> allResultSet = redisOperationUtil.members(request.getConnectionId(), request.getDatabaseId(), request.getKey());
             List<String> allResultList = allResultSet.stream().collect(Collectors.toList());
             List<List<String>> pagedResultList = Lists.partition(allResultList, page.getPageSize());
             System.out.println(JSON.toJSONString(pagedResultList));
@@ -347,6 +350,28 @@ public class RedisDataServiceImpl implements RedisDataService {
             PageResponse pageResponse = new PageResponse(page, listResult);
             RedisDataResponse redisDataResponse = new RedisDataResponse(request.getKey(), pageResponse, type, ttl);
             return RestResponse.success(redisDataResponse);
+        } else if (type.equals("hash")) {
+            // hash长度
+            Long len = redisOperationUtil.hlen(request.getConnectionId(), request.getDatabaseId(), request.getKey());
+            if (len == 0) {
+                RedisDataResponse redisDataResponse = new RedisDataResponse(request.getKey(), new PageResponse(), type, ttl);
+                return RestResponse.success(redisDataResponse);
+            }
+            Page page = new Page(request.getCurrent(), request.getPageSize());
+            page.setTotal(len);
+
+            List<String> allKeysList = redisOperationUtil.hkeys(request.getConnectionId(), request.getDatabaseId(), request.getKey());
+            List<List<String>> pagedKeysList = Lists.partition(allKeysList, page.getPageSize());
+            System.out.println(JSON.toJSONString(pagedKeysList));
+            List<String> resultList = page.getPageNum() > pagedKeysList.size() ? pagedKeysList.get(pagedKeysList.size() - 1) : pagedKeysList.get(request.getCurrent() - 1);
+
+            List<KeyValue<String, String>> keyValueList = redisOperationUtil.hmget(request.getConnectionId(), request.getDatabaseId(), request.getKey(), resultList.stream().toArray(String[]::new));
+            List<RedisDataHashModel> resultResponseList = IntStream.range(0, keyValueList.size())
+                    .mapToObj(i -> new RedisDataHashModel(i, keyValueList.get(i).getKey(), keyValueList.get(i).getValue()))
+                    .collect(Collectors.toList());
+            PageResponse pageResponse = new PageResponse(page, resultResponseList);
+            RedisDataResponse redisDataResponse = new RedisDataResponse(request.getKey(), pageResponse, type, ttl);
+            return RestResponse.success(redisDataResponse);
         }
         return null;
     }
@@ -360,10 +385,14 @@ public class RedisDataServiceImpl implements RedisDataService {
         } else if (type.equals("set")) {
             Long result = redisOperationUtil.srem(connectionId, databaseId, key, (String) value);
             return RestResponse.success(result);
-        }else if (type.equals("zset")) {
+        } else if (type.equals("zset")) {
             RedisDataZSetModel zSetModel = JSONObject.parseObject(JSONObject.toJSONString(value), RedisDataZSetModel.class);
             ScoredValue scoredValue = ScoredValue.fromNullable(0d, zSetModel.getValue());
             Long result = redisOperationUtil.zrem(connectionId, databaseId, key, scoredValue);
+            return RestResponse.success(result);
+        } else if (type.equals("hash")) {
+            RedisDataHashModel hashModel = JSONObject.parseObject(JSONObject.toJSONString(value), RedisDataHashModel.class);
+            Long result = redisOperationUtil.hdel(connectionId, databaseId, key, hashModel.getField());
             return RestResponse.success(result);
         }
         return null;

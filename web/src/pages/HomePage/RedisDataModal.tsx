@@ -66,7 +66,7 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
     } else if (type === 'zset') {
       data.value = { score: fields.score, value }
     } else if (type === 'hash') {
-      data.value = { hashKey: fields.hashKey, value }
+      data.value = { field: fields.field, value }
     }
     return data;
   }
@@ -180,21 +180,21 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
           </Form.Item>) : null}
         {type === 'hash' ?
           (<Form.Item
-            name="hashKey"
-            label="Hash Key"
+            name="field"
+            label="Field"
             rules={[
               {
                 required: true,
                 message: (
                   <FormattedMessage
-                    id="pages.redisDataManage.hashKey"
-                    defaultMessage="Hash Key为必填项"
+                    id="pages.redisDataManage.field"
+                    defaultMessage="Field为必填项"
                   />
                 ),
               },
             ]}
           >
-            <Input placeholder='请输入Hash Key' />
+            <Input placeholder='请输入Field' />
           </Form.Item>) : null}
         <Form.Item
           name="value"

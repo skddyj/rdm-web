@@ -9,7 +9,9 @@ import lombok.*;
 @ToString
 public class RedisDataHashModel {
 
-    private String hashKey;
+    private Integer index;
+
+    private String field;
 
     private String value;
 }

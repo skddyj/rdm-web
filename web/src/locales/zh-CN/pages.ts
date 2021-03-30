@@ -83,7 +83,7 @@ export default {
   'pages.redisDataManage.value': 'Value',
   'pages.redisDataManage.type': '类型',
   'pages.redisDataManage.score': '分值',
-  'pages.redisDataManage.hashKey': 'Hash Key',
+  'pages.redisDataManage.field': 'Field',
   'pages.redisDataManage.list.row': 'Row',
   'pages.redisDataManage.ttl': 'TTL',
 
