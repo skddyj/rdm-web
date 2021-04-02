@@ -35,6 +35,7 @@ export enum ListRowModalType { Create, Update };
 
 export type ZSetValueDisplayAreaProps = {
   currentTreeNode;
+  currentRedisKey;
 };
 
 
@@ -42,6 +43,7 @@ export type ZSetValueDisplayAreaProps = {
 const ZSetValueDisplayArea: React.FC<ZSetValueDisplayAreaProps> = (props) => {
   const {
     currentTreeNode,
+    currentRedisKey,
   } = props;
 
   /** 国际化 */
@@ -62,7 +64,7 @@ const ZSetValueDisplayArea: React.FC<ZSetValueDisplayAreaProps> = (props) => {
     if (actionRef.current) {
       actionRef.current.reload();
     }
-  });
+  }, [currentRedisKey]);
 
   /**
    * 添加Redis Value
@@ -182,8 +184,8 @@ const ZSetValueDisplayArea: React.FC<ZSetValueDisplayAreaProps> = (props) => {
               content: '此操作不可恢复，是否继续 ？',
               onOk() {
                 const { value } = record;
-                const { connectionId, databaseId, redisKey } = currentTreeNode;
-                handleRemoveRedisValue({ connectionId, databaseId, key: redisKey, rowValue: { value } })
+                const { connectionId, databaseId } = currentTreeNode;
+                handleRemoveRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: { value } })
               },
               onCancel() {
               },
@@ -223,8 +225,8 @@ const ZSetValueDisplayArea: React.FC<ZSetValueDisplayAreaProps> = (props) => {
         }}
         request={(params, sorter, filter) => {
           console.log('params', params)
-          const { connectionId, databaseId, redisKey } = currentTreeNode;
-          return queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'zset', ...params }).then((response) => {
+          const { connectionId, databaseId } = currentTreeNode;
+          return queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'zset', ...params }).then((response) => {
             if (response && response.success) {
               console.log(response.result)
               return response.result.value;
@@ -259,12 +261,12 @@ const ZSetValueDisplayArea: React.FC<ZSetValueDisplayAreaProps> = (props) => {
               .validateFields()
               .then((values) => {
                 console.log(values)
-                const { connectionId, databaseId, redisKey } = currentTreeNode;
+                const { connectionId, databaseId } = currentTreeNode;
                 if (listRowModalType === ListRowModalType.Create) {
-                  handleAddRedisValue({ connectionId, databaseId, key: redisKey, rowValue: values });
+                  handleAddRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: values });
                 } else if (listRowModalType === ListRowModalType.Update) {
                   const { value: oldValue, index } = currentListRow;
-                  handleUpdateRedisValue({ connectionId, databaseId, key: redisKey, index, rowValue: { value: oldValue }, newRowValue: values });
+                  handleUpdateRedisValue({ connectionId, databaseId, key: currentRedisKey, index, rowValue: { value: oldValue }, newRowValue: values });
                 }
                 form.resetFields();
                 handleListAddRowModalVisible(false)

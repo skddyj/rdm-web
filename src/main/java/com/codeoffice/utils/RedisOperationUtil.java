@@ -3,6 +3,7 @@ package com.codeoffice.utils;
 import com.alibaba.fastjson.JSON;
 import com.codeoffice.model.RedisDataModel;
 import com.codeoffice.model.RedisDataZSetModel;
+import com.github.pagehelper.Page;
 import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
@@ -64,7 +65,38 @@ public class RedisOperationUtil {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
             String pattern = StringUtils.isBlank(key) ? "*" : "*" + key + "*";
-            return commands.keys(pattern);
+            ScanArgs scanArgs = ScanArgs.Builder.matches(pattern).limit(40000);
+            ScanIterator<String> iterator = ScanIterator.scan(commands, scanArgs);
+            List<String> keysList = iterator.stream().collect(Collectors.toList());
+            return keysList;
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @description: 分页获取获取database下的key
+     * @date: 2021/3/17
+     * @param: id
+     * @param: databaseId
+     * @return: java.util.List<java.lang.String>
+     */
+    public List<String> keysPages(Long id, Integer databaseId, String key, Page page) {
+        StatefulRedisConnection connection = null;
+        try {
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
+            RedisCommands<String, String> commands = connection.sync();
+            String pattern = StringUtils.isBlank(key) ? "*" : "*" + key + "*";
+            ScanArgs scanArgs = ScanArgs.Builder.matches(pattern).limit(20000);
+            ScanIterator<String> iterator = ScanIterator.scan(commands, scanArgs);
+            System.out.println("起始索引："+page.getStartRow());
+            List<String> keysList = iterator.stream().skip(page.getStartRow()).limit(page.getPageSize()).collect(Collectors.toList());
+            return keysList;
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
         } finally {
@@ -298,12 +330,12 @@ public class RedisOperationUtil {
             ScanArgs scanArgs = ScanArgs.Builder.matches("*").limit(20);
 //            MapScanCursor cursor = commands.hscan(key,scanArgs);
             ScanIterator<KeyValue<String, String>> iterator = ScanIterator.hscan(commands, key, scanArgs);
-            Stream<KeyValue<String,String>> stream=iterator.stream();
-            Stream<KeyValue<String,String>> stream2=stream.skip(10).limit(10);
+            Stream<KeyValue<String, String>> stream = iterator.stream();
+            Stream<KeyValue<String, String>> stream2 = stream.skip(10).limit(10);
             //log.info("{}",stream2.count());
-            log.info("{}",stream2.collect(Collectors.toList()));
-            while (iterator.hasNext()){
-                KeyValue<String,String> keyValue=iterator.next();
+            log.info("{}", stream2.collect(Collectors.toList()));
+            while (iterator.hasNext()) {
+                KeyValue<String, String> keyValue = iterator.next();
                 System.out.println(keyValue.getKey());
             }
             return 0L;

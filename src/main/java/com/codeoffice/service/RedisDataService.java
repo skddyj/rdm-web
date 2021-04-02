@@ -15,6 +15,8 @@ public interface RedisDataService {
 
     RestResponse keys(RedisDataQueryRequest request);
 
+    RestResponse keysPages(RedisDataQueryRequest request);
+
     RestResponse addValue(RedisDataRowUpdateRequest request);
 
     RestResponse getValue(RedisDataQueryRequest request);
@@ -34,8 +36,6 @@ public interface RedisDataService {
     RestResponse renameKey(RedisDataUpdateRequest request);
 
     RestResponse expire(RedisDataUpdateRequest request);
-
-    RestResponse keysPages(RedisDataQueryRequest request);
 
     RestResponse mget(RedisDataQueryRequest request);
 }

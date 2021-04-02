@@ -62,12 +62,25 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (request.getConnectionId() == null || request.getDatabaseId() == null) {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
+        Page page = new Page(request.getCurrent(), request.getPageSize());
         List<String> keys = redisOperationUtil.keys(request.getConnectionId(), request.getDatabaseId(), request.getKey());
         if (CollectionUtils.isEmpty(keys)) {
             return RestResponse.success(Lists.newArrayList());
         }
         System.out.println(keys);
         return RestResponse.success(keys);
+    }
+
+    @Override
+    public RestResponse keysPages(RedisDataQueryRequest request) {
+        if (request.getConnectionId() == null || request.getDatabaseId() == null) {
+            return RestResponse.success(new PageResponse());
+        }
+        System.out.println("请求："+request.getCurrent()+" 页 "+request.getPageSize()+"条");
+        Page page = new Page(request.getCurrent(), request.getPageSize());
+        System.out.println(request.getCurrent());
+        List keys = redisOperationUtil.keysPages(request.getConnectionId(), request.getDatabaseId(), request.getKey(), page);
+        return RestResponse.success(new PageResponse(page, keys.size() == page.getPageSize(), keys));
     }
 
     @Override
@@ -198,24 +211,6 @@ public class RedisDataServiceImpl implements RedisDataService {
 
 
     @Override
-    public RestResponse keysPages(RedisDataQueryRequest request) {
-        if (request.getConnectionId() == null || request.getDatabaseId() == null) {
-            return RestResponse.success(new PageResponse());
-        }
-        List allKeys = redisOperationUtil.keys(request.getConnectionId(), request.getDatabaseId(), request.getKey());
-        if (CollectionUtils.isEmpty(allKeys)) {
-            return RestResponse.success(new PageResponse());
-        }
-        List<List<Integer>> pagedListKeys = Lists.partition(allKeys, request.getPageSize());
-        System.out.println(JSON.toJSONString(pagedListKeys));
-        List resultKeys = request.getCurrent() > pagedListKeys.size() ? pagedListKeys.get(pagedListKeys.size() - 1) : pagedListKeys.get(request.getCurrent() - 1);
-        System.out.println(resultKeys);
-        List resultKeyValues = redisOperationUtil.mget(request.getConnectionId(), request.getDatabaseId(), resultKeys);
-        System.out.println(resultKeyValues);
-        return RestResponse.success(new PageResponse(request.getCurrent(), request.getPageSize(), allKeys.size(), resultKeyValues.size(), resultKeyValues));
-    }
-
-    @Override
     public RestResponse mget(RedisDataQueryRequest request) {
         if (request.getConnectionId() == null || request.getDatabaseId() == null) {
             return RestResponse.success(new PageResponse());
@@ -257,7 +252,7 @@ public class RedisDataServiceImpl implements RedisDataService {
 
     private RestResponse updateValueByType(Long connectionId, Integer databaseId, String key, Long index, Object value, Object newValue, String type) {
         if (type.equals("string")) {
-            String result = redisOperationUtil.set(connectionId, databaseId, key, (String) value);
+            String result = redisOperationUtil.set(connectionId, databaseId, key, (String) newValue);
             return RestResponse.success(result);
         } else if (type.equals("list")) {
             String result = redisOperationUtil.lset(connectionId, databaseId, key, index, (String) newValue);

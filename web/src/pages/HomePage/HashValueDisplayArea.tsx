@@ -35,6 +35,7 @@ export enum ListRowModalType { Create, Update };
 
 export type HashValueDisplayAreaProps = {
   currentTreeNode;
+  currentRedisKey;
 };
 
 
@@ -42,6 +43,7 @@ export type HashValueDisplayAreaProps = {
 const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
   const {
     currentTreeNode,
+    currentRedisKey,
   } = props;
 
   /** 国际化 */
@@ -62,7 +64,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
     if (actionRef.current) {
       actionRef.current.reload();
     }
-  });
+  }, [currentRedisKey]);
 
   /**
    * 添加Redis Value
@@ -182,8 +184,8 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
               content: '此操作不可恢复，是否继续 ？',
               onOk() {
                 const { field } = record;
-                const { connectionId, databaseId, redisKey } = currentTreeNode;
-                handleRemoveRedisValue({ connectionId, databaseId, key: redisKey, rowValue: { field } })
+                const { connectionId, databaseId } = currentTreeNode;
+                handleRemoveRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: { field } })
               },
               onCancel() {
               },
@@ -223,9 +225,9 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
         }}
         request={(params, sorter, filter) => {
           console.log('params', params)
-          if (currentTreeNode) {
-            const { connectionId, databaseId, redisKey } = currentTreeNode;
-            return queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'zset', ...params }).then((response) => {
+          if (currentRedisKey) {
+            const { connectionId, databaseId } = currentTreeNode;
+            return queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'zset', ...params }).then((response) => {
               if (response && response.success) {
                 console.log(response.result)
                 return response.result.value;
@@ -261,12 +263,12 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
               .validateFields()
               .then((values) => {
                 console.log(values)
-                const { connectionId, databaseId, redisKey } = currentTreeNode;
+                const { connectionId, databaseId } = currentTreeNode;
                 if (listRowModalType === ListRowModalType.Create) {
-                  handleAddRedisValue({ connectionId, databaseId, key: redisKey, rowValue: values });
+                  handleAddRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: values });
                 } else if (listRowModalType === ListRowModalType.Update) {
                   const { field: oldField } = currentListRow;
-                  handleUpdateRedisValue({ connectionId, databaseId, key: redisKey, rowValue: { field: oldField }, newRowValue: values });
+                  handleUpdateRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: { field: oldField }, newRowValue: values });
                 }
                 form.resetFields();
                 handleListAddRowModalVisible(false)

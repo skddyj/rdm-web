@@ -10,7 +10,7 @@ import {
 } from '@ant-design/pro-form';
 import { useIntl, FormattedMessage } from 'umi';
 import {
-  EditOutlined,
+  SaveOutlined,
   CaretDownOutlined,
   DatabaseOutlined,
   FileAddOutlined,
@@ -18,15 +18,38 @@ import {
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { queryRedisValue } from './service'
+import { queryRedisValue, updateRedisValue } from './service'
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
+
+/**
+ * 更新Redis Key对应Value
+ */
+const handleUpdateRedisValue = async (fields) => {
+  const hide = message.loading('正在修改');
+  try {
+    return await updateRedisValue({ ...fields }).then((response) => {
+      console.log(fields)
+      if (response && response.success) {
+        hide();
+        message.success('修改成功');
+        return true;
+      }
+      throw new Error(response.message);
+    });
+  } catch (error) {
+    hide();
+    message.error(`修改失败，请重试，失败原因：${error}`);
+    return false;
+  }
+};
 
 export enum ModalType { Create, Update };
 
 export type StringValueDisplayAreaProps = {
   currentTreeNode;
+  currentRedisKey;
 };
 
 const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) => {
@@ -36,22 +59,31 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
   const [form] = Form.useForm();
 
   const {
-    currentTreeNode
+    currentTreeNode,
+    currentRedisKey
   } = props;
 
-
   useEffect(() => {
-    if (currentTreeNode) {
+    if (currentRedisKey) {
       getStringKeyValue().then((value) => {
         form.setFieldsValue({ stringRedisValue: value })
       });
     }
-  });
+  }, [currentRedisKey]);
+
+  /**
+ * 更新Redis Key对应Value
+ */
+  const updateRedisValue = () => {
+    const { connectionId, databaseId } = currentTreeNode;
+    const { stringRedisValue } = form.getFieldsValue();
+    handleUpdateRedisValue({ connectionId, databaseId, key: currentRedisKey, newRowValue: stringRedisValue })
+  };
 
   const getStringKeyValue = async () => {
-    const { connectionId, databaseId, redisKey } = currentTreeNode
+    const { connectionId, databaseId } = currentTreeNode
     try {
-      return await queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'string' }).then((response) => {
+      return await queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'string' }).then((response) => {
         if (response && response.success) {
           console.log(response.result)
           return response.result.value;
@@ -64,7 +96,14 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
   }
 
   return (
-    <div style={{ height: '100%', textAlign: 'right' }}>
+    <div style={{ height: '100%' }}>
+      <div style={{ marginTop: '20px', padding: '16px 0' }}>
+        <Button type="primary"
+          onClick={updateRedisValue}
+          icon={<SaveOutlined />}
+        >保存
+        </Button>
+      </div>
       <Form
         form={form}
         style={{ height: '100%' }}

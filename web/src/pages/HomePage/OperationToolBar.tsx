@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Breadcrumb } from 'antd';
+import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Popover, Tooltip, Space, Row, Col } from 'antd';
 import {
   ProFormSelect,
   ProFormText,
@@ -61,92 +61,110 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
   const getOperationToolBar = () => {
     if (currentTreeNode && currentTreeNode.level === 1) {
       return (
-        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
-          <Search placeholder="请输入" enterButton />
-          <Button title='编辑'
-            onClick={() => {
-              confirm({
-                title: '编辑确认',
-                icon: <ExclamationCircleOutlined />,
-                content: '编辑连接信息需要关闭所有连接，是否继续 ？',
-                onOk() {
-                  clearExpanded();
-                  form.setFieldsValue(currentTreeNode.redisConnectionVo);
-                  setConnectionModalType(ModalType.Update)
-                  handleConnectionModalVisible(true);
-                },
-                onCancel() {
-                },
-              });
-            }}
-            type="primary" icon={<EditOutlined />} />
-          <Button title='删除'
-            onClick={() => {
-              confirm({
-                title: '删除确认',
-                icon: <ExclamationCircleOutlined />,
-                content: '此操作不可恢复，是否继续 ？',
-                onOk() {
-                  onTreeNodeFold(currentTreeNode.key)
-                  handleRemoveRedisConnection(currentTreeNode);
-                },
-                onCancel() {
-                },
-              });
-            }} type="primary" icon={<DeleteOutlined />} />
-          <Button title='刷新'
-            onClick={() => {
-              refreshCurrentConnectionDatabase()
-            }} type="primary" icon={<RedoOutlined />} />
-        </Space>
+        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 4 }}>
+          <Col span={8}>
+            <Button title='编辑'
+              style={{ width: '100%' }}
+              onClick={() => {
+                confirm({
+                  title: '编辑确认',
+                  icon: <ExclamationCircleOutlined />,
+                  content: '编辑连接信息需要关闭所有连接，是否继续 ？',
+                  onOk() {
+                    clearExpanded();
+                    form.setFieldsValue(currentTreeNode.redisConnectionVo);
+                    setConnectionModalType(ModalType.Update)
+                    handleConnectionModalVisible(true);
+                  },
+                  onCancel() {
+                  },
+                });
+              }}
+              type="primary" icon={<EditOutlined />} >
+
+            </Button>
+          </Col>
+          <Col span={8}>
+            <Button title='删除'
+              style={{ width: '100%' }}
+              onClick={() => {
+                confirm({
+                  title: '删除确认',
+                  icon: <ExclamationCircleOutlined />,
+                  content: '此操作不可恢复，是否继续 ？',
+                  onOk() {
+                    onTreeNodeFold(currentTreeNode.key)
+                    handleRemoveRedisConnection(currentTreeNode);
+                  },
+                  onCancel() {
+                  },
+                });
+              }} type="primary" icon={<DeleteOutlined />} >
+            </Button>
+          </Col>
+          <Col span={8}>
+            <Button title='刷新'
+              style={{ width: '100%' }}
+              onClick={() => {
+                refreshCurrentConnectionDatabase()
+              }} type="primary" icon={<RedoOutlined />} >
+
+            </Button>
+          </Col>
+        </Row>
       )
     } else if (currentTreeNode && currentTreeNode.level === 2) {
       return (
-        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
-          <Search placeholder="请输入" enterButton />
-          <Button title='新增'
-            onClick={() => {
-              form.setFieldsValue(currentTreeNode.redisConnectionVo);
-              setConnectionModalType(ModalType.Update)
-              handleDataModalVisible(true);
-            }}
-            type="primary"
-            icon={<FileAddOutlined />} />
-          <Button title='刷新'
-            onClick={
-              () => {
-                refreshCurrentDatabaseKeys()
+        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 4 }}>
+          <Col span={12}>
+            <Button title='新增'
+              style={{ width: '100%' }}
+              onClick={() => {
+                form.setFieldsValue(currentTreeNode.redisConnectionVo);
+                setConnectionModalType(ModalType.Update)
+                handleDataModalVisible(true);
               }}
-            type="primary" icon={<RedoOutlined />} />
-        </Space>
-      )
-    } else if (currentTreeNode && currentTreeNode.level === 3) {
-      return (
-        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
-          <Search placeholder="请输入" enterButton />
-        </Space>
+              type="primary"
+              icon={<FileAddOutlined />} >
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Button title='刷新'
+              style={{ width: '100%' }}
+              onClick={
+                () => {
+                  refreshCurrentDatabaseKeys()
+                }}
+              type="primary" icon={<RedoOutlined />} >
+            </Button>
+          </Col>
+        </Row>
       )
     } else {
       return (
-        <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
-          <Search placeholder="请输入" enterButton />
-          <Button title='刷新'
-            onClick={() => {
-              confirm({
-                title: '刷新确认',
-                icon: <ExclamationCircleOutlined />,
-                content: '该操作会关闭所有连接，是否继续 ？',
-                onOk() {
-                  clearExpanded();
-                  clearSelected
-                  loadAllRedisConnection();
-                },
-                onCancel() {
-                },
-              });
-            }}
-            type="primary" icon={<RedoOutlined />} />
-        </Space>
+        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 4 }}>
+          <Col span={24} >
+            <Button title='刷新'
+              style={{ width: '100%' }}
+              onClick={() => {
+                confirm({
+                  title: '刷新确认',
+                  icon: <ExclamationCircleOutlined />,
+                  content: '该操作会关闭所有连接，是否继续 ？',
+                  onOk() {
+                    clearExpanded();
+                    clearSelected
+                    loadAllRedisConnection();
+                  },
+                  onCancel() {
+                  },
+                });
+              }}
+              type="primary" icon={<RedoOutlined />} >
+
+            </Button>
+          </Col>
+        </Row>
       )
     }
   }

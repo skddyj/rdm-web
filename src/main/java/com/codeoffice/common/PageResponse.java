@@ -35,6 +35,11 @@ public class PageResponse<T> implements Serializable {
     private long total = 0;
 
     /**
+     * 是否有更多数据
+     */
+    private boolean hasMore = false;
+
+    /**
      * 结果集
      */
     private List<T> data;
@@ -51,6 +56,17 @@ public class PageResponse<T> implements Serializable {
             this.data = list;
             this.total = page.getTotal();
             this.totalPage = page.getPages();
+        }
+    }
+
+    public PageResponse(Page page,boolean hasMore, List<T> list) {
+        if (page != null && CollectionUtils.isNotEmpty(list)) {
+            this.current = page.getPageNum();
+            this.pageSize = page.getPageSize();
+            this.data = list;
+            this.total = page.getTotal();
+            this.totalPage = page.getPages();
+            this.hasMore = hasMore;
         }
     }
 

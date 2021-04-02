@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Empty, Tooltip, Space, Breadcrumb } from 'antd';
+import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Empty, Tooltip, Space, Breadcrumb, Row, Col } from 'antd';
 import {
   ProFormSelect,
   ProFormText,
@@ -44,7 +44,7 @@ const layout = {
 export type ValueDisplayCardProps = {
   form;
   currentTreeNode;
-  onRedisValueUpdate;
+  currentRedisKey;
   handleRemoveRedisKey;
   handleRenameRedisKey;
   handleRefreshRedisValue;
@@ -58,7 +58,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
   const {
     form,
     currentTreeNode,
-    onRedisValueUpdate,
+    currentRedisKey,
     handleRemoveRedisKey,
     handleRenameRedisKey,
     handleRefreshRedisValue,
@@ -73,7 +73,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
 
 
   useEffect(() => {
-    if (currentTreeNode && currentTreeNode.level === 3) {
+    if (currentRedisKey) {
       getKeyAttr().then((attr) => {
         const { key, ttl } = attr;
         setCurrentRedisKeyAttr(attr);
@@ -83,12 +83,12 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     } else {
       form.resetFields()
     }
-  }, [currentTreeNode]);
+  }, [currentRedisKey]);
 
   const getKeyAttr = async () => {
-    const { connectionId, databaseId, redisKey } = currentTreeNode
+    const { connectionId, databaseId } = currentTreeNode
     try {
-      return await queryKeyAttr({ connectionId, databaseId, key: redisKey }).then((response) => {
+      return await queryKeyAttr({ connectionId, databaseId, key: currentRedisKey }).then((response) => {
         if (response && response.success) {
           return response.result;
         }
@@ -102,37 +102,42 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
   const stringValueDisplayArea = (
     <StringValueDisplayArea
       currentTreeNode={currentTreeNode}
+      currentRedisKey={currentRedisKey}
     />
   );
 
   const listValueDisplayArea = (
     <ListValueDisplayArea
       currentTreeNode={currentTreeNode}
+      currentRedisKey={currentRedisKey}
     />
   );
 
   const setValueDisplayArea = (
     <SetValueDisplayArea
       currentTreeNode={currentTreeNode}
+      currentRedisKey={currentRedisKey}
     />
   );
 
   const zsetValueDisplayArea = (
     <ZSetValueDisplayArea
       currentTreeNode={currentTreeNode}
+      currentRedisKey={currentRedisKey}
     />
   );
 
   const hashValueDisplayArea = (
     <HashValueDisplayArea
       currentTreeNode={currentTreeNode}
+      currentRedisKey={currentRedisKey}
     />
   );
 
-  const empty = <Empty style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
+  const empty = <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />;
 
-  const getValueDisplayArea = (treeNode, redisKeyAttr) => {
-    if (treeNode && treeNode.level === 3) {
+  const getValueDisplayArea = (currentRedisKey, redisKeyAttr) => {
+    if (currentRedisKey) {
       if (redisKeyAttr && redisKeyAttr.type === 'string') {
         return stringValueDisplayArea;
       } else if (redisKeyAttr && redisKeyAttr.type === 'list') {
@@ -150,9 +155,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     }
   }
 
-
   const defaultKey = <b>Key</b>;
-
 
   const getRedisKeyFormLabel = (treeNode, redisKeyAttr) => {
     console.log("getRedisKeyFormLabel", treeNode, redisKeyAttr)
@@ -175,9 +178,9 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
   }
 
   const removeRedisKey = () => {
-    if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
-      const { connectionId, databaseId, redisKey } = currentTreeNode;
-      const data = { connectionId, databaseId, key: redisKey }
+    if (currentRedisKey) {
+      const { connectionId, databaseId } = currentTreeNode;
+      const data = { connectionId, databaseId, key: currentRedisKey }
       confirm({
         title: '删除确认',
         icon: <ExclamationCircleOutlined />,
@@ -197,78 +200,91 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
   return (
     <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }} bordered={false}>
       <div style={{ height: '32px' }}>
-        <Form
-          style={{ float: 'left', width: '40%' }}
-          layout="inline"
-          {...layout}
-          form={form}
-          name="redisKeyForm"
-        >
-          <Form.Item
-            style={{ width: '100%' }}
-            name="redisKey"
-            label={getRedisKeyFormLabel(currentTreeNode, currentRedisKeyAttr)}
+        <div style={{ float: 'left', width: '60%', display: 'inline-block' }}>
+          <Form
+            style={{ float: 'left', width: '65%' }}
+            layout="inline"
+            {...layout}
+            form={form}
+            name="redisKeyForm"
           >
-            <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
-          </Form.Item>
-        </Form>
-        <Form
-          style={{ float: 'left', width: '20%' }}
-          layout="inline"
-          {...layout}
-          form={form}
-          name="redisKeyTtlForm"
-        >
-          <Form.Item
-            name="ttl"
-            label={<b>TTL</b>}
+            <Form.Item
+              style={{ width: '100%' }}
+              name="redisKey"
+              label={getRedisKeyFormLabel(currentRedisKey, currentRedisKeyAttr)}
+            >
+              <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
+            </Form.Item>
+          </Form>
+          <Form
+            style={{ float: 'left', width: '35%' }}
+            layout="inline"
+            {...layout}
+            form={form}
+            name="redisKeyTtlForm"
           >
-            <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
-          </Form.Item>
-        </Form>
-        <div style={{ float: 'left', width: 'calc(40% - 20px)', marginLeft: '20px' }}>
-          <Space style={{ height: '20%', textAlign: 'center' }}>
+            <Form.Item
+              style={{ width: '100%' }}
+              name="ttl"
+              label={<b>TTL</b>}
+            >
+              <Input disabled style={{ backgroundColor: '#fff', cursor: 'text', color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold' }} />
+            </Form.Item>
+          </Form>
+        </div>
+        <Row gutter={{ xs: 4, sm: 4, md: 4, lg: 4 }} style={{ float: 'right', width: 'calc(40% - 20px)', marginLeft: '20px' }}>
+          <Col span={6}>
             <Button type="primary"
-              onClick={onRedisValueUpdate}
-              icon={<SaveOutlined />}
-            >保存</Button>
-            <Button type="primary"
+              style={{ width: '100%' }}
               icon={<FormOutlined />}
               onClick={() => {
-                if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
+                if (currentRedisKey) {
                   handleDataRenameModalVisible(true);
                 } else {
                   message.info('请选择一个Key！', 3);
                 }
-              }}>重命名</Button>
+              }}>重命名
+            </Button>
+          </Col>
+          <Col span={6}>
             <Button type="primary"
+              style={{ width: '100%' }}
               icon={<DeleteOutlined />}
               onClick={() => {
                 removeRedisKey()
-              }}>删除</Button>
+              }}>删除
+            </Button>
+          </Col>
+          <Col span={6}>
             <Button type="primary"
+              style={{ width: '100%' }}
               icon={<SettingOutlined />}
               onClick={() => {
-                if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
+                if (currentRedisKey) {
                   handleDataTtlModalVisible(true);
                 } else {
                   message.info('请选择一个Key！', 3);
                 }
-              }}>设置TTL</Button>
+              }}>设置TTL
+            </Button>
+          </Col>
+          <Col span={6}>
             <Button type="primary"
+              style={{ width: '100%' }}
               icon={<ReloadOutlined />}
               onClick={() => {
-                if (currentTreeNode && currentTreeNode.level && currentTreeNode.level === 3) {
+                if (currentRedisKey) {
                   handleRefreshRedisValue(currentTreeNode);
                 } else {
                   message.info('请选择一个Key！', 3);
                 }
-              }} >刷新</Button>
-          </Space>
-        </div>
+              }} >刷新
+            </Button>
+          </Col>
+        </Row>
       </div>
       <div style={{ marginTop: '20px', height: 'calc(100% - 52px)', display: 'block', float: 'none' }}>
-        {getValueDisplayArea(currentTreeNode, currentRedisKeyAttr)}
+        {getValueDisplayArea(currentRedisKey, currentRedisKeyAttr)}
       </div>
       <RedisDataRenameModal
         currentTreeNode={currentTreeNode}

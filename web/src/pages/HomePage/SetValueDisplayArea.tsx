@@ -35,6 +35,7 @@ export enum ListRowModalType { Create, Update };
 
 export type SetValueDisplayAreaProps = {
   currentTreeNode;
+  currentRedisKey;
 };
 
 
@@ -42,6 +43,7 @@ export type SetValueDisplayAreaProps = {
 const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
   const {
     currentTreeNode,
+    currentRedisKey,
   } = props;
 
   /** 国际化 */
@@ -62,7 +64,7 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
     if (actionRef.current) {
       actionRef.current.reload();
     }
-  });
+  }, [currentRedisKey]);
 
   /**
    * 添加Redis Value
@@ -177,8 +179,8 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
               content: '此操作不可恢复，是否继续 ？',
               onOk() {
                 const { value } = record;
-                const { connectionId, databaseId, redisKey } = currentTreeNode;
-                handleRemoveRedisValue({ connectionId, databaseId, key: redisKey, value })
+                const { connectionId, databaseId } = currentTreeNode;
+                handleRemoveRedisValue({ connectionId, databaseId, key: currentRedisKey, value })
               },
               onCancel() {
               },
@@ -218,8 +220,8 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
         }}
         request={(params, sorter, filter) => {
           console.log('params', params)
-          const { connectionId, databaseId, redisKey } = currentTreeNode;
-          return queryRedisValue({ connectionId, databaseId, key: redisKey, type: 'set', ...params }).then((response) => {
+          const { connectionId, databaseId } = currentTreeNode;
+          return queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'set', ...params }).then((response) => {
             if (response && response.success) {
               console.log(response.result)
               return response.result.value;
@@ -254,13 +256,13 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
               .validateFields()
               .then((values) => {
                 console.log(values)
-                const { connectionId, databaseId, redisKey } = currentTreeNode;
+                const { connectionId, databaseId } = currentTreeNode;
                 if (listRowModalType === ListRowModalType.Create) {
                   const { value } = values;
-                  handleAddRedisValue({ connectionId, databaseId, key: redisKey, rowValue: value });
+                  handleAddRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: value });
                 } else if (listRowModalType === ListRowModalType.Update) {
                   const { value: oldRowValue, index } = currentListRow;
-                  handleUpdateRedisValue({ connectionId, databaseId, key: redisKey, index, rowValue: oldRowValue, newRowValue: values });
+                  handleUpdateRedisValue({ connectionId, databaseId, key: currentRedisKey, index, rowValue: oldRowValue, newRowValue: values });
                 }
                 form.resetFields();
                 handleListAddRowModalVisible(false)

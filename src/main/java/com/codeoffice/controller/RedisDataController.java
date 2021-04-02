@@ -47,7 +47,7 @@ public class RedisDataController {
     @ApiOperation("获取database下所有key")
     @GetMapping(value = "/keys")
     public RestResponse keys(@ModelAttribute RedisDataQueryRequest request) {
-        return redisDataService.keys(request);
+        return redisDataService.keysPages(request);
     }
 
     @ApiOperation("添加一个key")
