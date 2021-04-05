@@ -621,6 +621,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             </Scrollbars>
           </div>
           <InfiniteScrollList
+            
             currentTreeNode={currentTreeNode}
             setCurrentRedisKey={setCurrentRedisKey}
           />
