@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useImperativeHandle } from 'react';
-import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, List, Form, Modal, Typography, Popover, Tooltip, Space, Spin, Empty } from 'antd';
+import { Button, Row, Col, Menu, Tree, message, Select, Card, Input, List, Form, Modal, Typography, Popover, Tooltip, Space, Spin, Empty } from 'antd';
 import {
   ProFormSelect,
   ProFormText,
@@ -19,6 +19,7 @@ import {
   FileAddOutlined,
   RedoOutlined,
   DeleteOutlined,
+  SyncOutlined,
   ExclamationCircleOutlined,
   SoundTwoTone
 } from '@ant-design/icons';
@@ -169,9 +170,14 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
 
   return (
     <div style={{ width: 'calc(50% - 2px)', float: 'right', height: 'calc(100% - 72px)', marginLeft: '2px' }}>
-      <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
-        <Search placeholder="请输入" enterButton />
-      </Space>
+      <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32 }}>
+        <Col span={22} >
+          <Search placeholder="请输入" enterButton />
+        </Col>
+        <Col span={2} >
+          <Button type="primary" icon={<SyncOutlined />} title="重置" />
+        </Col>
+      </Row>
       <Scrollbars
         autoHide
         style={{
