@@ -63,7 +63,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
   const getOperationToolBar = () => {
     if (currentTreeNode && currentTreeNode.level === 1) {
       return (
-        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 4 }}>
+        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 2 }}>
           <Col span={8}>
             <Button title='编辑'
               style={{ width: '100%' }}
@@ -123,7 +123,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
       )
     } else if (currentTreeNode && currentTreeNode.level === 2) {
       return (
-        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 4 }}>
+        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 2 }}>
           <Col span={12}>
             <Button title='新增'
               style={{ width: '100%' }}
@@ -150,7 +150,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
       )
     } else {
       return (
-        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 4 }}>
+        <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 2 }}>
           <Col span={24} >
             <Button title='刷新'
               style={{ width: '100%' }}

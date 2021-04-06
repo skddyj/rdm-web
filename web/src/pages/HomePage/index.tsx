@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch } from 'umi';
 import { Link, useIntl, connect, history, FormattedMessage } from 'umi';
 import { GithubOutlined, SoundTwoTone } from '@ant-design/icons';
-import { Result, Button, Divider, Layout, Menu, Tree, message, Spin, Card, Input, Form, Modal, Typography, Popover, Tooltip, Space, Breadcrumb, List } from 'antd';
+import { Result, Button, Divider, Layout, Menu, Tree, message, Spin, Card, Input, Form, Modal, Typography, Popover, Tooltip, Space, Breadcrumb, List, Empty } from 'antd';
 
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
@@ -576,6 +576,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     })
   }
 
+  const empty = <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ width: '100%', height: '100%', marginTop: '60px', padding: '16px' }} />;
+
   return (
     <Layout>
       <Sider
@@ -593,7 +595,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             }}>
             添加Redis连接
           </Button>
-          <div style={{ width: '50%', float: 'left', height: 'calc(100% - 96px)' }}>
+          <div style={{ width: 'calc(50% - 2px)', float: 'left', height: 'calc(100% - 96px)' }}>
             <OperationToolBar
               form={form}
               currentTreeNode={currentTreeNode}
@@ -618,18 +620,20 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                   <Spin />
                 </div> :
-                <Tree
-                  showIcon
-                  //loadData={onLoadData}
-                  switcherIcon={< CaretDownOutlined />}
-                  onExpand={onTreeNodeExpand}
-                  onSelect={onTreeNodeSelect}
-                  selectedKeys={selectedKeys}
-                  expandedKeys={expandedKeys}
-                  treeData={redisConnectionData}
-                />}
+                redisConnectionData && redisConnectionData.length > 0 ?
+                  <Tree
+                    showIcon
+                    //loadData={onLoadData}
+                    switcherIcon={< CaretDownOutlined />}
+                    onExpand={onTreeNodeExpand}
+                    onSelect={onTreeNodeSelect}
+                    selectedKeys={selectedKeys}
+                    expandedKeys={expandedKeys}
+                    treeData={redisConnectionData}
+                  /> : empty}
             </Scrollbars>
           </div>
+          <Divider type='vertical' style={{ height: 'calc(100% - 92px)', float: 'left', margin: '72px 0 0 0' }} />
           <InfiniteScrollList
             currentTreeNode={currentTreeNode}
             refreshRedisKeys={refreshRedisKeys}

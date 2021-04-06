@@ -168,7 +168,7 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
 
 
   return (
-    <div style={{ width: '50%', float: 'right', height: 'calc(100% - 72px)' }}>
+    <div style={{ width: 'calc(50% - 2px)', float: 'right', height: 'calc(100% - 72px)', marginLeft: '2px' }}>
       <Space size='large' direction='horizontal' style={{ marginTop: 20, height: 32 }}>
         <Search placeholder="请输入" enterButton />
       </Space>
