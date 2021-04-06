@@ -66,7 +66,6 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
           redisKeyRenameForm
             .validateFields()
             .then((values) => {
-              console.log(values)
               const { newKey } = values;
               const { connectionId, databaseId, redisKey } = currentTreeNode;
               redisKeyRenameForm.resetFields();
@@ -74,7 +73,6 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
               handleDataRenameModalVisible(false)
             })
             .catch(info => {
-              console.log('Validate Failed:', info);
             });
         }}>
           确定

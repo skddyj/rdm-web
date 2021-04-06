@@ -69,8 +69,8 @@ export async function testRedisConnection(params: RedisConnectionParams) {
   });
 }
 /***********************Redis数据库****************************/
-export async function queryDatabaseCount(id) {
-  return request(`/api/redisData/databaseCount/${id}`);
+export async function queryDatabase(id) {
+  return request(`/api/redisData/database/${id}`);
 }
 
 export async function queryRedisKeys(params) {
@@ -142,7 +142,6 @@ export async function queryKeyAttr(params) {
 }
 
 export async function setKeyValue(params) {
-  console.log('params', params)
   return request('/api/redisData/set', {
     method: 'POST',
     data: {

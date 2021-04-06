@@ -1,5 +1,4 @@
 export const buildSortParam = (sorter) => {
-  console.log("sout", sorter)
   const param = {};
   if (sorter) {
     for (let [key, value] of Object.entries(sorter)) {

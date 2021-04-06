@@ -79,19 +79,15 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
           form
             .validateFields()
             .then(values => {
-              console.log("values222", values)
               form.resetFields();
               if (connectionModalType === ModalType.Create) {
                 handleAddRedisConnection(values).then((success) => {
-                  console.log("success", success);
                   if (success) {
                     handleConnectionModalVisible(false);
                   }
                 });
               } else if (connectionModalType === ModalType.Update) {
-                console.log()
                 handleUpdateRedisConnection({ id: currentTreeNode?.connectionId, ...values }).then((success) => {
-                  console.log("success", success);
                   if (success) {
                     clearSelected();
                     loadAllRedisConnection();

@@ -52,12 +52,10 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
   const [type, setType] = useState('');
 
   const onTypeChange = (type) => {
-    console.log(type)
     setType(type)
   }
 
   const createParamByType = (fields) => {
-    console.log(currentTreeNode)
     const { type, value } = fields;
     const { connectionId, databaseId } = currentTreeNode;
     const data = { ...fields, connectionId, databaseId }
@@ -93,7 +91,6 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
             .then((values) => {
               form.resetFields();
               handleAddRedisData(createParamByType(values)).then((success) => {
-                console.log("success", success);
                 if (success) {
                   refreshCurrentDatabaseKeys();
                   handleDataModalVisible(false);

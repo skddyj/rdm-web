@@ -66,7 +66,6 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
           redisKeyTtlForm
             .validateFields()
             .then((values) => {
-              console.log(values)
               const { ttl } = values;
               const { connectionId, databaseId, redisKey } = currentTreeNode;
               redisKeyTtlForm.resetFields();

@@ -60,7 +60,6 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
   const [listAddRowModalVisible, handleListAddRowModalVisible] = useState(false);
 
   useEffect(() => {
-    console.log("useEffect")
     if (actionRef.current) {
       actionRef.current.reload();
     }
@@ -97,7 +96,6 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
     const hide = message.loading('正在修改');
     try {
       return await updateRedisValue({ ...fields }).then((response) => {
-        console.log(fields)
         if (response && response.success) {
           hide();
           message.success('修改成功');
@@ -122,7 +120,6 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
     const hide = message.loading('正在删除');
     try {
       return await removeRedisValue({ ...fields }).then((response) => {
-        console.log(fields)
         if (response && response.success) {
           hide();
           message.success('删除成功');
@@ -224,12 +221,10 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
           ]
         }}
         request={(params, sorter, filter) => {
-          console.log('params', params)
           if (currentRedisKey) {
             const { connectionId, databaseId } = currentTreeNode;
             return queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'zset', ...params }).then((response) => {
               if (response && response.success) {
-                console.log(response.result)
                 return response.result.value;
               }
               message.error(response.message)
@@ -262,7 +257,6 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
             form
               .validateFields()
               .then((values) => {
-                console.log(values)
                 const { connectionId, databaseId } = currentTreeNode;
                 if (listRowModalType === ListRowModalType.Create) {
                   handleAddRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: values });

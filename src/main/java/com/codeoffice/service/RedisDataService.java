@@ -11,7 +11,7 @@ import com.codeoffice.request.RedisDataUpdateRequest;
  */
 public interface RedisDataService {
 
-    RestResponse databaseCount(Long id);
+    RestResponse database(Long id);
 
     RestResponse keys(RedisDataQueryRequest request);
 

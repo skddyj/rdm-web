@@ -59,7 +59,6 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
   const [listAddRowModalVisible, handleListAddRowModalVisible] = useState(false);
 
   useEffect(() => {
-    console.log("useEffect")
     if (actionRef.current) {
       actionRef.current.reload();
     }
@@ -96,7 +95,6 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
     const hide = message.loading('正在修改');
     try {
       return await updateRedisValue({ ...fields }).then((response) => {
-        console.log(fields)
         if (response && response.success) {
           hide();
           message.success('修改成功');
@@ -121,7 +119,6 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
     const hide = message.loading('正在删除');
     try {
       return await removeRedisValue({ ...fields }).then((response) => {
-        console.log(fields)
         if (response && response.success) {
           hide();
           message.success('删除成功');
@@ -218,11 +215,9 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
           ]
         }}
         request={(params, sorter, filter) => {
-          console.log('params', params)
           const { connectionId, databaseId } = currentTreeNode;
           return queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'list', ...params }).then((response) => {
             if (response && response.success) {
-              console.log(response.result)
               return response.result.value;
             }
             message.error(response.message)
@@ -254,7 +249,6 @@ const ListValueDisplayArea: React.FC<ListValueDisplayAreaProps> = (props) => {
             form
               .validateFields()
               .then((values) => {
-                console.log(values)
                 const { connectionId, databaseId } = currentTreeNode;
                 const { value } = values;
                 if (listRowModalType === ListRowModalType.Create) {

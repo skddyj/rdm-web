@@ -30,7 +30,6 @@ const handleUpdateRedisValue = async (fields) => {
   const hide = message.loading('正在修改');
   try {
     return await updateRedisValue({ ...fields }).then((response) => {
-      console.log(fields)
       if (response && response.success) {
         hide();
         message.success('修改成功');
@@ -85,7 +84,6 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
     try {
       return await queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'string' }).then((response) => {
         if (response && response.success) {
-          console.log(response.result)
           return response.result.value;
         }
         throw new Error(response.message);

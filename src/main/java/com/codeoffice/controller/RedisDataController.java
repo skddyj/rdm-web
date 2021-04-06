@@ -39,9 +39,9 @@ public class RedisDataController {
     }
 
     @ApiOperation("获取所有Redis连接列表")
-    @GetMapping(value = "/databaseCount/{id}")
-    public RestResponse databaseCount(@PathVariable("id") Long id) {
-        return redisDataService.databaseCount(id);
+    @GetMapping(value = "/database/{id}")
+    public RestResponse database(@PathVariable("id") Long id) {
+        return redisDataService.database(id);
     }
 
     @ApiOperation("获取database下所有key")

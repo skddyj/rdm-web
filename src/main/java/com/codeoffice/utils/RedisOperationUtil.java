@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class RedisOperationUtil {
      * @param: [id]
      * @return: java.lang.Integer
      */
-    public Integer getDatabaseCount(Long id) {
+    public Integer databases(Long id) {
         StatefulRedisConnection connection = null;
         try {
             RedisClient redisClient = redisClientUtil.getRedisClient(id, 0);
@@ -50,6 +51,35 @@ public class RedisOperationUtil {
                 connection.close();
             }
         }
+    }
+
+    /**
+     * @description: 获取database下key的数量
+     * @date: 2021/3/16 16:27
+     * @param: [id]
+     * @return: java.lang.Integer
+     */
+    public Long dbsize(Long id,Integer databaseId) {
+        StatefulRedisConnection connection = null;
+        try {
+            StopWatch stopWatch=new StopWatch();
+            stopWatch.start();
+            RedisClient redisClient = redisClientUtil.getRedisClient(id, databaseId);
+            connection = redisClient.connect();
+            RedisCommands<String, String> commands = connection.sync();
+            Long dbsize= commands.dbsize();
+            System.out.println("dbsize:" + dbsize);
+            stopWatch.stop();
+            System.out.println("耗时"+stopWatch.getTotalTimeMillis());
+            return dbsize;
+        } catch (Exception e) {
+            log.info("redis连接异常：{}", e);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return null;
     }
 
     /**

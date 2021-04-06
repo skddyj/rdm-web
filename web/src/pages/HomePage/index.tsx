@@ -19,6 +19,11 @@ import type { ConnectState } from '@/models/connect';
 import { getMatchMenu } from '@umijs/route-utils';
 import ProCard from "@ant-design/pro-card";
 import logo from '../assets/logo.svg';
+import Immutable from 'immutable';
+
+import { LoadingOutlined } from '@ant-design/icons';
+const spinIcon = <LoadingOutlined style={{ fontSize: 14 }} spin />;
+
 
 const { Header, Content, Footer, Sider } = Layout;
 const { Title } = Typography;
@@ -38,7 +43,7 @@ import {
   ExclamationCircleOutlined
 } from '@ant-design/icons';
 import {
-  queryAllRedisConnection, queryDatabaseCount, queryRedisKeys,
+  queryAllRedisConnection, queryDatabase, queryRedisKeys,
   queryRedisValue, updateRedisConnection, addRedisConnection,
   removeRedisConnection, testRedisConnection,
   setKeyValue, addRedisKey, removeRedisKey, renameRedisKeyValue,
@@ -84,6 +89,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     },
   } = props;
 
+  const homeRef = useRef();
+
   const form = Form.useForm()[0];
   const textAreaForm = Form.useForm()[0];
   const { formatMessage } = useIntl();
@@ -102,8 +109,10 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const [connectionModalType, setConnectionModalType] = useState<ModalType>(ModalType.Create);
   /** 当前选择的树节点数据*/
   const [currentTreeNode, setCurrentTreeNode] = useState();
-  /** RedisData弹窗 */
+  /** 树加载 */
   const [loadingTree, handleLoadingTree] = useState<boolean>(true);
+  /** 树加载 */
+  const [refreshRedisKeys, handleRefreshRedisKeys] = useState<boolean>(false);
 
   /** 当前选中的Redis Key*/
   const [currentRedisKey, setCurrentRedisKey] = useState();
@@ -126,7 +135,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('添加成功');
-          console.log('add', response.result);
           // 更新state
           refreshRedisConnection();
           return true;
@@ -305,7 +313,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     try {
       return await renameRedisKeyValue({ ...fields }).then((response) => {
         if (response && response.success) {
-          console.log(response)
           hide();
           message.success('重命名成功');
           refreshDatabaseKeys(currentTreeNode);
@@ -330,7 +337,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     try {
       return await expireRedisKeyValue({ ...fields }).then((response) => {
         if (response && response.success) {
-          console.log(response)
           hide();
           message.success('更新TTL成功');
           handleRefreshRedisValue(currentTreeNode);
@@ -350,9 +356,9 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   /**
    * 获取Redis数据库
    */
-  const getRedisDatabaseCount = async (id) => {
+  const getRedisDatabase = async (id) => {
     try {
-      return await queryDatabaseCount(id).then((response) => {
+      return await queryDatabase(id).then((response) => {
         if (response && response.success) {
           return response.result;
         }
@@ -412,12 +418,14 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
 
   /** 
    * 更新树数据 
-   * */
+   * 
+   */
   const updateRedisConnectionData = (list, key, children: []) => {
     return list.map(node => {
       if (node.key === key) {
         return {
           ...node,
+          switcherIcon: undefined,
           children,
         };
       }
@@ -434,24 +442,20 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   // /**
   //  * 异步加载树数据
   //  */
-  // const onLoadData = ({ key, title, children, level, connectionId, databaseId, connectionKey }) => {
+  // const onLoadData = ({ key, title, children, level, connectionId, connectionName, databaseId, connectionKey }) => {
   //   return new Promise<void>(resolve => {
-  //     console.log('children', children)
   //     if (children && children.length > 0) {
   //       resolve();
   //       return;
   //     }
-  //     console.log('展开连接')
-  //     getRedisDatabaseCount(connectionId).then((databaseCount) => {
-  //       const databaseData = Array.from({ length: databaseCount }, (k, v) => {
-  //         return {
-  //           title: `database ${v}`, key: `${connectionKey}-${v}`, connectionKey, databaseKey: `${connectionKey}-${v}`, level: 2, connectionId, databaseId: v, isLeaf: true, icon: < DatabaseOutlined />
-  //         }
+  //     getRedisDatabase(connectionId).then((databases) => {
+  //       const databaseData = databases.map((database) => {
+  //         return buildDatabaseTreeNode(database, connectionKey, connectionId, connectionName);
   //       })
   //       setRedisConnectionData(origin =>
   //         updateRedisConnectionData(origin, connectionKey, databaseData),
   //       );
-  //       setExpandedKeys(expandedKeys);
+  //       resolve();
   //     })
   //   });
   // }
@@ -463,7 +467,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     setSelectedKeys(selectedKeys);
     if (selected) {
       setCurrentTreeNode(node);
-
     } else {
       setCurrentTreeNode(undefined)
     }
@@ -474,18 +477,16 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 树节点展开
    */
   const onTreeNodeExpand = (expandedKeys, { expanded: bool, node }) => {
-    console.log("expandedKeys", expandedKeys)
     const { children, connectionId, connectionName, connectionKey } = node;
     if (bool) {
       if (children && children.length > 0) {
         setExpandedKeys(expandedKeys);
         return;
       }
-      getRedisDatabaseCount(connectionId).then((databaseCount) => {
-        const databaseData = Array.from({ length: databaseCount }, (k, v) => {
-          return {
-            title: `database ${v}`, key: `${connectionKey}-${v}`, connectionKey, databaseKey: `${connectionKey}-${v}`, level: 2, connectionId, connectionName, databaseId: v, databaseName: `database ${v}`, isLeaf: true, icon: < DatabaseOutlined />
-          }
+      handleLoadingTreeNode(node.key);
+      getRedisDatabase(connectionId).then((databases) => {
+        const databaseData = databases.map((database) => {
+          return buildDatabaseTreeNode(database, connectionKey, connectionId, connectionName);
         })
         setRedisConnectionData(origin =>
           updateRedisConnectionData(origin, connectionKey, databaseData),
@@ -498,12 +499,37 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   };
 
   /**
+   * 加载树节点
+   */
+  const handleLoadingTreeNode = (key) => {
+    setRedisConnectionData(origin => {
+      const newData = Immutable.fromJS(origin).toJS();
+      for (let i = 0; i < newData.length; i++) {
+        if (newData[i].key === key) {
+          newData[i].children = [];
+          newData[i].switcherIcon = <Spin indicator={spinIcon} />;
+        }
+      }
+      return newData;
+    });
+  }
+
+
+  /**
+   * 构造database树节点
+   */
+  const buildDatabaseTreeNode = (database, connectionKey, connectionId, connectionName) => {
+    return {
+      title: `${database.name} (${database.keysCount})`, key: `${connectionKey}-${database.id}`, keysCount: database.keysCount, connectionKey, databaseKey: `${connectionKey}-${database.id}`, level: 2, connectionId, connectionName, databaseId: database.id, databaseName: database.name, isLeaf: true, icon: < DatabaseOutlined />
+    }
+  }
+
+  /**
    * 树节点折叠
    */
   const onTreeNodeFold = (key, includeChildren) => {
     if (includeChildren) {
       const newExpandedKeys = [...expandedKeys].filter(e => !e.startsWith(key));
-      console.log("newExpandedKeys", newExpandedKeys)
       setExpandedKeys(newExpandedKeys)
     } else {
       const newExpandedKeys = [...expandedKeys].filter(e => e !== key);
@@ -515,55 +541,38 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 刷新当前Database所有Key
    */
   const refreshCurrentDatabaseKeys = () => {
-    refreshDatabaseKeys(currentTreeNode);
+    refreshDatabaseKeys();
   }
 
   /**
    * 刷新Database所有Key
    */
-  const refreshDatabaseKeys = (node) => {
-    console.log("refreshDatabaseKeys", node)
-    const { key, connectionId, databaseId, connectionKey, databaseKey } = node;
-    setRedisConnectionData(origin =>
-      updateRedisConnectionData(origin, databaseKey, []),
-    );
-    // getRedisKeys(connectionId, databaseId).then((redisKeys) => {
-    //   const redisKeyData = redisKeys.map((redisKey) => {
-    //     return { title: redisKey, key: `${databaseKey}-${redisKey}`, connectionKey, databaseKey, level: 3, connectionId, databaseId, redisKey, isLeaf: true, icon: null }
-    //   });
-    //   setRedisConnectionData(origin =>
-    //     updateRedisConnectionData(origin, databaseKey, redisKeyData),
-    //   );
-    // })
+  const refreshDatabaseKeys = () => {
+    if (homeRef) {
+      homeRef.current.refreshRedisKeys();
+    }
   }
 
   /**
    * 刷新当前连接的Database
    */
   const refreshCurrentConnectionDatabase = () => {
-    refreshConnectionDatabase(currentTreeNode);
+    refreshDatabases(currentTreeNode);
   }
 
   /**
    * 刷新连接的Database
    */
-  const refreshConnectionDatabase = (node) => {
+  const refreshDatabases = (node) => {
     const { connectionId, connectionKey, connectionName } = node;
-    setRedisConnectionData(origin =>
-      updateRedisConnectionData(origin, connectionKey, []),
-    );
-    getRedisDatabaseCount(connectionId).then((databaseCount) => {
-      const databaseData = Array.from({ length: databaseCount }, (k, v) => {
-        return {
-          title: `database ${v}`, key: `${connectionKey}-${v}`, connectionKey, databaseKey: `${connectionKey}-${v}`, level: 2, connectionId, connectionName, databaseId: v, databaseName: `database ${v}`, isLeaf: true, icon: < DatabaseOutlined />
-        }
+    handleLoadingTreeNode(node.key);
+    getRedisDatabase(connectionId).then((databases) => {
+      const databaseData = databases.map((database) => {
+        return buildDatabaseTreeNode(database, connectionKey, connectionId, connectionName);
       })
       setRedisConnectionData(origin =>
         updateRedisConnectionData(origin, connectionKey, databaseData),
       );
-      // 折叠当前Redis连接所有有database
-      const newExpandedKeys = [...expandedKeys].filter(e => e === currentTreeNode.key || !e.startsWith(currentTreeNode.key));
-      setExpandedKeys(newExpandedKeys)
     })
   }
 
@@ -597,6 +606,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
               refreshCurrentDatabaseKeys={refreshCurrentDatabaseKeys}
               clearExpanded={clearExpanded}
               clearSelected={clearSelected}
+              expandedKeys={expandedKeys}
               loadAllRedisConnection={loadAllRedisConnection}
             />
             <Scrollbars
@@ -611,7 +621,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
                 <Tree
                   showIcon
                   //loadData={onLoadData}
-                  switcherIcon={<CaretDownOutlined />}
+                  switcherIcon={< CaretDownOutlined />}
                   onExpand={onTreeNodeExpand}
                   onSelect={onTreeNodeSelect}
                   selectedKeys={selectedKeys}
@@ -621,8 +631,10 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             </Scrollbars>
           </div>
           <InfiniteScrollList
-            
             currentTreeNode={currentTreeNode}
+            refreshRedisKeys={refreshRedisKeys}
+            ref={homeRef}
+            handleRefreshRedisKeys={handleRefreshRedisKeys}
             setCurrentRedisKey={setCurrentRedisKey}
           />
         </Card>

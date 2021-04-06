@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useImperativeHandle } from 'react';
 import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, List, Form, Modal, Typography, Popover, Tooltip, Space, Spin, Empty } from 'antd';
 import {
   ProFormSelect,
@@ -42,6 +42,12 @@ export enum ListRowModalType { Create, Update };
 export type InfiniteScrollListProps = {
   currentTreeNode;
   setCurrentRedisKey;
+  refreshRedisKeys;
+  handleRefreshRedisKeys;
+};
+
+export type HomeRefProps = {
+  refreshRedisKeys();
 };
 
 const pageSize = 200;
@@ -59,10 +65,13 @@ const getRedisKeys = async (connectionId, databaseId, current, pageSize) => {
   }
 };
 
-const InfiniteScrollList: React.FC<InfiniteScrollListProps> = (props) => {
+const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<HomeRefProps, InfiniteScrollListProps>((props, homeRef) => {
+
   const {
     currentTreeNode,
-    setCurrentRedisKey
+    setCurrentRedisKey,
+    refreshRedisKeys,
+    handleRefreshRedisKeys
   } = props;
 
   /** 国际化 */
@@ -91,6 +100,13 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = (props) => {
     }
   }, [currentTreeNode]);
 
+  useImperativeHandle(homeRef, () => ({
+    refreshRedisKeys: () => {
+      clearData();
+      handleInitInfiniteOnLoad();
+    }
+  }));
+
   const clearData = () => {
     setCurrent(1)
     setDataSource([]);
@@ -100,11 +116,9 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = (props) => {
   }
 
   const handleInitInfiniteOnLoad = () => {
-    console.log("初始化加载")
     setLoading(true)
     const { connectionId, databaseId } = currentTreeNode;
     getRedisKeys(connectionId, databaseId, 1, pageSize).then((result) => {
-      console.log(result)
       const { data, hasMore } = result;
       setLoading(false);
       setHasMore(hasMore);
@@ -116,9 +130,7 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = (props) => {
   };
 
   const handleInfiniteOnLoad = () => {
-    console.log("加载")
     setLoading(true)
-    console.log('hasMore', hasMore)
     if (!hasMore) {
       message.warning('数据已全部加载');
       setLoading(false);
@@ -128,7 +140,6 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = (props) => {
     getRedisKeys(connectionId, databaseId, current, pageSize).then((result) => {
       const { data, hasMore } = result;
       setLoading(false);
-      console.log(result)
       setHasMore(hasMore);
       setCurrent(current => current + 1);
       if (data && data.length > 0) {
@@ -192,6 +203,6 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = (props) => {
       </Scrollbars>
     </div>
   );
-};
+})
 
 export default InfiniteScrollList;

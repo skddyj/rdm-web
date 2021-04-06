@@ -8,10 +8,7 @@ import com.codeoffice.common.PageResponse;
 import com.codeoffice.common.RestCode;
 import com.codeoffice.common.RestResponse;
 import com.codeoffice.mapper.RedisConnectionMapper;
-import com.codeoffice.model.RedisDataAttrModel;
-import com.codeoffice.model.RedisDataHashModel;
-import com.codeoffice.model.RedisDataListModel;
-import com.codeoffice.model.RedisDataZSetModel;
+import com.codeoffice.model.*;
 import com.codeoffice.request.RedisDataQueryRequest;
 import com.codeoffice.request.RedisDataRowUpdateRequest;
 import com.codeoffice.request.RedisDataUpdateRequest;
@@ -49,12 +46,15 @@ public class RedisDataServiceImpl implements RedisDataService {
     public RedisOperationUtil redisOperationUtil;
 
     @Override
-    public RestResponse databaseCount(Long id) {
+    public RestResponse database(Long id) {
         if (id == null) {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
-        int num = redisOperationUtil.getDatabaseCount(id);
-        return RestResponse.success(num);
+        int databaseCount = redisOperationUtil.databases(id);
+        List<RedisDatabaseModel> databaseModelList = IntStream.range(0, databaseCount)
+                .mapToObj(i -> new RedisDatabaseModel(i, "database "+i,redisOperationUtil.dbsize(id,i)))
+                .collect(Collectors.toList());
+        return RestResponse.success(databaseModelList);
     }
 
     @Override

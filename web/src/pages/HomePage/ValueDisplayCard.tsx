@@ -77,7 +77,6 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
       getKeyAttr().then((attr) => {
         const { key, ttl } = attr;
         setCurrentRedisKeyAttr(attr);
-        console.log("setCurrentRedisKeyAttr", attr)
         form.setFieldsValue({ redisKey: key, ttl })
       });
     } else {
@@ -158,7 +157,6 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
   const defaultKey = <b>Key</b>;
 
   const getRedisKeyFormLabel = (treeNode, redisKeyAttr) => {
-    console.log("getRedisKeyFormLabel", treeNode, redisKeyAttr)
     if (treeNode && treeNode.level === 3) {
       if (redisKeyAttr && redisKeyAttr.type === 'string') {
         return <b>String</b>;

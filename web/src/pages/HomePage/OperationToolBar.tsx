@@ -37,6 +37,7 @@ export type OperationToolBarProps = {
   clearExpanded;
   clearSelected;
   loadAllRedisConnection;
+  expandedKeys;
 };
 
 const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
@@ -55,7 +56,8 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
     refreshCurrentDatabaseKeys,
     clearExpanded,
     clearSelected,
-    loadAllRedisConnection
+    loadAllRedisConnection,
+    expandedKeys
   } = props;
 
   const getOperationToolBar = () => {
@@ -66,22 +68,28 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             <Button title='编辑'
               style={{ width: '100%' }}
               onClick={() => {
-                confirm({
-                  title: '编辑确认',
-                  icon: <ExclamationCircleOutlined />,
-                  content: '编辑连接信息需要关闭所有连接，是否继续 ？',
-                  onOk() {
-                    clearExpanded();
-                    form.setFieldsValue(currentTreeNode.redisConnectionVo);
-                    setConnectionModalType(ModalType.Update)
-                    handleConnectionModalVisible(true);
-                  },
-                  onCancel() {
-                  },
-                });
+                if (expandedKeys && expandedKeys.length > 0) {
+                  confirm({
+                    title: '编辑确认',
+                    icon: <ExclamationCircleOutlined />,
+                    content: '编辑连接信息需要关闭所有连接，是否继续 ？',
+                    onOk() {
+                      clearExpanded();
+                      form.setFieldsValue(currentTreeNode.redisConnectionVo);
+                      setConnectionModalType(ModalType.Update)
+                      handleConnectionModalVisible(true);
+                    },
+                    onCancel() {
+                    },
+                  });
+                } else {
+                  clearExpanded();
+                  form.setFieldsValue(currentTreeNode.redisConnectionVo);
+                  setConnectionModalType(ModalType.Update)
+                  handleConnectionModalVisible(true);
+                }
               }}
               type="primary" icon={<EditOutlined />} >
-
             </Button>
           </Col>
           <Col span={8}>
@@ -147,18 +155,24 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             <Button title='刷新'
               style={{ width: '100%' }}
               onClick={() => {
-                confirm({
-                  title: '刷新确认',
-                  icon: <ExclamationCircleOutlined />,
-                  content: '该操作会关闭所有连接，是否继续 ？',
-                  onOk() {
-                    clearExpanded();
-                    clearSelected
-                    loadAllRedisConnection();
-                  },
-                  onCancel() {
-                  },
-                });
+                if (expandedKeys && expandedKeys.length > 0) {
+                  confirm({
+                    title: '刷新确认',
+                    icon: <ExclamationCircleOutlined />,
+                    content: '该操作会关闭所有连接，是否继续 ？',
+                    onOk() {
+                      clearExpanded();
+                      clearSelected();
+                      loadAllRedisConnection();
+                    },
+                    onCancel() {
+                    },
+                  });
+                } else {
+                  clearExpanded();
+                  clearSelected();
+                  loadAllRedisConnection();
+                }
               }}
               type="primary" icon={<RedoOutlined />} >
 
