@@ -10,21 +10,21 @@ export default {
     '/api/': {
       target: 'http://127.0.0.1:8090/',
       changeOrigin: true,
-      pathRewrite: { '^/api': '/' },
+      pathRewrite: { '^/api': '/api' },
     },
   },
   test: {
     '/api/': {
       target: 'http://127.0.0.1:8090/',
       changeOrigin: true,
-      pathRewrite: { '^/api': '' },
+      pathRewrite: { '^/api': '/api' },
     },
   },
   pre: {
     '/api/': {
       target: 'http://127.0.0.1:8090/',
       changeOrigin: true,
-      pathRewrite: { '^/api': '' },
+      pathRewrite: { '^/api': '/api' },
     },
   },
 };
