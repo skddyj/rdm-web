@@ -13,6 +13,8 @@ public interface RedisDataService {
 
     RestResponse database(Long id);
 
+    RestResponse databaseSize(RedisDataQueryRequest request);
+
     RestResponse keys(RedisDataQueryRequest request);
 
     RestResponse keysPages(RedisDataQueryRequest request);

@@ -73,6 +73,12 @@ export async function queryDatabase(id) {
   return request(`/api/redisData/database/${id}`);
 }
 
+export async function queryDatabaseSize(params) {
+  return request('/api/redisData/databaseSize', {
+    params,
+  })
+}
+
 export async function queryRedisKeys(params) {
   return request('/api/redisData/keys', {
     params,

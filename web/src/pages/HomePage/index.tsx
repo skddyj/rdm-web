@@ -46,7 +46,7 @@ import {
   queryAllRedisConnection, queryDatabase, queryRedisKeys,
   queryRedisValue, updateRedisConnection, addRedisConnection,
   removeRedisConnection, testRedisConnection,
-  setKeyValue, addRedisKey, removeRedisKey, renameRedisKeyValue,
+  queryDatabaseSize, addRedisKey, removeRedisKey, renameRedisKeyValue,
   expireRedisKeyValue
 } from './service';
 
@@ -252,9 +252,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
           });
           handleLoadingTree(false)
           setRedisConnectionData(data);
+        }else{
+          handleLoadingTree(false)
         }
       });
     } catch (error) {
+      handleLoadingTree(false)
       message.error('查询Redis连接失败');
       return [];
     }
@@ -552,20 +555,24 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    */
   const refreshDatabase = (treeNode) => {
     const { connectionId, databaseId } = treeNode;
-    const keyCount = homeRef.current.refreshRedisKeys();
-    keyCount.then((count) => {
-      const newData = Immutable.fromJS(redisConnectionData).toJS();
-      newData.map((connection) => {
-        if (connection.connectionId === connectionId) {
-          connection.children.map((database) => {
-            if (database.databaseId === databaseId) {
-              database.title = buildDatabaseTitle(database.databaseName, count);
-              database.keysCount = count;
-            }
-          })
-        }
-      });
-      setRedisConnectionData(newData);
+    homeRef.current.refreshRedisKeys();
+    queryDatabaseSize({ connectionId, databaseId }).then((response) => {
+      if (response && response.success) {
+        console.log(response)
+        const { result } = response;
+        const newData = Immutable.fromJS(redisConnectionData).toJS();
+        newData.map((connection) => {
+          if (connection.connectionId === connectionId) {
+            connection.children.map((database) => {
+              if (database.databaseId === databaseId) {
+                database.title = buildDatabaseTitle(database.databaseName, result);
+                database.keysCount = result;
+              }
+            })
+          }
+        });
+        setRedisConnectionData(newData);
+      }
     })
   }
 

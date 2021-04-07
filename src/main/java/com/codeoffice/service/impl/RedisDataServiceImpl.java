@@ -52,9 +52,17 @@ public class RedisDataServiceImpl implements RedisDataService {
         }
         int databaseCount = redisOperationUtil.databases(id);
         List<RedisDatabaseModel> databaseModelList = IntStream.range(0, databaseCount)
-                .mapToObj(i -> new RedisDatabaseModel(i, "database "+i,redisOperationUtil.dbsize(id,i)))
+                .mapToObj(i -> new RedisDatabaseModel(i, "database " + i, redisOperationUtil.dbsize(id, i)))
                 .collect(Collectors.toList());
         return RestResponse.success(databaseModelList);
+    }
+
+    @Override
+    public RestResponse databaseSize(RedisDataQueryRequest request) {
+        if (request.getConnectionId() == null || request.getDatabaseId() == null) {
+            return RestResponse.error(RestCode.ILLEGAL_PARAMS);
+        }
+        return RestResponse.success(redisOperationUtil.dbsize(request.getConnectionId(), request.getDatabaseId()));
     }
 
     @Override
@@ -76,7 +84,7 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (request.getConnectionId() == null || request.getDatabaseId() == null) {
             return RestResponse.success(new PageResponse());
         }
-        System.out.println("请求："+request.getCurrent()+" 页 "+request.getPageSize()+"条");
+        System.out.println("请求：" + request.getCurrent() + " 页 " + request.getPageSize() + "条");
         Page page = new Page(request.getCurrent(), request.getPageSize());
         System.out.println(request.getCurrent());
         List keys = redisOperationUtil.keysPages(request.getConnectionId(), request.getDatabaseId(), request.getKey(), page);

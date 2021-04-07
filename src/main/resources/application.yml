@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 80
 mybatis:
   configLocation: classpath:/mybatis/mybatis-config.xml
   mapper-locations: classpath:mapper/*.xml,classpath:mssqlmapper/*.xml
@@ -29,7 +29,7 @@ management:
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:sqlite:database/sqlite.db
+    url: jdbc:sqlite::resource:database/sqlite.db
     username: root
     password: 123456
     driverClassName: org.sqlite.JDBC

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "RedisData管理", tags = "RedisData管理")
 @Slf4j
 @RestController
-@RequestMapping("/redisData")
+@RequestMapping("/api/redisData")
 public class RedisDataController {
 
     private final static String SERVICE_NAME = "RedisConnectionService:";
@@ -42,6 +42,12 @@ public class RedisDataController {
     @GetMapping(value = "/database/{id}")
     public RestResponse database(@PathVariable("id") Long id) {
         return redisDataService.database(id);
+    }
+
+    @ApiOperation("获取所有Redis连接列表")
+    @GetMapping(value = "/databaseSize")
+    public RestResponse databaseSize(@ModelAttribute RedisDataQueryRequest request) {
+        return redisDataService.databaseSize(request);
     }
 
     @ApiOperation("获取database下所有key")

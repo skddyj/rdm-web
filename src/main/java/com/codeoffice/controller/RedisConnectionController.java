@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Api(value = "RedisConnection管理", tags = "RedisConnection管理")
 @Slf4j
 @RestController
-@RequestMapping("/redisConnection")
+@RequestMapping("/api/redisConnection")
 public class RedisConnectionController {
 
     private final static String SERVICE_NAME = "RedisConnectionService:";
