@@ -16,8 +16,7 @@
 
 </div>
 
-- Preview: http://47.103.220.20/ 
-           http://codeoffice.tech
+- Preview: http://47.103.220.20/
 
 ## Usage
 
