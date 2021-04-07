@@ -104,7 +104,7 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
   useImperativeHandle(homeRef, () => ({
     refreshRedisKeys: () => {
       clearData();
-      handleInitInfiniteOnLoad();
+      return handleInitInfiniteOnLoad();
     }
   }));
 
@@ -116,17 +116,19 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
     setCurrentRedisKey(undefined)
   }
 
-  const handleInitInfiniteOnLoad = () => {
+  const handleInitInfiniteOnLoad = async () => {
     setLoading(true)
     const { connectionId, databaseId } = currentTreeNode;
-    getRedisKeys(connectionId, databaseId, 1, pageSize).then((result) => {
+    return await getRedisKeys(connectionId, databaseId, 1, pageSize).then((result) => {
       const { data, hasMore } = result;
       setLoading(false);
       setHasMore(hasMore);
       setCurrent(current => current + 1);
       if (data && data.length > 0) {
-        setDataSource((originData) => originData.concat(data))
+        setDataSource(data);
+        return data.length;
       }
+      return 0;
     })
   };
 

@@ -28,9 +28,11 @@ const typeOptions = [
 
 export type RedisDataRenameModalProps = {
   currentTreeNode;
+  currentRedisKey;
   handleRenameRedisKey;
   handleDataRenameModalVisible;
   dataRenameModalVisible;
+  handleRefreshRedisValue;
 };
 
 const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
@@ -39,9 +41,11 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
 
   const {
     currentTreeNode,
+    currentRedisKey,
     handleRenameRedisKey,
     handleDataRenameModalVisible,
-    dataRenameModalVisible
+    dataRenameModalVisible,
+    handleRefreshRedisValue
   } = props;
 
   const [redisKeyRenameForm] = Form.useForm();
@@ -67,9 +71,9 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
             .validateFields()
             .then((values) => {
               const { newKey } = values;
-              const { connectionId, databaseId, redisKey } = currentTreeNode;
+              const { connectionId, databaseId } = currentTreeNode;
               redisKeyRenameForm.resetFields();
-              handleRenameRedisKey({ connectionId, databaseId, key: redisKey, newKey });
+              handleRenameRedisKey({ connectionId, databaseId, key: currentRedisKey, newKey });
               handleDataRenameModalVisible(false)
             })
             .catch(info => {

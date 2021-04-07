@@ -32,8 +32,8 @@ export type OperationToolBarProps = {
   handleConnectionModalVisible;
   handleDataModalVisible;
   handleRemoveRedisConnection;
-  refreshCurrentConnectionDatabase;
-  refreshCurrentDatabaseKeys;
+  refreshCurrentConnection;
+  refreshCurrentDatabase;
   clearExpanded;
   clearSelected;
   loadAllRedisConnection;
@@ -52,8 +52,8 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
     handleConnectionModalVisible,
     handleDataModalVisible,
     handleRemoveRedisConnection,
-    refreshCurrentConnectionDatabase,
-    refreshCurrentDatabaseKeys,
+    refreshCurrentConnection,
+    refreshCurrentDatabase,
     clearExpanded,
     clearSelected,
     loadAllRedisConnection,
@@ -114,7 +114,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             <Button title='刷新'
               style={{ width: '100%' }}
               onClick={() => {
-                refreshCurrentConnectionDatabase()
+                refreshCurrentConnection()
               }} type="primary" icon={<RedoOutlined />} >
 
             </Button>
@@ -141,7 +141,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
               style={{ width: '100%' }}
               onClick={
                 () => {
-                  refreshCurrentDatabaseKeys()
+                  refreshCurrentDatabase()
                 }}
               type="primary" icon={<RedoOutlined />} >
             </Button>

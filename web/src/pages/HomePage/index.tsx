@@ -270,7 +270,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('添加成功');
-          refreshCurrentDatabaseKeys();
+          refreshCurrentDatabase();
           return true;
         }
         throw new Error(response.message);
@@ -292,8 +292,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('删除成功');
-          refreshDatabaseKeys(currentTreeNode);
-          clearSelected()
+          refreshCurrentDatabase(currentTreeNode);
+          setCurrentRedisKey(undefined)
           return true;
         }
         throw new Error(response.message);
@@ -315,8 +315,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('重命名成功');
-          refreshDatabaseKeys(currentTreeNode);
-          clearSelected()
+          refreshCurrentDatabase();
+          setCurrentRedisKey(undefined)
           return true;
         }
         throw new Error(response.message);
@@ -339,14 +339,13 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('更新TTL成功');
-          handleRefreshRedisValue(currentTreeNode);
           return true;
         }
         throw new Error(response.message);
       });
     } catch (error) {
       hide();
-      refreshCurrentDatabaseKeys();
+      refreshCurrentDatabase();
       message.error(`更新TTL失败，请重试，失败原因：${error}`);
       return false;
     }
@@ -400,13 +399,13 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     });
   }
 
-
   /** 
    * 清空选中 
    */
   const clearSelected = () => {
     setSelectedKeys([]);
     setCurrentTreeNode(undefined);
+    setCurrentRedisKey(undefined)
   }
 
   /** 
@@ -520,8 +519,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    */
   const buildDatabaseTreeNode = (database, connectionKey, connectionId, connectionName) => {
     return {
-      title: `${database.name} (${database.keysCount})`, key: `${connectionKey}-${database.id}`, keysCount: database.keysCount, connectionKey, databaseKey: `${connectionKey}-${database.id}`, level: 2, connectionId, connectionName, databaseId: database.id, databaseName: database.name, isLeaf: true, icon: < DatabaseOutlined />
+      title: buildDatabaseTitle(database.name, database.keysCount), key: `${connectionKey}-${database.id}`, keysCount: database.keysCount, connectionKey, databaseKey: `${connectionKey}-${database.id}`, level: 2, connectionId, connectionName, databaseId: database.id, databaseName: database.name, isLeaf: true, icon: < DatabaseOutlined />
     }
+  }
+
+  const buildDatabaseTitle = (name, keysCount) => {
+    return `${name} (${keysCount})`;
   }
 
   /**
@@ -538,32 +541,45 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   }
 
   /**
-   * 刷新当前Database所有Key
+   * 刷新当前Database的key
    */
-  const refreshCurrentDatabaseKeys = () => {
-    refreshDatabaseKeys();
+  const refreshCurrentDatabase = () => {
+    refreshDatabase(currentTreeNode);
   }
 
   /**
-   * 刷新Database所有Key
+   * 刷新Database的key
    */
-  const refreshDatabaseKeys = () => {
-    if (homeRef) {
-      homeRef.current.refreshRedisKeys();
-    }
+  const refreshDatabase = (treeNode) => {
+    const { connectionId, databaseId } = treeNode;
+    const keyCount = homeRef.current.refreshRedisKeys();
+    keyCount.then((count) => {
+      const newData = Immutable.fromJS(redisConnectionData).toJS();
+      newData.map((connection) => {
+        if (connection.connectionId === connectionId) {
+          connection.children.map((database) => {
+            if (database.databaseId === databaseId) {
+              database.title = buildDatabaseTitle(database.databaseName, count);
+              database.keysCount = count;
+            }
+          })
+        }
+      });
+      setRedisConnectionData(newData);
+    })
   }
 
   /**
    * 刷新当前连接的Database
    */
-  const refreshCurrentConnectionDatabase = () => {
-    refreshDatabases(currentTreeNode);
+  const refreshCurrentConnection = () => {
+    refreshConnection(currentTreeNode);
   }
 
   /**
    * 刷新连接的Database
    */
-  const refreshDatabases = (node) => {
+  const refreshConnection = (node) => {
     const { connectionId, connectionKey, connectionName } = node;
     handleLoadingTreeNode(node.key);
     getRedisDatabase(connectionId).then((databases) => {
@@ -579,7 +595,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const empty = <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ width: '100%', height: '100%', marginTop: '60px', padding: '16px' }} />;
 
   return (
-    <Layout>
+    <Layout style={{ height: '100%' }}>
       <Sider
         style={{ background: '#f0f2f5' }}
         width="30%"
@@ -604,8 +620,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
               handleConnectionModalVisible={handleConnectionModalVisible}
               handleDataModalVisible={handleDataModalVisible}
               handleRemoveRedisConnection={handleRemoveRedisConnection}
-              refreshCurrentConnectionDatabase={refreshCurrentConnectionDatabase}
-              refreshCurrentDatabaseKeys={refreshCurrentDatabaseKeys}
+              refreshCurrentConnection={refreshCurrentConnection}
+              refreshCurrentDatabase={refreshCurrentDatabase}
               clearExpanded={clearExpanded}
               clearSelected={clearSelected}
               expandedKeys={expandedKeys}
@@ -657,7 +673,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             currentRedisKey={currentRedisKey}
             handleRemoveRedisKey={handleRemoveRedisKey}
             handleRenameRedisKey={handleRenameRedisKey}
-            //handleRefreshRedisValue={handleRefreshRedisValue}
             handleExpireRedisKey={handleExpireRedisKey}
           />
         </Content>
@@ -683,7 +698,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         dataModalVisible={dataModalVisible}
         handleAddRedisData={handleAddRedisKey}
         handleDataModalVisible={handleDataModalVisible}
-        refreshCurrentDatabaseKeys={refreshCurrentDatabaseKeys}
+        refreshCurrentDatabase={refreshCurrentDatabase}
       />
     </Layout >
   );

@@ -47,11 +47,10 @@ export type ValueDisplayCardProps = {
   currentRedisKey;
   handleRemoveRedisKey;
   handleRenameRedisKey;
-  handleRefreshRedisValue;
   handleExpireRedisKey;
 };
 
-const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
+const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRefProps, InfiniteScrollListProps> ((props) => {
   /** 国际化 */
   const { formatMessage } = useIntl();
 
@@ -61,7 +60,6 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
     currentRedisKey,
     handleRemoveRedisKey,
     handleRenameRedisKey,
-    handleRefreshRedisValue,
     handleExpireRedisKey
   } = props;
 
@@ -73,7 +71,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
 
 
   useEffect(() => {
-    if (currentRedisKey) {
+    if (currentTreeNode && currentRedisKey) {
       getKeyAttr().then((attr) => {
         const { key, ttl } = attr;
         setCurrentRedisKeyAttr(attr);
@@ -83,6 +81,14 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
       form.resetFields()
     }
   }, [currentRedisKey]);
+
+  const handleRefreshRedisValue=()=>{
+    getKeyAttr().then((attr) => {
+      const { key, ttl } = attr;
+      setCurrentRedisKeyAttr(attr);
+      form.setFieldsValue({ redisKey: key, ttl })
+    });
+  }
 
   const getKeyAttr = async () => {
     const { connectionId, databaseId } = currentTreeNode
@@ -272,7 +278,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
               icon={<ReloadOutlined />}
               onClick={() => {
                 if (currentRedisKey) {
-                  handleRefreshRedisValue(currentTreeNode);
+                  handleRefreshRedisValue();
                 } else {
                   message.info('请选择一个Key！', 3);
                 }
@@ -286,19 +292,23 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = (props) => {
       </div>
       <RedisDataRenameModal
         currentTreeNode={currentTreeNode}
+        currentRedisKey={currentRedisKey}
         handleRenameRedisKey={handleRenameRedisKey}
         handleDataRenameModalVisible={handleDataRenameModalVisible}
         dataRenameModalVisible={dataRenameModalVisible}
+        handleRefreshRedisValue={handleRefreshRedisValue}
       />
-      <RedisDataTtlModal
+      <RedisDataTtlModal      
         currentTreeNode={currentTreeNode}
+        currentRedisKey={currentRedisKey}
         handleExpireRedisKey={handleExpireRedisKey}
         handleDataTtlModalVisible={handleDataTtlModalVisible}
         dataTtlModalVisible={dataTtlModalVisible}
+        handleRefreshRedisValue={handleRefreshRedisValue}
       />
     </Card >
 
   );
-};
+});
 
 export default ValueDisplayCard;

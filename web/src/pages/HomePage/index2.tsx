@@ -249,7 +249,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('添加成功');
-          refreshCurrentDatabaseKeys();
+          refreshCurrentDatabase();
           return true;
         }
         throw new Error(response.message);
@@ -318,14 +318,13 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('更新TTL成功');
-          handleRefreshRedisValue(currentTreeNode);
           return true;
         }
         throw new Error(response.message);
       });
     } catch (error) {
       hide();
-      refreshCurrentDatabaseKeys();
+      refreshCurrentDatabase();
       message.error(`更新TTL失败，请重试，失败原因：${error}`);
       return false;
     }
@@ -568,7 +567,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   /**
    * 刷新当前Database所有Key
    */
-  const refreshCurrentDatabaseKeys = () => {
+  const refreshCurrentDatabase = () => {
     refreshDatabaseKeys(currentTreeNode);
   }
 
@@ -593,7 +592,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   /**
    * 刷新当前连接的Database
    */
-  const refreshCurrentConnectionDatabase = () => {
+  const refreshCurrentConnection = () => {
     refreshConnectionDatabase(currentTreeNode);
   }
 
@@ -645,8 +644,8 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             handleConnectionModalVisible={handleConnectionModalVisible}
             handleDataModalVisible={handleDataModalVisible}
             handleRemoveRedisConnection={handleRemoveRedisConnection}
-            refreshCurrentConnectionDatabase={refreshCurrentConnectionDatabase}
-            refreshCurrentDatabaseKeys={refreshCurrentDatabaseKeys}
+            refreshCurrentConnection={refreshCurrentConnection}
+            refreshCurrentDatabase={refreshCurrentDatabase}
             clearExpanded={clearExpanded}
             clearSelected={clearSelected}
             loadAllRedisConnection={loadAllRedisConnection}
@@ -685,7 +684,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             onRedisValueUpdate={onRedisValueUpdate}
             handleRemoveRedisKey={handleRemoveRedisKey}
             handleRenameRedisKey={handleRenameRedisKey}
-            //handleRefreshRedisValue={handleRefreshRedisValue}
             handleExpireRedisKey={handleExpireRedisKey}
           />
         </Content>
@@ -711,7 +709,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         dataModalVisible={dataModalVisible}
         handleAddRedisData={handleAddRedisKey}
         handleDataModalVisible={handleDataModalVisible}
-        refreshCurrentDatabaseKeys={refreshCurrentDatabaseKeys}
+        refreshCurrentDatabase={refreshCurrentDatabase}
       />
     </Layout >
   );

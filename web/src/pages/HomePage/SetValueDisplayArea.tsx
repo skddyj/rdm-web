@@ -177,7 +177,7 @@ const SetValueDisplayArea: React.FC<SetValueDisplayAreaProps> = (props) => {
               onOk() {
                 const { value } = record;
                 const { connectionId, databaseId } = currentTreeNode;
-                handleRemoveRedisValue({ connectionId, databaseId, key: currentRedisKey, value })
+                handleRemoveRedisValue({ connectionId, databaseId, key: currentRedisKey, rowValue: value })
               },
               onCancel() {
               },

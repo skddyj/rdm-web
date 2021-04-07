@@ -31,7 +31,7 @@ export type RedisDataModalProps = {
   currentTreeNode;
   handleAddRedisData;
   handleDataModalVisible;
-  refreshCurrentDatabaseKeys;
+  refreshCurrentDatabase;
   dataModalVisible;
 };
 
@@ -44,7 +44,7 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
     currentTreeNode,
     handleAddRedisData,
     handleDataModalVisible,
-    refreshCurrentDatabaseKeys,
+    refreshCurrentDatabase,
     dataModalVisible
   } = props;
 
@@ -56,15 +56,15 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
   }
 
   const createParamByType = (fields) => {
-    const { type, value } = fields;
+    const { key, type } = fields;
     const { connectionId, databaseId } = currentTreeNode;
-    const data = { ...fields, connectionId, databaseId }
-    if (type === 'list' || type === 'set') {
-      data.value = fields.value
+    const data = { connectionId, databaseId, key, type }
+    if (type === 'string' || type === 'list' || type === 'set') {
+      data.rowValue = fields.value
     } else if (type === 'zset') {
-      data.value = { score: fields.score, value }
+      data.rowValue = { score: fields.score, value: fields.value }
     } else if (type === 'hash') {
-      data.value = { field: fields.field, value }
+      data.rowValue = { field: fields.field, value: fields.value }
     }
     return data;
   }
@@ -92,7 +92,7 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
               form.resetFields();
               handleAddRedisData(createParamByType(values)).then((success) => {
                 if (success) {
-                  refreshCurrentDatabaseKeys();
+                  refreshCurrentDatabase();
                   handleDataModalVisible(false);
                 }
               });

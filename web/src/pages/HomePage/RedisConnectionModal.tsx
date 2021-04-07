@@ -194,7 +194,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
           <Input placeholder='请输入连接用户名（选填）' />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           name="connectionType"
           label="连接类型"
           initialValue={1}
@@ -214,7 +214,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
             <Radio value={1}>单机</Radio>
             <Radio value={2}>集群</Radio>
           </Radio.Group>
-        </Form.Item>
+        </Form.Item> */}
 
 
       </Form>

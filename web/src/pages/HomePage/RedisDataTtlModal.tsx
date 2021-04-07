@@ -28,9 +28,11 @@ const typeOptions = [
 
 export type RedisDataRenameModalProps = {
   currentTreeNode;
+  currentRedisKey;
   handleExpireRedisKey;
   handleDataTtlModalVisible;
   dataTtlModalVisible;
+  handleRefreshRedisValue;
 };
 
 const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
@@ -39,9 +41,11 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
 
   const {
     currentTreeNode,
+    currentRedisKey,
     handleExpireRedisKey,
     handleDataTtlModalVisible,
-    dataTtlModalVisible
+    dataTtlModalVisible,
+    handleRefreshRedisValue
   } = props;
 
   const [redisKeyTtlForm] = Form.useForm();
@@ -67,9 +71,14 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
             .validateFields()
             .then((values) => {
               const { ttl } = values;
-              const { connectionId, databaseId, redisKey } = currentTreeNode;
+              const { connectionId, databaseId } = currentTreeNode;
               redisKeyTtlForm.resetFields();
-              handleExpireRedisKey({ connectionId, databaseId, key: redisKey, ttl });
+              handleExpireRedisKey({ connectionId, databaseId, key: currentRedisKey, ttl }).then((success) => {
+                console.log("success", success);
+                if (success) {
+                  handleRefreshRedisValue()
+                }
+              });;
               handleDataTtlModalVisible(false)
             })
             .catch(info => {
@@ -91,7 +100,7 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
         name="redisKeyTTLForm"
       >
         <Form.Item
-          
+
           name="ttl"
           label="TTL"
           rules={[
