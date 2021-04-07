@@ -20,10 +20,6 @@ public class BrowserAutoOpenConfig implements CommandLineRunner {
     private void openBrowser(String url) {
         try {
             String osName = System.getProperty("os.name", "");
-            if(1==1){
-                throw new Exception("");
-            }
-
             if (osName.startsWith("Windows")) {
                 // Windows
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
