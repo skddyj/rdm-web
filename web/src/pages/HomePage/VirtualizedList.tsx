@@ -17,7 +17,7 @@ import {
   CaretDownOutlined,
   DatabaseOutlined,
   FileAddOutlined,
-  RedoOutlined,
+  SyncOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';

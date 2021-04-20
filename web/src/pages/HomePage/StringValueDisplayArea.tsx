@@ -14,7 +14,7 @@ import {
   CaretDownOutlined,
   DatabaseOutlined,
   FileAddOutlined,
-  RedoOutlined,
+  SyncOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
@@ -104,7 +104,7 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
       </div>
       <Form
         form={form}
-        style={{ height: '100%' }}
+        style={{ height: 'calc(100% - 56px)' }}
         name="stringRedisValueForm"
       >
         <Form.Item

@@ -12,6 +12,7 @@ export default defineConfig({
   dva: {
     hmr: true,
   },
+  outputPath:'../src/main/resources/static',
   history: {
     type: 'browser',
   },

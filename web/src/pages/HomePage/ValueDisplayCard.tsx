@@ -16,7 +16,7 @@ import {
   FileAddOutlined,
   ReloadOutlined,
   SettingOutlined,
-  SaveOutlined,
+  SyncOutlined,
   FormOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined
@@ -275,7 +275,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRe
           <Col span={6}>
             <Button type="primary"
               style={{ width: '100%' }}
-              icon={<ReloadOutlined />}
+              icon={<SyncOutlined />}
               onClick={() => {
                 if (currentRedisKey) {
                   handleRefreshRedisValue();

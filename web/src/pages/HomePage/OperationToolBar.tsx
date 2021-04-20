@@ -14,7 +14,7 @@ import {
   CaretDownOutlined,
   DatabaseOutlined,
   FileAddOutlined,
-  RedoOutlined,
+  SyncOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
@@ -115,7 +115,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
               style={{ width: '100%' }}
               onClick={() => {
                 refreshCurrentConnection()
-              }} type="primary" icon={<RedoOutlined />} >
+              }} type="primary" icon={<SyncOutlined />} >
 
             </Button>
           </Col>
@@ -143,7 +143,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
                 () => {
                   refreshCurrentDatabase()
                 }}
-              type="primary" icon={<RedoOutlined />} >
+              type="primary" icon={<SyncOutlined />} >
             </Button>
           </Col>
         </Row>
@@ -174,7 +174,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
                   loadAllRedisConnection();
                 }
               }}
-              type="primary" icon={<RedoOutlined />} >
+              type="primary" icon={<SyncOutlined />} >
 
             </Button>
           </Col>

@@ -14,10 +14,9 @@ import ProTable from '@ant-design/pro-table';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import {
   FileTextOutlined,
-  CaretDownOutlined,
+  UndoOutlined,
   DatabaseOutlined,
   FileAddOutlined,
-  RedoOutlined,
   DeleteOutlined,
   SyncOutlined,
   ExclamationCircleOutlined,
@@ -28,6 +27,7 @@ import { ModalType } from './HashValueDisplayArea';
 import listItemStyle from './List.less'
 import VirtualizedList from './VirtualizedList'
 import InfiniteScroll from 'react-infinite-scroller';
+import { values } from 'lodash';
 
 const { Title } = Typography;
 const { TextArea, Search } = Input;
@@ -51,11 +51,11 @@ export type HomeRefProps = {
   refreshRedisKeys();
 };
 
-const pageSize = 200;
+const pageSize = 20;
 
-const getRedisKeys = async (connectionId, databaseId, current, pageSize) => {
+const getRedisKeys = async (param) => {
   try {
-    return await queryRedisKeys({ connectionId, databaseId, current, pageSize }).then((response) => {
+    return await queryRedisKeys({ ...param }).then((response) => {
       if (response && response.success) {
         return response.result;
       }
@@ -84,6 +84,10 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
 
   const [listAddRowModalVisible, handleListAddRowModalVisible] = useState(false);
 
+  const [searchValue, setSearchValue] = useState();
+
+  const [key, setKey] = useState();
+
   const [current, setCurrent] = useState(1);
 
   const [hasMore, setHasMore] = useState(true);
@@ -100,6 +104,14 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
       handleInitInfiniteOnLoad()
     }
   }, [currentTreeNode]);
+
+  useEffect(() => {
+    console.log("key---", key)
+    clearData()
+    if (currentTreeNode) {
+      handleInitInfiniteOnLoad();
+    }
+  }, [key]);
 
   useImperativeHandle(homeRef, () => ({
     refreshRedisKeys: () => {
@@ -119,7 +131,13 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
   const handleInitInfiniteOnLoad = async () => {
     setLoading(true)
     const { connectionId, databaseId } = currentTreeNode;
-    return await getRedisKeys(connectionId, databaseId, 1, pageSize).then((result) => {
+    let param;
+    if (key) {
+      param = { connectionId, databaseId, current: 1, pageSize, key };
+    } else {
+      param = { connectionId, databaseId, current: 1, pageSize };
+    }
+    return await getRedisKeys(param).then((result) => {
       const { data, hasMore } = result;
       setLoading(false);
       setHasMore(hasMore);
@@ -140,7 +158,13 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
       return;
     }
     const { connectionId, databaseId } = currentTreeNode;
-    getRedisKeys(connectionId, databaseId, current, pageSize).then((result) => {
+    let param;
+    if (key) {
+      param = { connectionId, databaseId, current, pageSize, key };
+    } else {
+      param = { connectionId, databaseId, current, pageSize };
+    }
+    getRedisKeys(param).then((result) => {
       const { data, hasMore } = result;
       setLoading(false);
       setHasMore(hasMore);
@@ -169,15 +193,28 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
     }
   }
 
+  const onChange = (e) => {
+    setSearchValue(e.target.value)
+  }
+
+  const onSearch = (key) => {
+    setKey(key);
+  }
+
+  const onReset = () => {
+    setSearchValue(undefined);
+    setKey(undefined);
+  }
+
 
   return (
     <div style={{ width: 'calc(50% - 2px)', float: 'right', height: 'calc(100% - 72px)', marginLeft: '2px' }}>
       <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32 }}>
         <Col span={22} >
-          <Search placeholder="请输入" enterButton />
+          <Search placeholder="请输入" enterButton onChange={onChange} onSearch={onSearch} value={searchValue} />
         </Col>
         <Col span={2} >
-          <Button type="primary" icon={<SyncOutlined />} title="重置" />
+          <Button type="primary" icon={<UndoOutlined />} title="重置" onClick={onReset} />
         </Col>
       </Row>
       <Scrollbars

@@ -34,7 +34,7 @@ import {
   CaretDownOutlined,
   DatabaseOutlined,
   KeyOutlined,
-  RedoOutlined,
+  SyncOutlined,
   BookOutlined,
   BulbOutlined,
   FileTextOutlined,

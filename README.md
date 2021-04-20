@@ -20,7 +20,7 @@ a Web management tool for Redis
 
 ## Preview
 
- - http://47.103.220.20/
+ - http://www.codeoffice.tech/
 
 ## Usage
 

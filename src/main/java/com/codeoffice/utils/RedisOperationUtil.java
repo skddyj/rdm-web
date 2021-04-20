@@ -5,6 +5,7 @@ import com.codeoffice.model.RedisDataModel;
 import com.codeoffice.model.RedisDataZSetModel;
 import com.github.pagehelper.Page;
 import io.lettuce.core.*;
+import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +38,7 @@ public class RedisOperationUtil {
     public Integer databases(Long id) {
         StatefulRedisConnection connection = null;
         try {
-            RedisClient redisClient = redisClientUtil.getRedisClient(id, 0);
-            connection = redisClient.connect();
+            connection = redisClientUtil.getRedisConnection(id, 0);
             RedisCommands<String, String> commands = connection.sync();
             Map<String, String> result = commands.configGet("databases");
             System.out.println("databases:" + result);
@@ -59,18 +59,13 @@ public class RedisOperationUtil {
      * @param: [id]
      * @return: java.lang.Integer
      */
-    public Long dbsize(Long id,Integer databaseId) {
+    public Long dbsize(Long id, Integer databaseId) {
         StatefulRedisConnection connection = null;
         try {
-            StopWatch stopWatch=new StopWatch();
-            stopWatch.start();
-            RedisClient redisClient = redisClientUtil.getRedisClient(id, databaseId);
-            connection = redisClient.connect();
+            connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
-            Long dbsize= commands.dbsize();
+            Long dbsize = commands.dbsize();
             System.out.println("dbsize:" + dbsize);
-            stopWatch.stop();
-            System.out.println("耗时"+stopWatch.getTotalTimeMillis());
             return dbsize;
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
@@ -124,7 +119,7 @@ public class RedisOperationUtil {
             String pattern = StringUtils.isBlank(key) ? "*" : "*" + key + "*";
             ScanArgs scanArgs = ScanArgs.Builder.matches(pattern).limit(20000);
             ScanIterator<String> iterator = ScanIterator.scan(commands, scanArgs);
-            System.out.println("起始索引："+page.getStartRow());
+            System.out.println("起始索引：" + page.getStartRow());
             List<String> keysList = iterator.stream().skip(page.getStartRow()).limit(page.getPageSize()).collect(Collectors.toList());
             return keysList;
         } catch (Exception e) {
