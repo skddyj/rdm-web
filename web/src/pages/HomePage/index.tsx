@@ -295,7 +295,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         if (response && response.success) {
           hide();
           message.success('删除成功');
-          refreshCurrentDatabase(currentTreeNode);
+          refreshCurrentDatabase();
           setCurrentRedisKey(undefined)
           return true;
         }

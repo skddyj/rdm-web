@@ -153,7 +153,7 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
   const handleInfiniteOnLoad = () => {
     setLoading(true)
     if (!hasMore) {
-      message.warning('数据已全部加载');
+      message.success('数据已全部加载');
       setLoading(false);
       return;
     }

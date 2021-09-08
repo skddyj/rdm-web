@@ -67,7 +67,6 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (request.getConnectionId() == null || request.getDatabaseId() == null) {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
-        Page page = new Page(request.getCurrent(), request.getPageSize());
         List<String> keys = redisOperationUtil.keys(request.getConnectionId(), request.getDatabaseId(), request.getKey());
         if (CollectionUtils.isEmpty(keys)) {
             return RestResponse.success(Lists.newArrayList());

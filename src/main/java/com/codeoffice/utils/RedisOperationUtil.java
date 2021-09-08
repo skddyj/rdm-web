@@ -60,12 +60,16 @@ public class RedisOperationUtil {
      * @return: java.lang.Integer
      */
     public Long dbsize(Long id, Integer databaseId) {
+        StopWatch stopWatch=new StopWatch();
+        stopWatch.start();
         StatefulRedisConnection connection = null;
         try {
             connection = redisClientUtil.getRedisConnection(id, databaseId);
             RedisCommands<String, String> commands = connection.sync();
             Long dbsize = commands.dbsize();
             System.out.println("dbsize:" + dbsize);
+            stopWatch.stop();
+            System.out.println("耗时:" + stopWatch.getTotalTimeMillis());
             return dbsize;
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);
