@@ -21,4 +21,6 @@ public class RedisConnectionAddRequest {
     private String username;
 
     private String desc;
+
+    private Integer type;
 }

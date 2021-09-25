@@ -49,7 +49,7 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
             BeanUtils.copyProperties(e, vo);
             return vo;
         }).collect(Collectors.toList());
-        return RestResponse.success(list);
+        return RestResponse.success(voList);
     }
 
     @Override
@@ -112,6 +112,7 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
     public RestResponse delete(Long id) {
         redisConnectionMapper.deleteByPrimaryKey(id);
         redisClientUtil.removeRedisClientMap(id);
+        redisClientUtil.removeRedisConnection(id);
         redisClientUtil.printRedisClientMap();
         return RestResponse.success();
     }
@@ -122,9 +123,11 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
         if (CollectionUtils.isEmpty(request.getIds())) {
             return RestResponse.error(RestCode.DELETE_IDS_IS_NULL);
         }
-        System.out.println(JSON.toJSONString(request.getIds()));
         redisConnectionMapper.batchDeleteByPrimaryKey(request);
-        request.getIds().forEach(id -> redisClientUtil.removeRedisClientMap(id));
+        request.getIds().forEach(id -> {
+            redisClientUtil.removeRedisClientMap(id);
+            redisClientUtil.removeRedisConnection(id);
+        });
         redisClientUtil.printRedisClientMap();
         return RestResponse.success();
     }

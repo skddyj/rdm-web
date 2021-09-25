@@ -29,7 +29,7 @@ import VirtualizedList from './VirtualizedList'
 import InfiniteScroll from 'react-infinite-scroller';
 import { values } from 'lodash';
 
-const { Title } = Typography;
+const { Text } = Typography;
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
 
@@ -236,7 +236,16 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
               split={false}
               dataSource={dataSource}
               // rowKey={(item) => item.id}
-              renderItem={item => <List.Item className={listItemStyle.item} onClick={() => onListItemClick(item)}><span style={{ padding: '0 4px' }} className={getRowClassName(item)}><span style={{ display: 'inline-block', textAlign: 'center', width: 24 }}><FileTextOutlined /></span>{item}</span></List.Item>}
+              renderItem={item => <List.Item className={listItemStyle.item} onClick={() => onListItemClick(item)}>
+                <span style={{ padding: '0 4px', width: '100%' }} className={getRowClassName(item)}>
+                  <Text ellipsis style={{ width: '100%' }}>
+                    <span style={{ display: 'inline-block', textAlign: 'center', width: 24 }}>
+                      <FileTextOutlined />
+                    </span>
+                    {item}
+                  </Text>
+                </span>
+              </List.Item>}
             />
             {loading && hasMore && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>

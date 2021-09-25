@@ -37,12 +37,10 @@ public class WebLogAspect {
     @Around("webLog()")
     public void around(ProceedingJoinPoint pjp){
         String name=pjp.getSignature().getName();
-        System.out.println(name+"环绕执行前");
         try {
             pjp.proceed();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
-        System.out.println(name+"环绕后执行");
     }
 }

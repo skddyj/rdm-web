@@ -71,7 +71,6 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (CollectionUtils.isEmpty(keys)) {
             return RestResponse.success(Lists.newArrayList());
         }
-        System.out.println(keys);
         return RestResponse.success(keys);
     }
 
@@ -80,9 +79,8 @@ public class RedisDataServiceImpl implements RedisDataService {
         if (request.getConnectionId() == null || request.getDatabaseId() == null) {
             return RestResponse.success(new PageResponse());
         }
-        System.out.println("请求：" + request.getCurrent() + " 页 " + request.getPageSize() + "条");
+        log.info("请求：" + request.getCurrent() + " 页 " + request.getPageSize() + "条");
         Page page = new Page(request.getCurrent(), request.getPageSize());
-        System.out.println(request.getCurrent());
         List keys = redisOperationUtil.keysPages(request.getConnectionId(), request.getDatabaseId(), request.getKey(), page);
         return RestResponse.success(new PageResponse(page, keys.size() == page.getPageSize(), keys));
     }
@@ -205,7 +203,6 @@ public class RedisDataServiceImpl implements RedisDataService {
             return RestResponse.error(RestCode.ILLEGAL_PARAMS);
         }
         boolean flag = redisOperationUtil.expire(request.getConnectionId(), request.getDatabaseId(), request.getKey(), request.getTtl());
-        System.out.println(flag);
         if (flag) {
             return RestResponse.success(true);
         } else {
@@ -224,7 +221,6 @@ public class RedisDataServiceImpl implements RedisDataService {
             return RestResponse.success(new PageResponse());
         }
         List<List<Integer>> pagedListKeys = Lists.partition(allKeys, request.getPageSize());
-        System.out.println(JSON.toJSONString(pagedListKeys));
         List resultKeys = request.getCurrent() > pagedListKeys.size() ? pagedListKeys.get(pagedListKeys.size() - 1) : pagedListKeys.get(request.getCurrent() - 1);
         return RestResponse.success(new PageResponse(request.getCurrent(), request.getPageSize(), allKeys.size(), pagedListKeys.size(), resultKeys));
     }
@@ -301,7 +297,6 @@ public class RedisDataServiceImpl implements RedisDataService {
                 return RestResponse.success(redisDataResponse);
             }
             Page page = new Page(request.getCurrent(), request.getPageSize());
-            System.out.println(JSON.toJSONString(page));
             page.setTotal(len);
             List<String> result = redisOperationUtil.lrange(request.getConnectionId(), request.getDatabaseId(), request.getKey(), page.getStartRow(), page.getEndRow() - 1);
             List<RedisDataListModel> listResult = IntStream.range(0, result.size())
@@ -322,9 +317,7 @@ public class RedisDataServiceImpl implements RedisDataService {
             Set<String> allResultSet = redisOperationUtil.members(request.getConnectionId(), request.getDatabaseId(), request.getKey());
             List<String> allResultList = allResultSet.stream().collect(Collectors.toList());
             List<List<String>> pagedResultList = Lists.partition(allResultList, page.getPageSize());
-            System.out.println(JSON.toJSONString(pagedResultList));
             List<String> resultList = page.getPageNum() > pagedResultList.size() ? pagedResultList.get(pagedResultList.size() - 1) : pagedResultList.get(request.getCurrent() - 1);
-            System.out.println(resultList);
             List<RedisDataListModel> resultResponseList = IntStream.range(0, resultList.size())
                     .mapToObj(i -> new RedisDataListModel(i, resultList.get(i)))
                     .collect(Collectors.toList());
@@ -340,7 +333,6 @@ public class RedisDataServiceImpl implements RedisDataService {
                 return RestResponse.success(redisDataResponse);
             }
             Page page = new Page(request.getCurrent(), request.getPageSize());
-            System.out.println(JSON.toJSONString(page));
             page.setTotal(len);
             List<ScoredValue> result = redisOperationUtil.zrevrange(request.getConnectionId(), request.getDatabaseId(), request.getKey(), page.getStartRow(), page.getEndRow() - 1);
             List<RedisDataZSetModel> listResult = IntStream.range(0, result.size())
@@ -361,7 +353,6 @@ public class RedisDataServiceImpl implements RedisDataService {
 
             List<String> allKeysList = redisOperationUtil.hkeys(request.getConnectionId(), request.getDatabaseId(), request.getKey());
             List<List<String>> pagedKeysList = Lists.partition(allKeysList, page.getPageSize());
-            System.out.println(JSON.toJSONString(pagedKeysList));
             List<String> resultList = page.getPageNum() > pagedKeysList.size() ? pagedKeysList.get(pagedKeysList.size() - 1) : pagedKeysList.get(request.getCurrent() - 1);
 
             List<KeyValue<String, String>> keyValueList = redisOperationUtil.hmget(request.getConnectionId(), request.getDatabaseId(), request.getKey(), resultList.stream().toArray(String[]::new));

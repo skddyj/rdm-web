@@ -88,8 +88,5 @@ public class IdWorker {
 	private long currentTimeMillis() {
 		return System.currentTimeMillis();
 	}
-	public static void main(String[] args) {
-		System.out.println(new IdWorker(0L).nextId());
-	}
 
 }

@@ -26,7 +26,7 @@ const spinIcon = <LoadingOutlined style={{ fontSize: 14 }} spin />;
 
 
 const { Header, Content, Footer, Sider } = Layout;
-const { Title } = Typography;
+const { Text } = Typography;
 
 import {
   FileAddFilled,
@@ -252,7 +252,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
           });
           handleLoadingTree(false)
           setRedisConnectionData(data);
-        }else{
+        } else {
           handleLoadingTree(false)
         }
       });
@@ -653,6 +653,14 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
                     selectedKeys={selectedKeys}
                     expandedKeys={expandedKeys}
                     treeData={redisConnectionData}
+                    titleRender={item =>
+                      <span style={{ display: 'inline-block', width: "calc(100% - 24px)" }}>
+                        <Text
+                          ellipsis style={{ display: 'inline-block', width: "100%" }}>{item.title}
+                        </Text>
+                      </span>
+
+                    }
                   /> : empty}
             </Scrollbars>
           </div>
@@ -685,7 +693,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         </Content>
         <Card style={{ height: '76px', textAlign: 'center' }}>
           Developed by Dongyanjun ©2021
-          </Card>
+        </Card>
       </Layout>
       <RedisConnectionModal
         form={form}

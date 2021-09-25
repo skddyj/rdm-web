@@ -1,11 +1,13 @@
 package com.codeoffice.config;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
 import java.lang.reflect.Method;
 
+@Log4j2
 @Configuration
 public class BrowserAutoOpenConfig implements CommandLineRunner {
     @Value("${server.port}")
@@ -41,7 +43,7 @@ public class BrowserAutoOpenConfig implements CommandLineRunner {
                     Runtime.getRuntime().exec(new String[]{browser, url});
             }
         } catch (Exception e) {
-            System.out.println("自动打开浏览器失败，请复制网址"+url+"到浏览器地址栏手动打开...");
+            log.error("自动打开浏览器失败，请复制网址"+url+"到浏览器地址栏手动打开...");
         }
     }
 }

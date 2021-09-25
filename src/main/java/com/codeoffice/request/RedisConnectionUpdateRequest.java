@@ -22,4 +22,6 @@ public class RedisConnectionUpdateRequest{
     private String username;
 
     private String desc;
+
+    private Integer type;
 }

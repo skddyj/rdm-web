@@ -73,7 +73,7 @@ export default {
   'pages.redisConnectionManage.port': '连接端口',
   'pages.redisConnectionManage.password': '连接密码',
   'pages.redisConnectionManage.username': '连接用户名',
-  'pages.redisConnectionManage.connectionType': '连接类型',
+  'pages.redisConnectionManage.type': '连接类型',
 
   'pages.redisConnectionManage.newRedisKey' :"新建Redis Key",
   'pages.redisConnectionManage.updateRedisKey' :"修改Redis Key",

@@ -21,4 +21,6 @@ public class RedisConnection {
     private String updateTime;
 
     private String desc;
+
+    private Integer type;
 }

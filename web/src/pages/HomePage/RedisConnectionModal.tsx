@@ -68,13 +68,13 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
             });
         }}>
           测试连接
-          </Button>,
+        </Button>,
         <Button key="back" onClick={() => {
           form.resetFields();
           handleConnectionModalVisible(false);
         }}>
           取消
-          </Button>,
+        </Button>,
         <Button key="submit" type="primary" onClick={() => {
           form
             .validateFields()
@@ -101,7 +101,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
             });
         }}>
           确定
-          </Button>,
+        </Button>,
       ]}
       onCancel={() => {
         form.resetFields();
@@ -194,16 +194,16 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
           <Input placeholder='请输入连接用户名（选填）' />
         </Form.Item>
 
-        {/* <Form.Item
-          name="connectionType"
+        <Form.Item
+          name="type"
           label="连接类型"
-          initialValue={1}
+          initialValue={0}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisConnectionManage.connectionType"
+                  id="pages.redisConnectionManage.type"
                   defaultMessage="连接类型为必填项"
                 />
               ),
@@ -211,12 +211,11 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
           ]}
         >
           <Radio.Group>
-            <Radio value={1}>单机</Radio>
-            <Radio value={2}>集群</Radio>
+            <Radio value={0}>单机</Radio>
+            <Radio value={1}>集群</Radio>
+            {/* <Radio value={2}>哨兵</Radio> */}
           </Radio.Group>
-        </Form.Item> */}
-
-
+        </Form.Item>
       </Form>
     </Modal>
   );

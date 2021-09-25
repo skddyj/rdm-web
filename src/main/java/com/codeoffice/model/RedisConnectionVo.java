@@ -25,4 +25,6 @@ public class RedisConnectionVo {
     private String updateTime;
 
     private String desc;
+
+    private Integer type;
 }

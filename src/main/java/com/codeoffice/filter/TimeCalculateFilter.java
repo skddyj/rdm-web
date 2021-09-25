@@ -31,6 +31,6 @@ public class TimeCalculateFilter implements Filter {
 
     @Override
     public void destroy() {
-        System.out.println("time filter destroy");
+        log.info("time filter destroy");
     }
 }
