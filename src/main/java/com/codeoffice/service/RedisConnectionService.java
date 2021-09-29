@@ -26,4 +26,6 @@ public interface RedisConnectionService {
     RestResponse batchDelete(RedisConnectionDeleteRequest request);
 
     RestResponse ping(RedisConnectionAddRequest request);
+
+    RestResponse print();
 }

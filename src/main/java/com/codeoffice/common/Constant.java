@@ -1,12 +1,13 @@
 package com.codeoffice.common;
 
-import lombok.Data;
-
 /**
  * @author: DongYanJun
  * @date: 2021/1/11 16:21
  */
 public class Constant {
+    // redis集群默认库
+    public static final Integer REDIS_CLUSTER_DEFAULT_DATABASE_COUNT = 1;
+
     public static final String DATA_SOURCE_PREFIX = "dataSource-";
     // 等待锁超时时间
     public static final long RLOCK_WAIT_MILLISECONDS = 100;

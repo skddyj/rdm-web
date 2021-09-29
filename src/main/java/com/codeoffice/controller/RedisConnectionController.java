@@ -134,6 +134,12 @@ public class RedisConnectionController {
         }
     }
 
+    @ApiOperation("查看Redis连接")
+    @GetMapping("/print")
+    public RestResponse print() {
+        return redisConnectionService.print();
+    }
+
     @ApiOperation("测试Redis连接")
     @PostMapping("/test")
     public RestResponse<RedisConnection> test(@RequestBody RedisConnectionAddRequest request) {

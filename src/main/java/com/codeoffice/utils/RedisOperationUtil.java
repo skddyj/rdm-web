@@ -1,27 +1,20 @@
 package com.codeoffice.utils;
 
-import com.alibaba.fastjson.JSON;
+import com.codeoffice.common.Constant;
 import com.codeoffice.common.enums.ConnectionType;
 import com.codeoffice.model.RedisDataModel;
-import com.codeoffice.model.RedisDataZSetModel;
 import com.github.pagehelper.Page;
 import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.api.sync.RedisCommands;
-import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
-import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,8 +42,9 @@ public class RedisOperationUtil {
                 Map<String, String> result = ((StatefulRedisConnection) connection).sync().configGet("databases");
                 return Integer.valueOf(result.get("databases"));
             } else {
-                Map<String, String> result = ((StatefulRedisClusterConnection) connection).sync().configGet("databases");
-                return Integer.valueOf(result.get("databases"));
+                // 集群模式没有多库，默认只用0号库
+                //Map<String, String> result = ((StatefulRedisClusterConnection) connection).sync().configGet("databases");
+                return Constant.REDIS_CLUSTER_DEFAULT_DATABASE_COUNT;
             }
         } catch (Exception e) {
             log.info("redis连接异常：{}", e);

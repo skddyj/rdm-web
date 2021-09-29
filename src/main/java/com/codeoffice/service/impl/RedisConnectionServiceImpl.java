@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -139,5 +141,13 @@ public class RedisConnectionServiceImpl implements RedisConnectionService {
             return RestResponse.success();
         }
         return RestResponse.error(RestCode.REDIS_CONNECTION_FAILED);
+    }
+
+    @Override
+    public RestResponse print() {
+        Map returnMap = new HashMap();
+        returnMap.put("client", JSON.parse(JSON.toJSONString(redisClientUtil.getAllRedisClientMap())));
+        returnMap.put("connection", JSON.parse(JSON.toJSONString(redisClientUtil.getRedisConnectionMap())));
+        return RestResponse.success(returnMap);
     }
 }

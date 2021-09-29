@@ -1,6 +1,5 @@
 package com.codeoffice.utils;
 
-import com.alibaba.fastjson.JSON;
 import com.codeoffice.common.enums.ConnectionType;
 import com.codeoffice.common.exception.RdmException;
 import com.codeoffice.entity.RedisConnection;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -31,7 +29,7 @@ import java.util.Objects;
 @Slf4j
 public class RedisClientUtil implements InitializingBean {
 
-    private Map<Long, Map<Integer, AbstractRedisClient>> redisClientMap;
+    private Map<Long, Map<Integer, AbstractRedisClient>> allRedisClientMap;
 
     private Map<Long, RedisConnection> redisConnectionMap;
 
@@ -62,9 +60,9 @@ public class RedisClientUtil implements InitializingBean {
      * @return: void
      */
     private void initLettuceConnectionPoolMap() {
-        if (this.redisClientMap == null) {
+        if (this.allRedisClientMap == null) {
             log.info("初始化redisClientMap和redisConnectionMap");
-            this.redisClientMap = Maps.newConcurrentMap();
+            this.allRedisClientMap = Maps.newConcurrentMap();
             this.redisConnectionMap = Maps.newConcurrentMap();
         }
     }
@@ -77,7 +75,7 @@ public class RedisClientUtil implements InitializingBean {
      * @return: void
      */
     public void printRedisClientMap() {
-        log.info("Redis连接个数：{}，map：{}", redisClientMap.size(), redisClientMap);
+        log.info("Redis连接个数：{}，map：{}", allRedisClientMap.size(), allRedisClientMap);
     }
 
     /**
@@ -92,11 +90,12 @@ public class RedisClientUtil implements InitializingBean {
         if (Objects.isNull(database)) {
             throw new RdmException(RdmException.Type.DATABASE_INDEX_IS_NULL, "database不能为空");
         }
-        Map<Integer, AbstractRedisClient> poolMap = this.redisClientMap.get(id);
-        if (poolMap == null || poolMap.get(database) == null) {
+        Map<Integer, AbstractRedisClient> poolMap = this.getRedisClientMap(id);
+        if (poolMap != null && poolMap.get(database) != null) {
+            return poolMap.get(database);
+        } else {
             return createRedisClient(id, database);
         }
-        return poolMap.get(database);
     }
 
     /**
@@ -108,10 +107,22 @@ public class RedisClientUtil implements InitializingBean {
      * @return: io.lettuce.core.RedisClient
      */
     public RedisConnection getRedisConnection(Long id) {
-        if (redisConnectionMap == null || redisConnectionMap.size() == 0) {
+        if (this.getRedisConnectionMap() != null && this.getRedisConnectionMap().get(id) != null) {
+            return this.redisConnectionMap.get(id);
+        } else {
             return createRedisConnection(id);
         }
-        return this.redisConnectionMap.get(id);
+    }
+
+    /**
+     * @description: 获取RedisClientMap
+     * @date: 2021/3/16 16:35
+     * @param: [id]
+     * @return: java.util.Map<java.lang.Integer, org.apache.commons.pool2.impl.GenericObjectPool>
+     */
+    public Map<Long, Map<Integer, AbstractRedisClient>> getAllRedisClientMap() {
+        log.info("allRedisClientMap:{}", allRedisClientMap);
+        return this.allRedisClientMap;
     }
 
     /**
@@ -121,8 +132,8 @@ public class RedisClientUtil implements InitializingBean {
      * @return: java.util.Map<java.lang.Integer, org.apache.commons.pool2.impl.GenericObjectPool>
      */
     public Map<Integer, AbstractRedisClient> getRedisClientMap(Long id) {
-        log.info("redisClientMap:{}", redisClientMap);
-        return this.redisClientMap.get(id);
+        log.info("redisClientMap:{}", allRedisClientMap);
+        return this.allRedisClientMap.get(id);
     }
 
     /**
@@ -131,7 +142,7 @@ public class RedisClientUtil implements InitializingBean {
      * @param: [id]
      * @return: java.util.Map<java.lang.Integer, org.apache.commons.pool2.impl.GenericObjectPool>
      */
-    public Map<Long, RedisConnection> getRedisConnectionMap(Long id) {
+    public Map<Long, RedisConnection> getRedisConnectionMap() {
         log.info("redisConnectionMap:{}", redisConnectionMap);
         return this.redisConnectionMap;
     }
@@ -153,7 +164,7 @@ public class RedisClientUtil implements InitializingBean {
      * @return: io.lettuce.core.api.StatefulRedisConnection
      */
     public Map<Integer, AbstractRedisClient> removeRedisClientMap(Long id) {
-        return redisClientMap.remove(id);
+        return allRedisClientMap.remove(id);
     }
 
     /**
@@ -286,7 +297,7 @@ public class RedisClientUtil implements InitializingBean {
         if (redisConnection.getType() == ConnectionType.DEFAULT.code) {
             RedisClient redisClient = RedisClient.create(redisUri);
             clientMap.put(database, redisClient);
-            this.redisClientMap.put(redisConnection.getId(), clientMap);
+            this.allRedisClientMap.put(redisConnection.getId(), clientMap);
             this.redisConnectionMap.put(redisConnection.getId(), redisConnection);
             return redisClient;
         } else if (redisConnection.getType() == ConnectionType.CLUSTER.code) {
@@ -298,7 +309,7 @@ public class RedisClientUtil implements InitializingBean {
                     .topologyRefreshOptions(topologyRefreshOptions)
                     .build());
             clientMap.put(database, redisClusterClient);
-            this.redisClientMap.put(redisConnection.getId(), clientMap);
+            this.allRedisClientMap.put(redisConnection.getId(), clientMap);
             this.redisConnectionMap.put(redisConnection.getId(), redisConnection);
             return redisClusterClient;
         }
@@ -318,6 +329,7 @@ public class RedisClientUtil implements InitializingBean {
             if (redisConnection.getType() == ConnectionType.DEFAULT.code) {
                 return ((RedisClient) this.getRedisClient(id, databaseId)).connect();
             } else if (redisConnection.getType() == ConnectionType.CLUSTER.code) {
+                System.out.println("id:" + id);
                 return ((RedisClusterClient) this.getRedisClient(id, databaseId)).connect();
             }
         }

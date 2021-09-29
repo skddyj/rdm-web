@@ -172,19 +172,8 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
         <Form.Item
           name="password"
           label="连接密码"
-          rules={[
-            {
-              required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.redisConnectionManage.password"
-                  defaultMessage="连接密码为必填项"
-                />
-              ),
-            },
-          ]}
         >
-          <Input placeholder='请输入连接密码' />
+          <Input placeholder='请输入连接密码（选填）' />
         </Form.Item>
 
         <Form.Item
