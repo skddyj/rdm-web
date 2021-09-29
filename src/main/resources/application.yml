@@ -2,7 +2,7 @@ server:
   port: 8090
 mybatis:
   configLocation: classpath:/mybatis/mybatis-config.xml
-  mapper-locations: classpath:mapper/*.xml,classpath:mssqlmapper/*.xml
+  mapper-locations: classpath:mapper/*.xml
 pagehelper:
   helper-dialect: mysql
   reasonable: true
@@ -60,4 +60,4 @@ spring:
         max-wait: 5000
 idworker:
   workerId: 0
-autoOpenBrowser: false
+autoOpenBrowser: true
