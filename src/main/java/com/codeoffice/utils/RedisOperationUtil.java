@@ -590,7 +590,7 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long zadd(Long id, Integer databaseId, String key, ScoredValue... scoredValue) {
+    public Long zadd(Long id, Integer databaseId, String key, Value<String> scoredValue) {
         StatefulConnection connection = null;
         try {
             connection = redisClientUtil.getStatefulConnection(id, databaseId);
@@ -616,7 +616,7 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long zupdate(Long id, Integer databaseId, String key, ScoredValue scoredValue, ScoredValue newScoredValue) {
+    public Long zupdate(Long id, Integer databaseId, String key, Value<String> scoredValue, Value<String> newScoredValue) {
         StatefulConnection connection = null;
         try {
             connection = redisClientUtil.getStatefulConnection(id, databaseId);
@@ -649,7 +649,7 @@ public class RedisOperationUtil {
      * @param: databaseId
      * @return: java.util.List<java.lang.String>
      */
-    public Long zrem(Long id, Integer databaseId, String key, ScoredValue scoredValue) {
+    public Long zrem(Long id, Integer databaseId, String key, Value<String> scoredValue) {
         StatefulConnection connection = null;
         try {
             connection = redisClientUtil.getStatefulConnection(id, databaseId);

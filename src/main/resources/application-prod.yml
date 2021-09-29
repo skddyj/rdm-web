@@ -18,14 +18,8 @@ management:
       show-details: always
     metrics:
       enabled: true
-    prometheus:
-      enabled: true
     shutdown:
       enabled: true
-  metrics:
-    export:
-      prometheus:
-        enabled: true
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
@@ -70,8 +64,4 @@ spring:
         max-wait: 5000
 idworker:
   workerId: 0
-user:
-  name: alex
-  age: 25
-  birthday: 2020-04-27 02:04:27
-  ids: 1,2,3,4
+autoOpenBrowser: true

@@ -1,6 +1,5 @@
 package com.codeoffice.service.impl;
 
-import com.alibaba.excel.util.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.codeoffice.common.PageResponse;
 import com.codeoffice.common.RestCode;
@@ -19,6 +18,7 @@ import com.google.common.collect.Maps;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.ScoredValue;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -74,11 +74,10 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
               const { connectionId, databaseId } = currentTreeNode;
               redisKeyTtlForm.resetFields();
               handleExpireRedisKey({ connectionId, databaseId, key: currentRedisKey, ttl }).then((success) => {
-                console.log("success", success);
                 if (success) {
                   handleRefreshRedisValue()
                 }
-              });;
+              });
               handleDataTtlModalVisible(false)
             })
             .catch(info => {

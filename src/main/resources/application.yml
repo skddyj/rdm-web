@@ -18,14 +18,8 @@ management:
       show-details: always
     metrics:
       enabled: true
-    prometheus:
-      enabled: true
     shutdown:
       enabled: true
-  metrics:
-    export:
-      prometheus:
-        enabled: true
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
@@ -53,10 +47,6 @@ spring:
     auto: true
     proxy-target-class: true # false：java实现 true：cglib实现
   redis:
-    database: 0
-    host: 47.103.220.20
-    password: Alex@1016
-    port: 6379
     timeout: 500
     lettuce:
       pool:
@@ -70,8 +60,4 @@ spring:
         max-wait: 5000
 idworker:
   workerId: 0
-user:
-  name: alex
-  age: 25
-  birthday: 2020-04-27 02:04:27
-  ids: 1,2,3,4
+autoOpenBrowser: false

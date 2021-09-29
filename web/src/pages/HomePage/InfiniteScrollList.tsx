@@ -106,7 +106,6 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
   }, [currentTreeNode]);
 
   useEffect(() => {
-    console.log("key---", key)
     clearData()
     if (currentTreeNode) {
       handleInitInfiniteOnLoad();

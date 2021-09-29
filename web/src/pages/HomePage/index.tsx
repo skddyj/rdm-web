@@ -558,7 +558,6 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     homeRef.current.refreshRedisKeys();
     queryDatabaseSize({ connectionId, databaseId }).then((response) => {
       if (response && response.success) {
-        console.log(response)
         const { result } = response;
         const newData = Immutable.fromJS(redisConnectionData).toJS();
         newData.map((connection) => {

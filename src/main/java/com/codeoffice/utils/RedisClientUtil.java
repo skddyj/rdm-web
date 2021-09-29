@@ -15,6 +15,7 @@ import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -189,10 +190,12 @@ public class RedisClientUtil implements InitializingBean {
             RedisURI redisUri = RedisURI.builder()
                     .withHost(redisConnection.getHost())
                     .withPort(redisConnection.getPort())
-                    .withPassword(redisConnection.getPassword())
                     .withTimeout(Duration.of(timeout, ChronoUnit.MILLIS))
                     .withDatabase(database)
                     .build();
+            if(StringUtils.isNotBlank(redisConnection.getPassword())){
+                redisUri.setPassword(redisConnection.getPassword().toCharArray());
+            }
             if (redisConnection.getType() == ConnectionType.DEFAULT.code) {
                 RedisClient redisClient = RedisClient.create(redisUri);
                 redisClient.connect();
@@ -211,7 +214,7 @@ public class RedisClientUtil implements InitializingBean {
         RedisURI redisUri = RedisURI.builder()
                 .withHost("127.0.0.1")
                 .withPort(6381)
-                .withPassword("Alex@1016")
+                .withPassword("Alex@1016".toCharArray())
                 .withTimeout(Duration.of(500, ChronoUnit.MILLIS))
                 .build();
         RedisClient client = RedisClient.create(redisUri);
@@ -286,10 +289,12 @@ public class RedisClientUtil implements InitializingBean {
         RedisURI redisUri = RedisURI.builder()
                 .withHost(redisConnection.getHost())
                 .withPort(redisConnection.getPort())
-                .withPassword(redisConnection.getPassword())
                 .withTimeout(Duration.of(timeout, ChronoUnit.MILLIS))
                 .withDatabase(database)
                 .build();
+        if(StringUtils.isNotBlank(redisConnection.getPassword())){
+            redisUri.setPassword(redisConnection.getPassword().toCharArray());
+        }
         Map<Integer, AbstractRedisClient> clientMap = this.getRedisClientMap(redisConnection.getId());
         if (clientMap == null) {
             clientMap = Maps.newConcurrentMap();
@@ -329,7 +334,6 @@ public class RedisClientUtil implements InitializingBean {
             if (redisConnection.getType() == ConnectionType.DEFAULT.code) {
                 return ((RedisClient) this.getRedisClient(id, databaseId)).connect();
             } else if (redisConnection.getType() == ConnectionType.CLUSTER.code) {
-                System.out.println("id:" + id);
                 return ((RedisClusterClient) this.getRedisClient(id, databaseId)).connect();
             }
         }

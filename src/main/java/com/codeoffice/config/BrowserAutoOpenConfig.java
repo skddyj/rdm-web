@@ -12,11 +12,15 @@ import java.lang.reflect.Method;
 public class BrowserAutoOpenConfig implements CommandLineRunner {
     @Value("${server.port}")
     private Integer port;
+    @Value("${autoOpenBrowser}")
+    private Boolean autoOpenBrowser;
 
     @Override
     public void run(String... args) {
         String url = " http://127.0.0.1:" + port;
-        this.openBrowser(url);
+        if (autoOpenBrowser) {
+            this.openBrowser(url);
+        }
     }
 
     private void openBrowser(String url) {
@@ -32,7 +36,7 @@ public class BrowserAutoOpenConfig implements CommandLineRunner {
                 openURL.invoke(null, url);
             } else {
                 // Unix or Linux
-                String[] browsers = {"firefox","mozilla", "opera", "konqueror", "epiphany", "netscape"};
+                String[] browsers = {"firefox", "mozilla", "opera", "konqueror", "epiphany", "netscape"};
                 String browser = null;
                 for (int count = 0; count < browsers.length && browser == null; count++)
                     if (Runtime.getRuntime().exec(new String[]{"which", browsers[count]}).waitFor() == 0)
@@ -43,7 +47,7 @@ public class BrowserAutoOpenConfig implements CommandLineRunner {
                     Runtime.getRuntime().exec(new String[]{browser, url});
             }
         } catch (Exception e) {
-            log.error("自动打开浏览器失败，请复制网址"+url+"到浏览器地址栏手动打开...");
+            log.error("自动打开浏览器失败，请复制网址" + url + "到浏览器地址栏手动打开...");
         }
     }
 }
