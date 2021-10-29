@@ -22,5 +22,5 @@ public class RedisConnectionAddRequest {
 
     private String desc;
 
-    private Integer type;
+    private Integer connectionType;
 }

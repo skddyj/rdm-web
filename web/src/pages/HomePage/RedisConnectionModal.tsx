@@ -184,7 +184,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
         </Form.Item>
 
         <Form.Item
-          name="type"
+          name="connectionType"
           label="连接类型"
           initialValue={0}
           rules={[
@@ -192,7 +192,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisConnectionManage.type"
+                  id="pages.redisConnectionManage.connectionType"
                   defaultMessage="连接类型为必填项"
                 />
               ),

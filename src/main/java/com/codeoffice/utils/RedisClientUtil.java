@@ -155,7 +155,7 @@ public class RedisClientUtil implements InitializingBean {
      * @return: java.util.Map<java.lang.Integer, org.apache.commons.pool2.impl.GenericObjectPool>
      */
     public Integer getRedisConnectionType(Long id) {
-        return this.getRedisConnection(id).getType();
+        return this.getRedisConnection(id).getConnectionType();
     }
 
     /**
@@ -196,7 +196,7 @@ public class RedisClientUtil implements InitializingBean {
             if(StringUtils.isNotBlank(redisConnection.getPassword())){
                 redisUri.setPassword(redisConnection.getPassword().toCharArray());
             }
-            if (redisConnection.getType() == ConnectionType.DEFAULT.code) {
+            if (redisConnection.getConnectionType() == ConnectionType.DEFAULT.code) {
                 RedisClient redisClient = RedisClient.create(redisUri);
                 redisClient.connect();
             } else {
@@ -299,13 +299,13 @@ public class RedisClientUtil implements InitializingBean {
         if (clientMap == null) {
             clientMap = Maps.newConcurrentMap();
         }
-        if (redisConnection.getType() == ConnectionType.DEFAULT.code) {
+        if (redisConnection.getConnectionType() == ConnectionType.DEFAULT.code) {
             RedisClient redisClient = RedisClient.create(redisUri);
             clientMap.put(database, redisClient);
             this.allRedisClientMap.put(redisConnection.getId(), clientMap);
             this.redisConnectionMap.put(redisConnection.getId(), redisConnection);
             return redisClient;
-        } else if (redisConnection.getType() == ConnectionType.CLUSTER.code) {
+        } else if (redisConnection.getConnectionType() == ConnectionType.CLUSTER.code) {
             RedisClusterClient redisClusterClient = RedisClusterClient.create(redisUri);
             ClusterTopologyRefreshOptions topologyRefreshOptions = ClusterTopologyRefreshOptions.builder()
                     .enablePeriodicRefresh(Duration.ofMinutes(10)) // 定期刷新拓扑视图
@@ -331,9 +331,9 @@ public class RedisClientUtil implements InitializingBean {
     public StatefulConnection getStatefulConnection(Long id, Integer databaseId) {
         RedisConnection redisConnection = this.getRedisConnection(id);
         if (redisConnection != null) {
-            if (redisConnection.getType() == ConnectionType.DEFAULT.code) {
+            if (redisConnection.getConnectionType() == ConnectionType.DEFAULT.code) {
                 return ((RedisClient) this.getRedisClient(id, databaseId)).connect();
-            } else if (redisConnection.getType() == ConnectionType.CLUSTER.code) {
+            } else if (redisConnection.getConnectionType() == ConnectionType.CLUSTER.code) {
                 return ((RedisClusterClient) this.getRedisClient(id, databaseId)).connect();
             }
         }

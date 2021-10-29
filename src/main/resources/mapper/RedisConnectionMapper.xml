@@ -11,11 +11,11 @@
         <result column="CREATE_TIME" jdbcType="VARCHAR" property="createTime"/>
         <result column="UPDATE_TIME" jdbcType="VARCHAR" property="updateTime"/>
         <result column="DESC" jdbcType="VARCHAR" property="desc"/>
-        <result column="TYPE" jdbcType="INTEGER" property="type"/>
+        <result column="CONNECTION_TYPE" jdbcType="INTEGER" property="connectionType"/>
     </resultMap>
     <sql id="Base_Column_List">
         ID, NAME, HOST, PORT, PASSWORD, USERNAME, CREATE_TIME, UPDATE_TIME,
-        DESC, TYPE
+        DESC, CONNECTION_TYPE
     </sql>
     <select id="queryAllList"
             resultType="com.codeoffice.entity.RedisConnection">
@@ -98,8 +98,8 @@
             <if test="desc != null">
                 DESC,
             </if>
-            <if test="type != null">
-                TYPE,
+            <if test="connectionType != null">
+                CONNECTION_TYPE,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -130,8 +130,8 @@
             <if test="desc != null">
                 #{desc,jdbcType=VARCHAR},
             </if>
-            <if test="type != null">
-                #{type,jdbcType=INTEGER},
+            <if test="connectionType != null">
+                #{connectionType,jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -162,8 +162,8 @@
             <if test="desc != null">
                 DESC = #{desc,jdbcType=VARCHAR},
             </if>
-            <if test="type != null">
-                TYPE = #{type,jdbcType=INTEGER},
+            <if test="connectionType != null">
+                CONNECTION_TYPE = #{connectionType,jdbcType=INTEGER},
             </if>
         </set>
         where ID = #{id,jdbcType=BIGINT}
