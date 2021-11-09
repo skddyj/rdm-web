@@ -26,7 +26,7 @@ const spinIcon = <LoadingOutlined style={{ fontSize: 14 }} spin />;
 
 
 const { Header, Content, Footer, Sider } = Layout;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 import {
   FileAddFilled,
@@ -680,7 +680,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             currentRedisKey={currentRedisKey}
           />
         </Card>
-        <Content style={{ height: 'calc(100% - 128px)' }}>
+        <Content style={{ height: 'calc(100% - 112px)' }}>
           <ValueDisplayCard
             form={textAreaForm}
             currentTreeNode={currentTreeNode}
@@ -690,7 +690,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             handleExpireRedisKey={handleExpireRedisKey}
           />
         </Content>
-        <Card style={{ height: '76px', textAlign: 'center' }}>
+        <Card style={{ height: "48px" }} bodyStyle={{ height: "100%", padding: "12px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           Developed by Dongyanjun ©2021
         </Card>
       </Layout>
