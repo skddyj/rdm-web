@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Layout, Menu, Tree, message, Select, Card, Input, Form, Modal, InputNumber, Empty, Tooltip, Space, Breadcrumb, Row, Col } from 'antd';
+import { Button, Divider, Layout, Menu, Spin, message, Select, Card, Input, Form, Modal, InputNumber, Empty, Tooltip, Space, Breadcrumb, Row, Col } from 'antd';
 import {
   ProFormSelect,
   ProFormText,
@@ -50,7 +50,7 @@ export type ValueDisplayCardProps = {
   handleExpireRedisKey;
 };
 
-const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRefProps, InfiniteScrollListProps> ((props) => {
+const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeRefProps, InfiniteScrollListProps>((props) => {
   /** 国际化 */
   const { formatMessage } = useIntl();
 
@@ -65,6 +65,9 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRe
 
   const [dataRenameModalVisible, handleDataRenameModalVisible] = useState<boolean>(false);
 
+  /** value加载 */
+  const [loadingValue, handleLoadingValue] = useState<boolean>(false);
+
   const [dataTtlModalVisible, handleDataTtlModalVisible] = useState<boolean>(false);
 
   const [currentRedisKeyAttr, setCurrentRedisKeyAttr] = useState();
@@ -72,6 +75,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRe
 
   useEffect(() => {
     if (currentTreeNode && currentRedisKey) {
+      handleLoadingValue(true);
       getKeyAttr().then((attr) => {
         const { key, ttl } = attr;
         setCurrentRedisKeyAttr(attr);
@@ -82,7 +86,8 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRe
     }
   }, [currentRedisKey]);
 
-  const handleRefreshRedisValue=()=>{
+  const handleRefreshRedisValue = () => {
+    handleLoadingValue(true);
     getKeyAttr().then((attr) => {
       const { key, ttl } = attr;
       setCurrentRedisKeyAttr(attr);
@@ -101,6 +106,8 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRe
       });
     } catch (error) {
       message.error('查询Key属性失败');
+    } finally {
+      handleLoadingValue(false);
     }
   }
 
@@ -288,7 +295,11 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRe
         </Row>
       </div>
       <div style={{ marginTop: '20px', height: 'calc(100% - 52px)', display: 'block', float: 'none' }}>
-        {getValueDisplayArea(currentRedisKey, currentRedisKeyAttr)}
+        {loadingValue ?
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <Spin />
+          </div>
+          : getValueDisplayArea(currentRedisKey, currentRedisKeyAttr)}
       </div>
       <RedisDataRenameModal
         currentTreeNode={currentTreeNode}
@@ -298,7 +309,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> =React.forwardRef<HomeRe
         dataRenameModalVisible={dataRenameModalVisible}
         handleRefreshRedisValue={handleRefreshRedisValue}
       />
-      <RedisDataTtlModal      
+      <RedisDataTtlModal
         currentTreeNode={currentTreeNode}
         currentRedisKey={currentRedisKey}
         handleExpireRedisKey={handleExpireRedisKey}
