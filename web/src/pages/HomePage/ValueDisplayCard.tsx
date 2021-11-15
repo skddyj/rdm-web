@@ -209,7 +209,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
 
 
   return (
-    <Card style={{ height: '100%' }} bodyStyle={{ height: '100%' }} bordered={false}>
+    <Card style={{ height: '100%' }} bodyStyle={{ height: '100%', padding: "24px 24px 0px 24px" }} bordered={false}>
       <div style={{ height: '32px' }}>
         <div style={{ float: 'left', width: '60%', display: 'inline-block' }}>
           <Form

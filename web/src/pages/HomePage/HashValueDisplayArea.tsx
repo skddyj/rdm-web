@@ -11,6 +11,7 @@ import {
 import { useIntl, FormattedMessage } from 'umi';
 import ProTable from '@ant-design/pro-table';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
+import { Scrollbars } from 'react-custom-scrollbars';
 import {
   EditOutlined,
   CaretDownOutlined,
@@ -197,46 +198,51 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
 
   return (
     <div style={{ height: '100%', textAlign: 'right' }}>
-      <ProTable
-        rowKey="index"
-        actionRef={actionRef}
-        search={false}
-        toolbar={{
-          search: {
-            onSearch: (value: string) => {
-              alert(value);
-            },
-          },
-          actions: [
-            <Button
-              key="key"
-              type="primary"
-              onClick={() => {
-                setListRowModalType(ListRowModalType.Create)
-                handleListAddRowModalVisible(true)
-              }}
-            >
-              添加
-            </Button>,
-          ]
-        }}
-        request={(params, sorter, filter) => {
-          if (currentRedisKey) {
-            const { connectionId, databaseId } = currentTreeNode;
-            return queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'zset', ...params }).then((response) => {
-              if (response && response.success) {
-                return response.result.value;
-              }
-              message.error(response.message)
-            })
-          }
-        }}
-        pagination={{
-          defaultCurrent: 1, pageSize: 10
-        }}
-        columns={columns}
-      />
-
+      <Scrollbars
+        autoHide
+        style={{
+          height: '100%'
+        }}>
+        <ProTable
+          rowKey="index"
+          size="small"
+          actionRef={actionRef}
+          search={false}
+          options={{
+            density: false, setting: { draggable: true, checkable: true }
+          }}
+          toolbar={{
+            actions: [
+              <Button
+                key="key"
+                type="primary"
+                icon={<FileAddOutlined />}
+                onClick={() => {
+                  setListRowModalType(ListRowModalType.Create)
+                  handleListAddRowModalVisible(true)
+                }}
+              >
+                添加
+              </Button>,
+            ]
+          }}
+          request={(params, sorter, filter) => {
+            if (currentRedisKey) {
+              const { connectionId, databaseId } = currentTreeNode;
+              return queryRedisValue({ connectionId, databaseId, key: currentRedisKey, type: 'zset', ...params }).then((response) => {
+                if (response && response.success) {
+                  return response.result.value;
+                }
+                message.error(response.message)
+              })
+            }
+          }}
+          pagination={{
+            defaultCurrent: 1, pageSize: 10
+          }}
+          columns={columns}
+        />
+      </Scrollbars>
       <Modal
         title={formatMessage({
           id: 'pages.redisDataManage.list.addRow',

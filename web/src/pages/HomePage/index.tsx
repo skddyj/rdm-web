@@ -680,7 +680,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             currentRedisKey={currentRedisKey}
           />
         </Card>
-        <Content style={{ height: 'calc(100% - 112px)' }}>
+        <Content style={{ height: 'calc(100% - 92px)' }}>
           <ValueDisplayCard
             form={textAreaForm}
             currentTreeNode={currentTreeNode}
@@ -690,9 +690,16 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
             handleExpireRedisKey={handleExpireRedisKey}
           />
         </Content>
-        <Card style={{ height: "48px" }} bodyStyle={{ height: "100%", padding: "12px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          Developed by Dongyanjun ©2021
-        </Card>
+        <Footer style={{ height: "40px", padding: "0", textAlign: 'center' }}>
+          <Card bordered={false} style={{ height: "100%" }} bodyStyle={{ height: "100%", padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span >Developed by Dongyanjun</span>
+            <a href="https://github.com/skddyj/rdm-web" style={{ marginLeft: 20, color: "black", textDecoration: "none" }}>
+              <GithubOutlined style={{ fontSize: 16 }}>
+              </GithubOutlined>
+              <span style={{ marginLeft: 5 }}>GitHub</span>
+            </a>
+          </Card>
+        </Footer>
       </Layout>
       <RedisConnectionModal
         form={form}

@@ -95,27 +95,29 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
 
   return (
     <div style={{ height: '100%' }}>
-      <div style={{ marginTop: '20px', padding: '16px 0' }}>
-        <Button type="primary"
-          onClick={updateRedisValue}
-          icon={<SaveOutlined />}
-        >保存
-        </Button>
-      </div>
-      <Form
-        form={form}
-        style={{ height: 'calc(100% - 56px)' }}
-        name="stringRedisValueForm"
-      >
-        <Form.Item
-          label='Value'
-          name="stringRedisValue"
-          noStyle
-          rules={[{ required: true, message: '请输入键值！' }]}
+      <Card bordered={false} style={{ height: "100%" }} bodyStyle={{ height: "100%", padding: "0px 24px" }}>
+        <div style={{ float: "right", padding: '16px 0' }}>
+          <Button type="primary"
+            onClick={updateRedisValue}
+            icon={<SaveOutlined />}
+          >保存
+          </Button>
+        </div>
+        <Form
+          form={form}
+          style={{ height: 'calc(100% - 64px)' }}
+          name="stringRedisValueForm"
         >
-          <TextArea style={{ height: '100%', fontSize: '16px' }} />
-        </Form.Item>
-      </Form>
+          <Form.Item
+            label='Value'
+            name="stringRedisValue"
+            noStyle
+            rules={[{ required: true, message: '请输入键值！' }]}
+          >
+            <TextArea style={{ height: '100%', fontSize: '16px' }} />
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };
