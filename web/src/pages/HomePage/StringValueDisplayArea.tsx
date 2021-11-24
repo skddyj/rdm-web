@@ -23,27 +23,6 @@ import { queryRedisValue, updateRedisValue } from './service'
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
 
-/**
- * 更新Redis Key对应Value
- */
-const handleUpdateRedisValue = async (fields) => {
-  const hide = message.loading('正在修改');
-  try {
-    return await updateRedisValue({ ...fields }).then((response) => {
-      if (response && response.success) {
-        hide();
-        message.success('修改成功');
-        return true;
-      }
-      throw new Error(response.message);
-    });
-  } catch (error) {
-    hide();
-    message.error(`修改失败，请重试，失败原因：${error}`);
-    return false;
-  }
-};
-
 export enum ModalType { Create, Update };
 
 export type StringValueDisplayAreaProps = {
@@ -71,9 +50,30 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
   }, [currentRedisKey]);
 
   /**
+* 更新Redis Key对应Value
+*/
+  const handleUpdateRedisValue = async (fields) => {
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.saving.content" }));
+    try {
+      return await updateRedisValue({ ...fields }).then((response) => {
+        if (response && response.success) {
+          hide();
+          message.success(formatMessage({ "id": "message.redis.connection.saveSucceed.content" }));
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    } catch (error) {
+      hide();
+      message.error(formatMessage({ "id": "message.redis.connection.saveFailed.content" }) + error);
+      return false;
+    }
+  };
+
+  /**
  * 更新Redis Key对应Value
  */
-  const updateRedisValue = () => {
+  const saveRedisValue = () => {
     const { connectionId, databaseId } = currentTreeNode;
     const { stringRedisValue } = form.getFieldsValue();
     handleUpdateRedisValue({ connectionId, databaseId, key: currentRedisKey, newRowValue: stringRedisValue })
@@ -89,7 +89,7 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
         throw new Error(response.message);
       })
     } catch (error) {
-      message.error('查询Key值失败');
+      message.error(formatMessage({ "id": "message.redis.connection.querykeyFailed.content" }) + error);
     }
   }
 
@@ -98,9 +98,10 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
       <Card bordered={false} style={{ height: "100%" }} bodyStyle={{ height: "100%", padding: "0px 24px" }}>
         <div style={{ float: "right", padding: '16px 0' }}>
           <Button type="primary"
-            onClick={updateRedisValue}
+            onClick={saveRedisValue}
             icon={<SaveOutlined />}
-          >保存
+          >
+            {formatMessage({ "id": "button.common.save" })}
           </Button>
         </div>
         <Form
@@ -112,7 +113,7 @@ const StringValueDisplayArea: React.FC<StringValueDisplayAreaProps> = (props) =>
             label='Value'
             name="stringRedisValue"
             noStyle
-            rules={[{ required: true, message: '请输入键值！' }]}
+            rules={[{ required: true, message: formatMessage({ "id": "modal.redis.key.string.value.required" }) }]}
           >
             <TextArea style={{ height: '100%', fontSize: '16px' }} />
           </Form.Item>

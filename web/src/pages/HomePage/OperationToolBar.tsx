@@ -18,6 +18,7 @@ import {
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
+import { format } from 'prettier';
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
@@ -65,14 +66,14 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
       return (
         <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 2 }}>
           <Col span={8}>
-            <Button title='编辑'
+            <Button title={formatMessage({ "id": "button.redis.connection.edit" })}
               style={{ width: '100%' }}
               onClick={() => {
                 if (expandedKeys && expandedKeys.length > 0) {
                   confirm({
-                    title: '编辑确认',
+                    title: (formatMessage({ "id": "modal.redis.connection.edit.confirm.title" })),
                     icon: <ExclamationCircleOutlined />,
-                    content: '编辑连接信息需要关闭所有连接，是否继续 ？',
+                    content: (formatMessage({ "id": "modal.redis.connection.edit.confirm.content" })),
                     onOk() {
                       clearExpanded();
                       form.setFieldsValue(currentTreeNode.redisConnectionVo);
@@ -93,13 +94,13 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             </Button>
           </Col>
           <Col span={8}>
-            <Button title='删除'
+            <Button title={formatMessage({ "id": "button.redis.connection.delete" })}
               style={{ width: '100%' }}
               onClick={() => {
                 confirm({
-                  title: '删除确认',
+                  title: (formatMessage({ "id": "modal.redis.connection.delete.confirm.title" })),
                   icon: <ExclamationCircleOutlined />,
-                  content: '此操作不可恢复，是否继续 ？',
+                  content: (formatMessage({ "id": "modal.redis.connection.delete.confirm.content" })),
                   onOk() {
                     onTreeNodeFold(currentTreeNode.key)
                     handleRemoveRedisConnection(currentTreeNode);
@@ -111,7 +112,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             </Button>
           </Col>
           <Col span={8}>
-            <Button title='刷新'
+            <Button title={formatMessage({ "id": "button.redis.connection.refresh" })}
               style={{ width: '100%' }}
               onClick={() => {
                 refreshCurrentConnection()
@@ -125,7 +126,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
       return (
         <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 2 }}>
           <Col span={12}>
-            <Button title='新增'
+            <Button title={formatMessage({ "id": "button.redis.key.new" })}
               style={{ width: '100%' }}
               onClick={() => {
                 form.setFieldsValue(currentTreeNode.redisConnectionVo);
@@ -137,7 +138,7 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
             </Button>
           </Col>
           <Col span={12}>
-            <Button title='刷新'
+            <Button title={formatMessage({ "id": "button.common.refresh" })}
               style={{ width: '100%' }}
               onClick={
                 () => {
@@ -152,14 +153,14 @@ const OperationToolBar: React.FC<OperationToolBarProps> = (props) => {
       return (
         <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32, marginRight: 2 }}>
           <Col span={24} >
-            <Button title='刷新'
+            <Button title={formatMessage({ "id": "button.redis.connection.refresh" })}
               style={{ width: '100%' }}
               onClick={() => {
                 if (expandedKeys && expandedKeys.length > 0) {
                   confirm({
-                    title: '刷新确认',
+                    title: (formatMessage({ "id": "modal.redis.connection.refresh.confirm.title" })),
                     icon: <ExclamationCircleOutlined />,
-                    content: '该操作会关闭所有连接，是否继续 ？',
+                    content: (formatMessage({ "id": "modal.redis.connection.refresh.confirm.content" })),
                     onOk() {
                       clearExpanded();
                       clearSelected();

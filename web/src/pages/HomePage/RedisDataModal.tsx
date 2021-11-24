@@ -72,10 +72,9 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
   return (
     <Modal
       title={formatMessage({
-        id: 'pages.redisDataManage.createForm.newRedisData',
-        defaultMessage: '新建Key'
+        id: 'button.redis.key.new',
       })}
-      width="600px"
+      width="750px"
       destroyOnClose
       visible={dataModalVisible}
       footer={[
@@ -83,8 +82,8 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
           form.resetFields();
           handleDataModalVisible(false);
         }}>
-          取消
-          </Button>,
+          {formatMessage({ "id": "button.common.cancel" })}
+        </Button>,
         <Button key="submit" type="primary" onClick={() => {
           form
             .validateFields()
@@ -101,8 +100,8 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
               console.log('Validate Failed:', info);
             });
         }}>
-          确定
-          </Button>,
+          {formatMessage({ "id": "button.common.confirm" })}
+        </Button>,
       ]}
       onCancel={() => {
         form.resetFields();
@@ -117,40 +116,36 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
       >
         <Form.Item
           name="key"
-          label="Key"
+          label={formatMessage({ "id": "modal.redis.key.new.key" })}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisDataManage.key"
-                  defaultMessage="Key为必填项"
+                  id="modal.redis.key.new.key.required"
                 />
               ),
             },
           ]}
         >
-          <Input placeholder='请输入Key'
-          // disabled={connectionModalType === ModalType.Update}
-          />
+          <Input placeholder={formatMessage({ "id": "modal.redis.key.new.key.required" })} />
         </Form.Item >
         <Form.Item
           name="type"
-          label="类型"
+          label={formatMessage({ "id": "modal.redis.key.new.type" })}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisDataManage.type"
-                  defaultMessage="类型为必填项"
+                  id="modal.redis.key.new.type.required"
                 />
               ),
             },
           ]}
         >
           <Select
-            placeholder="请选择类型"
+            placeholder={formatMessage({ "id": "modal.redis.key.new.type.required" })}
             allowClear
             options={typeOptions}
             onChange={onTypeChange}
@@ -160,55 +155,52 @@ const RedisDataModal: React.FC<RedisDataModalProps> = (props) => {
         {type === 'zset' ?
           (<Form.Item
             name="score"
-            label="分值"
+            label={formatMessage({ "id": "modal.redis.key.new.zset.score" })}
             rules={[
               {
                 required: true,
                 message: (
                   <FormattedMessage
-                    id="pages.redisDataManage.score"
-                    defaultMessage="分值为必填项"
+                    id="modal.redis.key.new.zset.score.required"
                   />
                 ),
               },
             ]}
           >
-            <Input placeholder='请输入分值' />
+            <Input placeholder={formatMessage({ "id": "modal.redis.key.new.zset.score.required" })} />
           </Form.Item>) : null}
         {type === 'hash' ?
           (<Form.Item
             name="field"
-            label="Field"
+            label={formatMessage({ "id": "modal.redis.key.new.hash.field" })}
             rules={[
               {
                 required: true,
                 message: (
                   <FormattedMessage
-                    id="pages.redisDataManage.field"
-                    defaultMessage="Field为必填项"
+                    id="modal.redis.key.new.hash.field.required"
                   />
                 ),
               },
             ]}
           >
-            <Input placeholder='请输入Field' />
+            <Input placeholder={formatMessage({ "id": "modal.redis.key.new.hash.field.required" })} />
           </Form.Item>) : null}
         <Form.Item
           name="value"
-          label="Value"
+          label={formatMessage({ "id": "modal.redis.key.new.value" })}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisDataManage.value"
-                  defaultMessage="Value为必填项"
+                  id="modal.redis.key.new.value.required"
                 />
               ),
             },
           ]}
         >
-          <TextArea placeholder='请输入Value' style={{ width: "100%" }} />
+          <TextArea placeholder={formatMessage({ "id": "modal.redis.key.new.value.required" })} style={{ width: "100%" }} />
         </Form.Item>
       </Form>
     </Modal>

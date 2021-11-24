@@ -9,9 +9,9 @@ import ScrollView from 'react-custom-scrollbars';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Dispatch } from 'umi';
-import { Link, useIntl, connect, history, FormattedMessage } from 'umi';
+import { Link, useIntl, connect, setLocale, getLocale } from 'umi';
 import { GithubOutlined, SoundTwoTone } from '@ant-design/icons';
-import { Result, Button, Divider, Layout, Menu, Tree, message, Spin, Card, Input, Form, Modal, Typography, Popover, Tooltip, Space, Breadcrumb, List, Empty } from 'antd';
+import { Dropdown, Button, Divider, Layout, Menu, Tree, message, Spin, Card, Input, Form, Modal, Typography, Row, Col, Space, Breadcrumb, List, Empty } from 'antd';
 
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
@@ -30,7 +30,7 @@ const { Text, Title } = Typography;
 
 import {
   FileAddFilled,
-  CarryOutOutlined,
+  TranslationOutlined,
   CaretDownOutlined,
   DatabaseOutlined,
   KeyOutlined,
@@ -129,12 +129,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 添加Redis连接
    */
   const handleAddRedisConnection = async (fields) => {
-    const hide = message.loading('正在添加');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await addRedisConnection({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('添加成功');
+          message.success(formatMessage({ "id": "message.redis.connection.addedSucceed.content" }));
           // 更新state
           refreshRedisConnection();
           return true;
@@ -143,7 +143,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`添加111失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.addedFailed" }) + error);
       return false;
     }
   };
@@ -152,21 +152,21 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 修改Redis连接
    */
   const handleUpdateRedisConnection = async (fields) => {
-    const hide = message.loading('正在修改');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await updateRedisConnection({
         ...fields
       }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('修改成功');
+          message.success(formatMessage({ "id": "message.redis.connection.editSucceed.content" }));
           return true;
         }
         throw new Error(response.message);
       });
     } catch (error) {
       hide();
-      message.error(`修改失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.editFailed" }) + error);
       return false;
     }
   };
@@ -175,13 +175,13 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 删除Redis连接
    */
   const handleRemoveRedisConnection = async (currentTreeNode) => {
-    const hide = message.loading('正在删除');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     if (!currentTreeNode) return false;
     try {
       return await removeRedisConnection(currentTreeNode.connectionId).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('删除成功');
+          message.success(formatMessage({ "id": "message.redis.connection.deleteSucceed.content" }));
           // 更新state
           clearSelected()
           refreshRedisConnection();
@@ -191,7 +191,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`删除失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.deleteFailed" }) + error);
       return false;
     }
   };
@@ -200,19 +200,19 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 测试Redis连接
    */
   const handleTestRedisConnection = async (fields) => {
-    const hide = message.loading('正在测试连接');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.testing.content" }));
     try {
       return await testRedisConnection(fields).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('连接成功');
+          message.success(formatMessage({ "id": "message.redis.connection.connectSucceed.content" }));
           return true;
         }
         throw new Error(response.message);
       });
     } catch (error) {
       hide();
-      message.error('连接失败，请检查配置');
+      message.error(formatMessage({ "id": "message.redis.connection.connectFailed.content" }));
       return false;
     }
   };
@@ -232,7 +232,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         }
       });
     } catch (error) {
-      message.error('查询Redis连接失败');
+      message.error({ "id": "message.redis.connection.queryRedisConnectionFailed.content" });
       return [];
     }
   };
@@ -258,7 +258,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       });
     } catch (error) {
       handleLoadingTree(false)
-      message.error('查询Redis连接失败');
+      message.error(formatMessage({ "id": "message.redis.connection.queryRedisConnectionFailed.content" }));
       return [];
     }
   };
@@ -267,12 +267,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 添加Redis Key
    */
   const handleAddRedisKey = async (fields) => {
-    const hide = message.loading('正在添加');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await addRedisKey({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('添加成功');
+          message.success(formatMessage({ "id": "message.redis.connection.addedSucceed.content" }));
           refreshCurrentDatabase();
           return true;
         }
@@ -280,7 +280,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`添加失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.addedFailed" }) + error);
       return false;
     }
   };
@@ -289,12 +289,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 删除Redis Key
    */
   const handleRemoveRedisKey = async (fields) => {
-    const hide = message.loading('正在删除');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await removeRedisKey({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('删除成功');
+          message.success(formatMessage({ "id": "message.redis.connection.deleteSucceed.content" }));
           refreshCurrentDatabase();
           setCurrentRedisKey(undefined)
           return true;
@@ -303,7 +303,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`删除失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.deleteFailed.content" }) + error);
       return false;
     }
   };
@@ -312,12 +312,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * 重命名Redis Key
    */
   const handleRenameRedisKey = async (fields) => {
-    const hide = message.loading('正在重命名');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await renameRedisKeyValue({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('重命名成功');
+          message.success(formatMessage({ "id": "message.redis.connection.renameSucceed.content" }));
           refreshCurrentDatabase();
           setCurrentRedisKey(undefined)
           return true;
@@ -326,7 +326,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`重命名失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.renameFailed.content" }) + error);
       return false;
     }
   };
@@ -336,12 +336,12 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
    * Redis Key设置ttl
    */
   const handleExpireRedisKey = async (fields) => {
-    const hide = message.loading('正在更新TTL');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await expireRedisKeyValue({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('更新TTL成功');
+          message.success(formatMessage({ "id": "message.redis.connection.setTtlSucceed.content" }));
           return true;
         }
         throw new Error(response.message);
@@ -349,7 +349,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
     } catch (error) {
       hide();
       refreshCurrentDatabase();
-      message.error(`更新TTL失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.setTtlFailed.content" }) + error);
       return false;
     }
   };
@@ -367,7 +367,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         throw new Error(response.message);
       });
     } catch (error) {
-      message.error('查询数据库数量失败');
+      message.error(formatMessage({ "id": "message.redis.connection.queryDatabaseFailed.content" }) + error);
     }
   };
 
@@ -600,6 +600,26 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
 
   const empty = <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ width: '100%', height: '100%', marginTop: '60px', padding: '16px' }} />;
 
+  const changLang = (lang) => {
+    const locale = getLocale();
+    if (!locale) {
+      setLocale('zh-CN');
+    } else {
+      setLocale(lang);
+    }
+  };
+
+  const intlMenu = (
+    <Menu
+      defaultSelectedKeys={getLocale()}
+      onClick={({ key }) => {
+        changLang(key);
+      }}>
+      <Menu.Item key="zh-CN" icon={<Text style={{ fontSize: 10, marginRight: 6 }}>CN</Text>}>简体中文</Menu.Item>
+      <Menu.Item key="en-US" icon={<Text style={{ fontSize: 10, marginRight: 6 }}>US</Text>}>English</Menu.Item>
+    </Menu>
+  );
+
   return (
     <Layout style={{ height: '100%' }}>
       <Sider
@@ -615,7 +635,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
               setConnectionModalType(ModalType.Create)
               handleConnectionModalVisible(true);
             }}>
-            添加Redis连接
+            {formatMessage({ "id": "button.redis.connection.new" })}
           </Button>
           <div style={{ width: 'calc(50% - 2px)', float: 'left', height: 'calc(100% - 96px)' }}>
             <OperationToolBar
@@ -674,12 +694,23 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
         </Card>
       </Sider>
       <Layout>
-        <Card style={{ height: '52px' }} bordered={false}>
-          <PathArea
-            currentTreeNode={currentTreeNode}
-            currentRedisKey={currentRedisKey}
-          />
-        </Card>
+        <Header style={{ height: '76px', padding: 0 }}>
+          <Card style={{ height: '100%', borderRadius: 0 }} bordered={false}>
+            <Row style={{ width: "100%" }}>
+              <Col span={21}>
+                <PathArea
+                  currentTreeNode={currentTreeNode}
+                  currentRedisKey={currentRedisKey} />
+              </Col>
+              <Col span={2} offset={1}>
+                <Dropdown overlay={intlMenu} placement="bottomCenter">
+                  <Button icon={<TranslationOutlined />} style={{ width: "100%" }} type="primary">
+                  </Button>
+                </Dropdown>
+              </Col>
+            </Row>
+          </Card>
+        </Header>
         <Content style={{ height: 'calc(100% - 92px)' }}>
           <ValueDisplayCard
             form={textAreaForm}

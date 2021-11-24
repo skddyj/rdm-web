@@ -62,7 +62,7 @@ const getRedisKeys = async (param) => {
       throw new Error(response.message);
     });
   } catch (error) {
-    message.error('查询Keys失败');
+    message.error(useIntl().formatMessage({ "id": "message.redis.connection.querykeyFailed.content" }) + error);
   }
 };
 
@@ -152,7 +152,7 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
   const handleInfiniteOnLoad = () => {
     setLoading(true)
     if (!hasMore) {
-      message.success('数据已全部加载');
+      message.success(formatMessage({ "id": "message.redis.data.allDataLoaded.content" }));
       setLoading(false);
       return;
     }
@@ -210,10 +210,10 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = React.forwardRef<H
     <div style={{ width: 'calc(50% - 2px)', float: 'right', height: 'calc(100% - 72px)', marginLeft: '2px' }}>
       <Row gutter={{ xs: 4, sm: 4, md: 4 }} style={{ marginTop: 20, height: 32 }}>
         <Col span={22} >
-          <Search placeholder="请输入" enterButton onChange={onChange} onSearch={onSearch} value={searchValue} />
+          <Search placeholder={formatMessage({ "id": "modal.redis.key.new.key.required" })} enterButton onChange={onChange} onSearch={onSearch} value={searchValue} />
         </Col>
         <Col span={2} >
-          <Button type="primary" icon={<UndoOutlined />} title="重置" onClick={onReset} />
+          <Button type="primary" icon={<UndoOutlined />} title={formatMessage({ "id": "button.common.reset" })} onClick={onReset} />
         </Col>
       </Row>
       <Scrollbars

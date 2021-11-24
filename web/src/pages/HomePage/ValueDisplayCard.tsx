@@ -29,6 +29,7 @@ import RedisDataRenameModal from './RedisDataRenameModal';
 import HashValueDisplayArea from './HashValueDisplayArea';
 import RedisDataTtlModal from './RedisDataTtlModal';
 import { queryKeyAttr } from './service';
+import { format } from 'prettier';
 
 const { TextArea, Search } = Input;
 const { confirm } = Modal;
@@ -105,7 +106,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
         throw new Error(response.message);
       });
     } catch (error) {
-      message.error('查询Key属性失败');
+      message.error(formatMessage({ "id": "message.redis.connection.queryAttributesFailed.content" }));
     } finally {
       handleLoadingValue(false);
     }
@@ -193,9 +194,9 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
       const { connectionId, databaseId } = currentTreeNode;
       const data = { connectionId, databaseId, key: currentRedisKey }
       confirm({
-        title: '删除确认',
+        title: (formatMessage({ "id": "modal.redis.key.delete.confirm.title" })),
         icon: <ExclamationCircleOutlined />,
-        content: '此操作不可恢复，是否继续 ？',
+        content: (formatMessage({ "id": "modal.redis.key.delete.confirm.content" })),
         onOk() {
           handleRemoveRedisKey(data)
         },
@@ -203,13 +204,13 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
         },
       });
     } else {
-      message.info('请选择一个Key！', 3);
+      message.info(formatMessage({ "id": "message.redis.connection.chooseKey.content" }), 3);
     }
   }
 
 
   return (
-    <Card style={{ height: '100%' }} bodyStyle={{ height: '100%', padding: "24px 24px 0px 24px" }} bordered={false}>
+    <Card style={{ height: '100%' }} bodyStyle={{ height: '100%', padding: "0px 24px 0px 24px" }} bordered={false}>
       <div style={{ height: '32px' }}>
         <div style={{ float: 'left', width: '60%', display: 'inline-block' }}>
           <Form
@@ -252,9 +253,10 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
                 if (currentRedisKey) {
                   handleDataRenameModalVisible(true);
                 } else {
-                  message.info('请选择一个Key！', 3);
+                  message.info(formatMessage({ "id": "message.redis.connection.chooseKey.content" }), 3);
                 }
-              }}>重命名
+              }}>
+              {formatMessage({ "id": "button.redis.key.rename" })}
             </Button>
           </Col>
           <Col span={6}>
@@ -263,7 +265,8 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
               icon={<DeleteOutlined />}
               onClick={() => {
                 removeRedisKey()
-              }}>删除
+              }}>
+              {formatMessage({ "id": "button.redis.key.delete" })}
             </Button>
           </Col>
           <Col span={6}>
@@ -274,9 +277,10 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
                 if (currentRedisKey) {
                   handleDataTtlModalVisible(true);
                 } else {
-                  message.info('请选择一个Key！', 3);
+                  message.info(formatMessage({ "id": "message.redis.connection.chooseKey.content" }), 3);
                 }
-              }}>设置TTL
+              }}>
+              {formatMessage({ "id": "button.redis.key.ttl" })}
             </Button>
           </Col>
           <Col span={6}>
@@ -287,9 +291,10 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
                 if (currentRedisKey) {
                   handleRefreshRedisValue();
                 } else {
-                  message.info('请选择一个Key！', 3);
+                  message.info(formatMessage({ "id": "message.redis.connection.chooseKey.content" }), 3);
                 }
-              }} >刷新
+              }} >
+              {formatMessage({ "id": "button.common.refresh" })}
             </Button>
           </Col>
         </Row>

@@ -70,12 +70,12 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
    * 添加Redis Value
    */
   const handleAddRedisValue = async (fields) => {
-    const hide = message.loading('正在添加');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await addRedisValue({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('添加成功');
+          message.success(formatMessage({ "id": "message.redis.connection.addedSucceed.content" }));
           if (actionRef.current) {
             actionRef.current.reload();
           }
@@ -85,7 +85,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`添加失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.addedFailed" }) + error);
       return false;
     }
   };
@@ -94,12 +94,12 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
  * 修改Redis Value
  */
   const handleUpdateRedisValue = async (fields) => {
-    const hide = message.loading('正在修改');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await updateRedisValue({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('修改成功');
+          message.success(formatMessage({ "id": "message.redis.connection.editSucceed.content" }));
           if (actionRef.current) {
             actionRef.current.reload();
           }
@@ -109,7 +109,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`修改失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.editFailed.content" }) + error);
       return false;
     }
   };
@@ -118,12 +118,12 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
  * 修改Redis Value
  */
   const handleRemoveRedisValue = async (fields) => {
-    const hide = message.loading('正在删除');
+    const hide = message.loading(formatMessage({ "id": "message.redis.connection.submitting.content" }));
     try {
       return await removeRedisValue({ ...fields }).then((response) => {
         if (response && response.success) {
           hide();
-          message.success('删除成功');
+          message.success(formatMessage({ "id": "message.redis.connection.deleteSucceed.content" }));
           if (actionRef.current) {
             actionRef.current.reload();
           }
@@ -133,7 +133,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
       });
     } catch (error) {
       hide();
-      message.error(`删除失败，请重试，失败原因：${error}`);
+      message.error(formatMessage({ "id": "message.redis.connection.deleteFailed.content" }) + error);
       return false;
     }
   };
@@ -141,7 +141,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
   const columns: ListValueDisplayTableColumns[] = [
     {
       dataIndex: 'id',
-      title: <FormattedMessage id="pages.redisDataManage.row" defaultMessage="Row" />,
+      title: <FormattedMessage id="list.column.id" />,
       width: '20%',
       render: (dom, record) => {
         return record.index + 1;
@@ -149,16 +149,16 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
     },
     {
       dataIndex: 'field',
-      title: <FormattedMessage id="pages.redisDataManage.field" defaultMessage="Field" />,
+      title: <FormattedMessage id="list.column.field" />,
       width: '30%'
     },
     {
       dataIndex: 'value',
-      title: <FormattedMessage id="pages.redisDataManage.value" defaultMessage="Value" />,
+      title: <FormattedMessage id="list.column.value" />,
       width: '30%'
     },
     {
-      title: <FormattedMessage id="pages.searchTable.titleOption" defaultMessage="操作" />,
+      title: <FormattedMessage id="list.column.operation" />,
       dataIndex: 'option',
       valueType: 'option',
       render: (dom, record) => [
@@ -171,15 +171,15 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
             handleListAddRowModalVisible(true);
           }}
         >
-          <FormattedMessage id="pages.redisConnectionManage.update" defaultMessage="修改" />
+          <FormattedMessage id="button.common.edit" />
         </a>,
         <a
           key="config"
           onClick={() => {
             confirm({
-              title: '删除确认',
+              title: formatMessage({ "id": "modal.redis.connection.delete.confirm.title" }),
               icon: <ExclamationCircleOutlined />,
-              content: '此操作不可恢复，是否继续 ？',
+              content: formatMessage({ "id": "modal.redis.connection.delete.confirm.content" }),
               onOk() {
                 const { field } = record;
                 const { connectionId, databaseId } = currentTreeNode;
@@ -190,7 +190,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
             });
           }}
         >
-          <FormattedMessage id="pages.redisConnectionManage.delete" defaultMessage="删除" />
+          <FormattedMessage id="button.common.delete" />
         </a>
       ],
     },
@@ -222,7 +222,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
                   handleListAddRowModalVisible(true)
                 }}
               >
-                添加
+                {formatMessage({ "id": "button.common.new" })}
               </Button>,
             ]
           }}
@@ -245,8 +245,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
       </Scrollbars>
       <Modal
         title={formatMessage({
-          id: 'pages.redisDataManage.list.addRow',
-          defaultMessage: '添加行'
+          id: formatMessage({ "id": listRowModalType === ListRowModalType.Create ? 'modal.redis.list.addRow.title' : 'modal.redis.list.editRow.title' })
         })}
         width="600px"
         destroyOnClose
@@ -257,7 +256,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
             setListRowModalType(ListRowModalType.Create)
             handleListAddRowModalVisible(false);
           }}>
-            取消
+            {formatMessage({ "id": "button.common.cancel" })}
           </Button>,
           <Button key="submit" type="primary" onClick={() => {
             form
@@ -277,7 +276,7 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
                 console.log('Validate Failed:', info);
               });
           }}>
-            确定
+            {formatMessage({ "id": "button.common.confirm" })}
           </Button>,
         ]}
         onCancel={() => {
@@ -299,14 +298,13 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
                 required: true,
                 message: (
                   <FormattedMessage
-                    id="pages.redisDataManage.field"
-                    defaultMessage="Field为必填项"
+                    id="modal.redis.key.new.hash.field.required"
                   />
                 ),
               },
             ]}
           >
-            <Input placeholder='请输入Field' />
+            <Input placeholder={formatMessage({ "id": "modal.redis.key.new.hash.field.required" })} />
           </Form.Item>
           <Form.Item
             name="value"
@@ -316,14 +314,13 @@ const HashValueDisplayArea: React.FC<HashValueDisplayAreaProps> = (props) => {
                 required: true,
                 message: (
                   <FormattedMessage
-                    id="pages.redisDataManage.value"
-                    defaultMessage="Value为必填项"
+                    id="modal.redis.key.new.value.required"
                   />
                 ),
               },
             ]}
           >
-            <TextArea placeholder='请输入' />
+            <TextArea placeholder={formatMessage({ "id": "modal.redis.key.new.value.required" })} />
           </Form.Item >
 
         </Form>

@@ -11,8 +11,8 @@ import {
 import { useIntl, FormattedMessage } from 'umi';
 
 const layout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
+  labelCol: { span: 6 },
+  wrapperCol: { span: 18 },
 };
 
 export enum ModalType { Create, Update };
@@ -50,10 +50,9 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
   return (
     <Modal
       title={formatMessage({
-        id: connectionModalType === ModalType.Create ? 'pages.redisConnectionManage.createForm.newRedisConnection' : 'pages.redisConnectionManage.createForm.updateRedisConnection',
-        defaultMessage: connectionModalType === ModalType.Create ? '添加Redis连接' : '修改Redis连接',
+        id: connectionModalType === ModalType.Create ? 'modal.redis.connection.new.title' : 'modal.redis.connection.edit.title',
       })}
-      width="600px"
+      width="750px"
       destroyOnClose
       visible={connectionModalVisible}
       footer={[
@@ -67,13 +66,13 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
               console.log('Validate Failed:', err);
             });
         }}>
-          测试连接
+          {formatMessage({ "id": "modal.redis.connection.button.testConnection" })}
         </Button>,
         <Button key="back" onClick={() => {
           form.resetFields();
           handleConnectionModalVisible(false);
         }}>
-          取消
+          {formatMessage({ "id": "modal.redis.connection.button.cancel" })}
         </Button>,
         <Button key="submit" type="primary" onClick={() => {
           form
@@ -100,7 +99,7 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
               console.log('Validate Failed:', info);
             });
         }}>
-          确定
+          {formatMessage({ "id": "modal.redis.connection.button.confirm" })}
         </Button>,
       ]}
       onCancel={() => {
@@ -116,97 +115,91 @@ const RedisConnectionModal: React.FC<RedisConnectionModalProps> = (props) => {
       >
         <Form.Item
           name="name"
-          label="连接名称"
+          label={formatMessage({ "id": "modal.redis.connection.name" })}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisConnectionManage.name"
-                  defaultMessage="连接名称为必填项"
+                  id="modal.redis.connection.name.required"
                 />
-              ),
-            },
+              )
+            }
           ]}
         >
-          <Input placeholder='请输入连接名称'
-          // disabled={connectionModalType === ModalType.Update}
-          />
+          <Input placeholder={formatMessage({ "id": "modal.redis.connection.name.required" })} />
         </Form.Item >
         <Form.Item
           name="host"
-          label="连接地址"
+          label={formatMessage({ "id": "modal.redis.connection.host" })}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisConnectionManage.host"
-                  defaultMessage="连接地址为必填项"
+                  id="modal.redis.connection.host.required"
                 />
               ),
             },
           ]}
         >
-          <Input placeholder='请输入连接地址' />
+          <Input placeholder={formatMessage({ "id": "modal.redis.connection.host.required" })} />
         </Form.Item>
         <Form.Item
           name="port"
-          label="连接端口"
+          label={formatMessage({ "id": "modal.redis.connection.port" })}
           initialValue={6379}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisConnectionManage.port"
-                  defaultMessage="连接端口为必填项"
+                  id="modal.redis.connection.port.required"
                 />
               ),
             },
           ]}
         >
-          <InputNumber placeholder='请输入连接端口' style={{ width: "100%" }} />
+          <InputNumber placeholder={formatMessage({ "id": "modal.redis.connection.port.required" })} style={{ width: "100%" }} />
         </Form.Item>
 
         <Form.Item
           name="password"
-          label="连接密码"
+          label={formatMessage({ "id": "modal.redis.connection.password" })}
         >
-          <Input placeholder='请输入连接密码（选填）' />
+          <Input placeholder={formatMessage({ "id": "modal.redis.connection.password.required" })} />
         </Form.Item>
 
         <Form.Item
           name="username"
-          label="连接用户名"
+          label={formatMessage({ "id": "modal.redis.connection.username" })}
         >
-          <Input placeholder='请输入连接用户名（选填）' />
+          <Input placeholder={formatMessage({ "id": "modal.redis.connection.username.required" })} />
         </Form.Item>
 
         <Form.Item
           name="connectionType"
-          label="连接类型"
+          label={formatMessage({ "id": "modal.redis.connection.type" })}
           initialValue={0}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisConnectionManage.connectionType"
-                  defaultMessage="连接类型为必填项"
+                  id="modal.redis.connection.connectionType.required"
                 />
               ),
             },
           ]}
         >
           <Radio.Group>
-            <Radio value={0}>单机</Radio>
-            <Radio value={1}>集群</Radio>
+            <Radio value={0}>{formatMessage({ "id": "modal.redis.connection.type.value.single" })}</Radio>
+            <Radio value={1}>{formatMessage({ "id": "modal.redis.connection.type.value.cluster" })}</Radio>
             {/* <Radio value={2}>哨兵</Radio> */}
           </Radio.Group>
         </Form.Item>
       </Form>
-    </Modal>
+    </Modal >
   );
 };
 

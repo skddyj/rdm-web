@@ -75,7 +75,7 @@ const VirtualizedList: React.FC<VirtualizedListProps> = (props) => {
         throw new Error(response.message);
       });
     } catch (error) {
-      message.error('查询Keys失败');
+      message.error(formatMessage({ "id": "message.redis.connection.querykeyFailed.content" }));
     }
   };
 

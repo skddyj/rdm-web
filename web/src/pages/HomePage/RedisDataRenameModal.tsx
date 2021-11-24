@@ -53,8 +53,7 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
   return (
     <Modal
       title={formatMessage({
-        id: 'pages.redisDataManage.createForm.renameRedisKey',
-        defaultMessage: '重命名Key'
+        id: 'modal.redis.key.rename.title',
       })}
       width="600px"
       destroyOnClose
@@ -64,8 +63,8 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
           redisKeyRenameForm.resetFields();
           handleDataRenameModalVisible(false);
         }}>
-          取消
-          </Button>,
+          {formatMessage({ "id": "button.common.cancel" })}
+        </Button>,
         <Button key="submit" type="primary" onClick={() => {
           redisKeyRenameForm
             .validateFields()
@@ -79,8 +78,8 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
             .catch(info => {
             });
         }}>
-          确定
-          </Button>,
+          {formatMessage({ "id": "button.common.confirm" })}
+        </Button>,
       ]}
       onCancel={() => {
         redisKeyRenameForm.resetFields();
@@ -95,20 +94,19 @@ const RedisDataRenameModal: React.FC<RedisDataRenameModalProps> = (props) => {
       >
         <Form.Item
           name="newKey"
-          label="New Key"
+          label={formatMessage({ "id": "modal.redis.key.rename.newKey" })}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisDataManage.key"
-                  defaultMessage="Key为必填项"
+                  id="modal.redis.key.rename.newKey.required"
                 />
               ),
             },
           ]}
         >
-          <Input placeholder='请输入New Key' />
+          <Input placeholder={formatMessage({ "id": "modal.redis.key.rename.newKey.required" })} />
         </Form.Item >
       </Form>
     </Modal>

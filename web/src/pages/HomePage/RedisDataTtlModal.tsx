@@ -10,6 +10,7 @@ import {
 } from '@ant-design/pro-form';
 import { useIntl, FormattedMessage } from 'umi';
 import TextArea from 'antd/lib/input/TextArea';
+import { format } from 'prettier';
 
 const layout = {
   labelCol: { span: 4 },
@@ -53,8 +54,7 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
   return (
     <Modal
       title={formatMessage({
-        id: 'pages.redisDataManage.createForm.setTTL',
-        defaultMessage: '设置TTL'
+        id: 'modal.redis.key.ttl.title',
       })}
       width="600px"
       destroyOnClose
@@ -64,8 +64,8 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
           redisKeyTtlForm.resetFields();
           handleDataTtlModalVisible(false);
         }}>
-          取消
-          </Button>,
+          {formatMessage({ "id": "button.common.cancel" })}
+        </Button>,
         <Button key="submit" type="primary" onClick={() => {
           redisKeyTtlForm
             .validateFields()
@@ -84,8 +84,8 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
               console.log('Validate Failed:', info);
             });
         }}>
-          确定
-          </Button>,
+          {formatMessage({ "id": "button.common.confirm" })}
+        </Button>,
       ]}
       onCancel={() => {
         redisKeyTtlForm.resetFields();
@@ -101,20 +101,19 @@ const RedisDataTtlModal: React.FC<RedisDataRenameModalProps> = (props) => {
         <Form.Item
 
           name="ttl"
-          label="TTL"
+          label={formatMessage({ "id": "modal.redis.key.ttl.ttl" })}
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.redisDataManage.ttl"
-                  defaultMessage="TTL为必填项"
+                  id="modal.redis.key.ttl.ttl.required"
                 />
               ),
             },
           ]}
         >
-          <InputNumber style={{ width: '100%' }} placeholder='请输入TTL' step={10} />
+          <InputNumber style={{ width: '100%' }} placeholder={formatMessage({ "id": "modal.redis.key.ttl.ttl.required" })} step={10} />
         </Form.Item >
       </Form>
     </Modal>
