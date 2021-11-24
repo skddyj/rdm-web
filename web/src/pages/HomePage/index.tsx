@@ -601,12 +601,7 @@ const HomePage: React.FC<BasicLayoutProps> = (props) => {
   const empty = <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ width: '100%', height: '100%', marginTop: '60px', padding: '16px' }} />;
 
   const changLang = (lang) => {
-    const locale = getLocale();
-    if (!locale) {
-      setLocale('zh-CN');
-    } else {
-      setLocale(lang);
-    }
+    setLocale(lang);
   };
 
   const intlMenu = (
