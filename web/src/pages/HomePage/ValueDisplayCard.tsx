@@ -194,9 +194,9 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
       const { connectionId, databaseId } = currentTreeNode;
       const data = { connectionId, databaseId, key: currentRedisKey }
       confirm({
-        title: (formatMessage({ "id": "modal.redis.key.delete.confirm.title" })),
+        title: (formatMessage({ "id": "modal.redis.connection.delete.confirm.title" })),
         icon: <ExclamationCircleOutlined />,
-        content: (formatMessage({ "id": "modal.redis.key.delete.confirm.content" })),
+        content: (formatMessage({ "id": "modal.redis.connection.delete.confirm.content" })),
         onOk() {
           handleRemoveRedisKey(data)
         },
@@ -266,7 +266,7 @@ const ValueDisplayCard: React.FC<ValueDisplayCardProps> = React.forwardRef<HomeR
               onClick={() => {
                 removeRedisKey()
               }}>
-              {formatMessage({ "id": "button.redis.key.delete" })}
+              {formatMessage({ "id": "button.redis.connection.delete" })}
             </Button>
           </Col>
           <Col span={6}>

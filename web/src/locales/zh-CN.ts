@@ -92,7 +92,6 @@ export default {
   'message.redis.data.allDataLoaded.content': '数据已全部加载完毕!',
   'message.redis.connection.queryAttributesFailed.content': '查询属性失败, 请稍后重试! 失败原因:',
 
-
   'modal.redis.key.string.value.required': '请输入值',
 
   'button.redis.key.new': "新建Redis Key",
@@ -112,9 +111,6 @@ export default {
   'modal.redis.key.rename.title': '重命名Key',
   'modal.redis.key.rename.newKey': 'New Key',
   'modal.redis.key.rename.newKey.required': '请输入New Key',
-
-  'button.redis.key.delete': "删除",
-  'modal.redis.key.delete.confirm.title': '删除确认',
 
   'button.redis.key.ttl': "设置TTL",
   'modal.redis.key.ttl.title': '设置TTL',

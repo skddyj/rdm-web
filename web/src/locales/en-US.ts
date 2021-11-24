@@ -112,9 +112,6 @@ export default {
   'modal.redis.key.rename.newKey': 'New Key',
   'modal.redis.key.rename.newKey.required': 'Please Input New Key',
 
-  'button.redis.key.delete': "Delete",
-  'modal.redis.key.delete.confirm.title': 'Delete Confirm',
-
   'button.redis.key.ttl': "Set TTL",
   'modal.redis.key.ttl.title': 'Set TTL',
   'modal.redis.key.ttl.ttl': 'TTL',
