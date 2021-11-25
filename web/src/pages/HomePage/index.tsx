@@ -43,8 +43,7 @@ import {
   ExclamationCircleOutlined
 } from '@ant-design/icons';
 import {
-  queryAllRedisConnection, queryDatabase, queryRedisKeys,
-  queryRedisValue, updateRedisConnection, addRedisConnection,
+  queryAllRedisConnection, queryDatabase, updateRedisConnection, addRedisConnection,
   removeRedisConnection, testRedisConnection,
   queryDatabaseSize, addRedisKey, removeRedisKey, renameRedisKeyValue,
   expireRedisKeyValue

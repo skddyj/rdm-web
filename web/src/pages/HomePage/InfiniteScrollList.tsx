@@ -51,7 +51,7 @@ export type HomeRefProps = {
   refreshRedisKeys();
 };
 
-const pageSize = 20;
+const pageSize = 200;
 
 const getRedisKeys = async (param) => {
   try {
